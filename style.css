@@ -15,9 +15,11 @@
   --color-border: #e7e5e4;
   --color-badge-bg: #f5f5f4;
   --color-badge-text: #78716c;
+  --color-available-bg: #ecfdf5;
+  --color-available-text: #065f46;
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
-  --max-width: 960px;
+  --max-width: 1080px;
 }
 
 html {
@@ -101,7 +103,7 @@ h2 {
   font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   color: var(--color-accent);
 }
 
@@ -114,78 +116,132 @@ h2 {
   margin-top: 1rem;
   font-size: 1.15rem;
   color: var(--color-text-muted);
-  max-width: 600px;
+  max-width: 640px;
+}
+
+/* Collections */
+.collection {
+  margin-bottom: 3rem;
+}
+
+.collection:last-child {
+  margin-bottom: 0;
+}
+
+.collection-desc {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  max-width: 640px;
 }
 
 /* Book Grid */
 .book-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+  gap: 1.5rem;
+}
+
+.book-grid.three-col {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .book-card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 1.75rem;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  gap: 1.25rem;
 }
 
-.book-cover {
+.book-thumb {
+  flex-shrink: 0;
+  width: 72px;
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  align-self: start;
 }
 
-.book-cover img {
+.book-thumb img {
   width: 100%;
-  height: auto;
   display: block;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
 }
 
-.book-cover.placeholder {
-  background: var(--color-accent);
-  color: #a8a29e;
-  aspect-ratio: 3 / 4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.book-thumb.placeholder {
+  min-height: 100px;
+  opacity: 0.12;
+  border-radius: 4px;
+}
+
+.book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 8px 0 0 8px;
 }
 
 .book-card h3 {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   margin-bottom: 0.15rem;
 }
 
 .book-card .edition {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--color-text-muted);
   margin-bottom: 0.75rem;
 }
 
 .book-card p:last-of-type {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
   line-height: 1.6;
 }
 
 .badge {
   display: inline-block;
-  margin-top: 1rem;
-  padding: 0.25rem 0.75rem;
-  background: var(--color-badge-bg);
-  color: var(--color-badge-text);
+  margin-top: 0.75rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 100px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.badge.available {
+  background: var(--color-available-bg);
+  color: var(--color-available-text);
+}
+
+.badge.coming-soon {
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
+}
+
+/* Sub-collection labels */
+.sub-collection-label {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
 /* About */
@@ -223,11 +279,13 @@ footer {
   color: var(--color-text-muted);
 }
 
-footer p + p {
-  margin-top: 0.25rem;
+/* Responsive */
+@media (max-width: 900px) {
+  .book-grid.three-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   h1 {
     font-size: 1.75rem;
@@ -237,7 +295,8 @@ footer p + p {
     padding: 3rem 0 2.5rem;
   }
 
-  .book-grid {
+  .book-grid,
+  .book-grid.three-col {
     grid-template-columns: 1fr;
   }
 
