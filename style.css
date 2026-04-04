@@ -258,6 +258,16 @@ h2 {
   background: var(--color-border);
 }
 
+.buy-link.direct {
+  background: color-mix(in srgb, var(--book-accent) 12%, white);
+  border-color: var(--book-accent);
+  color: var(--book-accent);
+}
+
+.buy-link.direct:hover {
+  background: color-mix(in srgb, var(--book-accent) 22%, white);
+}
+
 .buy-link.pending {
   border-color: var(--color-border);
   color: var(--color-text-muted);
