@@ -232,6 +232,38 @@ h2 {
   color: var(--color-badge-text);
 }
 
+/* Purchase links */
+.book-links {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.buy-link {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--book-accent, var(--color-border));
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.buy-link:hover {
+  background: var(--color-border);
+}
+
+.buy-link.pending {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
 /* Sub-collection labels */
 .sub-collection-label {
   font-family: var(--font-sans);
