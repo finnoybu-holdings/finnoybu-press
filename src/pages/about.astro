@@ -1,0 +1,237 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="About Finnoybu Press"
+  description="Finnoybu Press publishes practical guides to AI tools and governance toolkits — written by Ken Tannenbaum for the people actually using AI at work."
+>
+  <article class="about-page">
+
+    <header class="page-hero container">
+      <a href="/" class="breadcrumb">← Home</a>
+      <span class="eyebrow">About</span>
+      <h1>Finnoybu Press</h1>
+      <p class="lede">
+        We publish clear, practical books on the AI tools shaping how people work — and governance toolkits for the teams adopting them.
+      </p>
+    </header>
+
+    <section class="manifesto container">
+      <div class="manifesto-inner">
+        <span class="eyebrow">The Publisher's Note</span>
+        <p class="manifesto-quote">
+          Most writing about AI is either selling you the future or warning you about it. We wanted something else: <em>clear, practical books for the people who actually have to use these tools at work.</em>
+        </p>
+        <p class="manifesto-attr">— Ken Tannenbaum, founder</p>
+      </div>
+    </section>
+
+    <section class="section container author-section">
+      <div class="section-head">
+        <span class="eyebrow">The Author</span>
+        <h2>Ken Tannenbaum.</h2>
+      </div>
+
+      <div class="author-block">
+        <div class="author-photo" aria-hidden="true">KT</div>
+        <div class="author-bio">
+          <p class="author-role">Founder, Finnoybu Press · Author of all twenty-one titles in the AI for Everyone series</p>
+          <div class="prose">
+            <p>
+              Ken writes practical books on the AI tools shaping today's work — and builds governance frameworks for the small and midsize businesses adopting them. He founded Finnoybu Press in 2026 to publish the kind of clear, useful AI writing he wished existed when he started the work.
+            </p>
+            <p>
+              <em>Bio is a placeholder — replace with your real positioning, prior roles, and credentials. Add a professional headshot at <code>/public/images/ken-tannenbaum.jpg</code> and update the markup to use it instead of the monogram.</em>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container thesis-section">
+      <div class="section-head">
+        <span class="eyebrow">About the Series</span>
+        <h2>Twenty-one books. One thesis.</h2>
+      </div>
+      <div class="prose">
+        <p>The AI for Everyone series began with a simple observation: most teams using AI today have no shared baseline for what these tools are, what they can do, or where they end. The books that exist are either hype, panic, or dense academic work — none of them what you'd hand to a coworker on Monday morning.</p>
+        <p>Each book in the series is written to be useful on day one and to serve as a reference you come back to. Whether you're opening ChatGPT for the first time or building enterprise workflows with Copilot, the goal is the same: clear writing that helps you get real work done.</p>
+        <p>The thread running through all twenty-one titles is that AI tooling is genuinely useful, genuinely limited, and genuinely worth learning — and that none of those statements requires turning the volume up to eleven.</p>
+      </div>
+    </section>
+
+    <section class="section container contact-section">
+      <div class="section-head">
+        <span class="eyebrow">Get in touch</span>
+        <h2>Contact.</h2>
+      </div>
+      <div class="prose">
+        <p>
+          For press, partnership, or bulk-licensing inquiries:
+          <a href="mailto:kenneth.tannenbaum@gmail.com">kenneth.tannenbaum@gmail.com</a>
+        </p>
+        <p>
+          For questions about a specific book, mention the title in the subject line.
+        </p>
+      </div>
+    </section>
+
+  </article>
+</BaseLayout>
+
+<style>
+  .page-hero { padding-block: var(--space-4) var(--space-3); }
+
+  @media (min-width: 768px) {
+    .page-hero { padding-block: var(--space-5) var(--space-4); }
+  }
+
+  .breadcrumb {
+    display: inline-block;
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-2);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .breadcrumb:hover { border-bottom-color: var(--ink-300); }
+
+  .page-hero .eyebrow { display: block; margin-bottom: var(--space-2); }
+
+  .page-hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-hero .lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+    line-height: 1.5;
+    color: var(--ink-700);
+    max-width: 42rem;
+  }
+
+  /* Manifesto */
+  .manifesto {
+    max-width: var(--max-edit);
+    margin-inline: auto;
+    padding-block: var(--space-5);
+  }
+
+  @media (min-width: 768px) {
+    .manifesto { padding-block: var(--space-6); }
+  }
+
+  .manifesto-inner {
+    background: var(--paper-warm);
+    padding: var(--space-4);
+    text-align: center;
+    border-block: 1px solid var(--ink-100);
+  }
+
+  @media (min-width: 768px) {
+    .manifesto-inner { padding: var(--space-5) var(--space-6); }
+  }
+
+  .manifesto-inner .eyebrow { display: block; margin-bottom: var(--space-3); }
+
+  .manifesto-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    line-height: 1.4;
+    color: var(--ink-900);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+  .manifesto-quote em { font-style: italic; }
+
+  .manifesto-attr {
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+    color: var(--ink-500);
+    letter-spacing: 0.04em;
+  }
+
+  /* Section heads */
+  .section-head { margin-bottom: var(--space-3); max-width: var(--max-narrow); }
+  .section-head .eyebrow { display: block; margin-bottom: var(--space-2); }
+  .section-head h2 {
+    font-size: clamp(1.85rem, 3vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  /* Author block */
+  .author-block {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    max-width: 880px;
+  }
+
+  @media (min-width: 640px) {
+    .author-block { grid-template-columns: 200px 1fr; gap: var(--space-4); }
+  }
+
+  @media (min-width: 1024px) {
+    .author-block { grid-template-columns: 240px 1fr; gap: var(--space-5); }
+  }
+
+  .author-photo {
+    width: 140px;
+    height: 140px;
+    background: linear-gradient(135deg, var(--paper-warm), var(--ink-100));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 3rem;
+    color: var(--ink-300);
+    font-style: italic;
+    letter-spacing: -0.02em;
+    border-radius: 2px;
+  }
+
+  @media (min-width: 640px) {
+    .author-photo { width: 200px; height: 200px; font-size: 4rem; }
+  }
+
+  @media (min-width: 1024px) {
+    .author-photo { width: 240px; height: 240px; font-size: 4.5rem; }
+  }
+
+  .author-role {
+    color: var(--ink-500);
+    font-size: 0.9375rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .prose {
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--ink-700);
+    max-width: var(--max-narrow);
+  }
+
+  .prose p + p { margin-top: 1.25em; }
+
+  .prose code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875em;
+    background: var(--paper-warm);
+    padding: 0.1em 0.35em;
+    border-radius: 2px;
+  }
+
+  .contact-section a {
+    color: var(--ink-900);
+    border-bottom: 1px solid var(--ink-300);
+    transition: border-color 0.2s;
+  }
+  .contact-section a:hover { border-bottom-color: var(--ink-900); }
+</style>

@@ -7,9 +7,12 @@ const allBooks = await getCollection('books');
 const sorted = allBooks.sort((a, b) => a.data.number - b.data.number);
 const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
 
-// Helper to grab cover items from a list of books
+// Helper to grab cover-thumb items from a list of books (small grid use)
 const coversFor = (books: typeof sorted) =>
-  books.map((b) => ({ src: b.data.cover_image, alt: `${b.data.title}: ${b.data.subtitle}` }));
+  books.map((b) => ({
+    src: b.data.cover_thumb ?? b.data.cover_image,
+    alt: `${b.data.title}: ${b.data.subtitle}`,
+  }));
 
 const deepDives = sorted.filter((b) => b.data.collection === 'product-deep-dives');
 const productGuides = sorted.filter((b) => b.data.collection === 'product-guides');

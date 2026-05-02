@@ -9,6 +9,7 @@ cover_variant: guide
 
 accent_color: "#5A326E"
 cover_image: /images/cover-13-cursor.jpg
+cover_thumb: /images/thumbs/cover-13-cursor.jpg
 
 description: The AI-native code editor reshaping how developers ship software. Tab completion, Composer, agent mode, codebase indexing, team workflows.
 chapter_count: null

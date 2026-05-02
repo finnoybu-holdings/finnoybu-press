@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#10a37f"
 cover_image: /images/cover-02-chatgpt-power-user.jpg
+cover_thumb: /images/thumbs/cover-02-chatgpt-power-user.jpg
 
 description: Advanced techniques, systems thinking, and precision prompting for ChatGPT.
 chapter_count: 22

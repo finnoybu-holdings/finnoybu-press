@@ -9,6 +9,7 @@ cover_variant: skills
 
 accent_color: "#D4A017"
 cover_image: /images/cover-17-ai-for-developers.jpg
+cover_thumb: /images/thumbs/cover-17-ai-for-developers.jpg
 
 description: Every AI coding tool compared. Real workflows for Claude Code, GitHub Copilot, Cursor, and more — with actual code examples.
 chapter_count: 24

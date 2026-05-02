@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#0078D4"
 cover_image: /images/cover-08-copilot-advanced.jpg
+cover_thumb: /images/thumbs/cover-08-copilot-advanced.jpg
 
 description: Think Deeper reasoning, cross-app workflows, Copilot Studio, Actions, agents, and enterprise deployment.
 chapter_count: 21

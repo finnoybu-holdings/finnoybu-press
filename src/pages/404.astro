@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Page not found — Finnoybu Press"
+  description="The page you're looking for doesn't exist."
+>
+  <section class="not-found container">
+    <span class="error-code">404</span>
+    <h1>That page wandered off.</h1>
+    <p class="lede">
+      The link you followed may be broken, or the page may have moved.
+    </p>
+
+    <div class="suggestions">
+      <h2>Try one of these instead</h2>
+      <ul>
+        <li><a href="/">Home</a> — the publisher's front page</li>
+        <li><a href="/series">The series</a> — all twenty-one books</li>
+        <li><a href="/collections/aegis-toolkits">AEGIS Toolkits</a> — governance kits for SMBs</li>
+        <li><a href="/about">About the publisher</a></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-block: var(--space-6) var(--space-7);
+    max-width: var(--max-narrow);
+  }
+
+  .error-code {
+    display: block;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(4rem, 14vw, 8rem);
+    line-height: 1;
+    color: var(--ink-300);
+    letter-spacing: -0.04em;
+    margin-bottom: var(--space-3);
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    line-height: 1.05;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+  }
+
+  .lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+    color: var(--ink-700);
+    margin-bottom: var(--space-5);
+  }
+
+  .suggestions h2 {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    margin-bottom: var(--space-2);
+  }
+
+  .suggestions ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .suggestions a {
+    color: var(--ink-900);
+    border-bottom: 1px solid var(--ink-300);
+    font-weight: 600;
+    transition: border-color 0.2s;
+  }
+  .suggestions a:hover { border-bottom-color: var(--ink-900); }
+</style>

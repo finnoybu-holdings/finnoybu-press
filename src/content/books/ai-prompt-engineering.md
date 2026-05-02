@@ -9,6 +9,7 @@ cover_variant: skills
 
 accent_color: "#D97706"
 cover_image: /images/cover-16-ai-prompt-engineering.jpg
+cover_thumb: /images/thumbs/cover-16-ai-prompt-engineering.jpg
 
 description: Universal prompt engineering techniques that work across every AI platform. 56 reusable patterns and tested frameworks.
 chapter_count: 22

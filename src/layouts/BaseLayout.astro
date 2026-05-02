@@ -8,6 +8,7 @@ interface Props {
   description?: string;
   ogImage?: string;
   ogType?: string;
+  jsonLd?: Record<string, any> | Record<string, any>[];  // optional page-specific JSON-LD
 }
 
 const {
@@ -15,9 +16,25 @@ const {
   description = "Finnoybu Press publishes clear, practical guides to AI tools and governance. Twenty-one books on ChatGPT, Claude, Gemini, Copilot, Perplexity, plus the cross-platform skills behind useful AI.",
   ogImage = '/images/og-card.png',
   ogType = 'website',
+  jsonLd,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Site-wide Organization schema (always emitted)
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Finnoybu Press',
+  legalName: 'Finnoybu Holdings LLC',
+  url: 'https://press.finnoybu.org',
+  logo: 'https://press.finnoybu.org/images/og-card.png',
+  description: 'Publisher of practical AI guides and governance toolkits.',
+  founder: { '@type': 'Person', name: 'Ken Tannenbaum' },
+};
+
+// Combine site-wide org + page-specific (if any)
+const schemas = [orgSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [])];
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -46,6 +63,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  {schemas.map((s) => (
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(s)} />
+  ))}
 </head>
 <body>
   <Nav />

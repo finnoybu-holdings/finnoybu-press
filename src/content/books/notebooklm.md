@@ -9,6 +9,7 @@ cover_variant: guide
 
 accent_color: "#0F766E"
 cover_image: /images/cover-11-notebooklm.jpg
+cover_thumb: /images/thumbs/cover-11-notebooklm.jpg
 
 description: "Master Google's source-grounded AI research companion — sources, summaries, study aids, and conversational Audio Overviews."
 chapter_count: null

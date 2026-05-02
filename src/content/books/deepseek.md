@@ -9,6 +9,7 @@ cover_variant: guide
 
 accent_color: "#1E3A5F"
 cover_image: /images/cover-12-deepseek.jpg
+cover_thumb: /images/thumbs/cover-12-deepseek.jpg
 
 description: The open-weights AI that captured 2025 with capable reasoning at a fraction of the cost. Chat, API, code, math, business strategy.
 chapter_count: null

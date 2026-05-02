@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#0078D4"
 cover_image: /images/cover-07-copilot-workplace.jpg
+cover_thumb: /images/thumbs/cover-07-copilot-workplace.jpg
 
 description: Your complete guide to Copilot across Word, Excel, PowerPoint, Outlook, and Teams.
 chapter_count: 27

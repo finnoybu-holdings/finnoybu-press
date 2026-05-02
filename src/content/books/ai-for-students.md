@@ -9,6 +9,7 @@ cover_variant: skills
 
 accent_color: "#2563EB"
 cover_image: /images/cover-19-ai-for-students.jpg
+cover_thumb: /images/thumbs/cover-19-ai-for-students.jpg
 
 description: Learn smarter, not easier. AI tools for research, writing, studying, and academic success — with clear guidance on academic integrity.
 chapter_count: 21

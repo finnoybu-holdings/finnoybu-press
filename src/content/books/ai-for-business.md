@@ -9,6 +9,7 @@ cover_variant: skills
 
 accent_color: "#2D7D46"
 cover_image: /images/cover-18-ai-for-business.jpg
+cover_thumb: /images/thumbs/cover-18-ai-for-business.jpg
 
 description: AI strategies for every department — marketing, sales, HR, finance, legal, and operations. 50+ use cases and ROI frameworks.
 chapter_count: 23

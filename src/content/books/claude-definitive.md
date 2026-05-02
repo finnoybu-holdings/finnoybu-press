@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#D97757"
 cover_image: /images/cover-03-claude-definitive.jpg
+cover_thumb: /images/thumbs/cover-03-claude-definitive.jpg
 
 description: Master every feature — from your first conversation to Projects, Artifacts, and beyond.
 chapter_count: 24

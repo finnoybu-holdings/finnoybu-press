@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#D97757"
 cover_image: /images/cover-04-claude-code-power-user.jpg
+cover_thumb: /images/thumbs/cover-04-claude-code-power-user.jpg
 
 description: Master every feature — from your first session to Agent SDK, MCP servers, and beyond.
 chapter_count: 24

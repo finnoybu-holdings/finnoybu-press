@@ -27,6 +27,33 @@ const COLLECTION_LABELS: Record<string, { label: string; href: string }> = {
 
 const collectionInfo = COLLECTION_LABELS[book.data.collection];
 
+// schema.org Book metadata for SEO + rich results
+const bookSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: `${book.data.title}: ${book.data.subtitle}`,
+  bookFormat: 'https://schema.org/EBook',
+  author: { '@type': 'Person', name: book.data.author },
+  publisher: { '@type': 'Organization', name: book.data.publisher },
+  inLanguage: 'en-US',
+  description: book.data.description,
+  image: new URL(book.data.cover_image, Astro.site).toString(),
+  numberOfPages: book.data.page_estimate ?? undefined,
+  url: new URL(Astro.url.pathname, Astro.site).toString(),
+  ...(book.data.formats.filter((f) => f.url).length > 0 && {
+    offers: book.data.formats
+      .filter((f) => f.url)
+      .map((f) => ({
+        '@type': 'Offer',
+        priceCurrency: 'USD',
+        price: f.price.replace(/[^0-9.]/g, ''),
+        url: f.url,
+        availability: 'https://schema.org/InStock',
+        itemCondition: 'https://schema.org/NewCondition',
+      })),
+  }),
+};
+
 // Related books logic differs per collection:
 //   Deep Dives (1-10): show the 5 platform-flagship books (1,3,5,7,9). If
 //     the current book is one of those, swap it for its pair (current+1)
@@ -54,6 +81,7 @@ if (book.data.collection === 'product-deep-dives') {
   description={book.data.description}
   ogImage={book.data.cover_image}
   ogType="book"
+  jsonLd={bookSchema}
 >
   <article class="book-page" style={`--accent-color: ${book.data.accent_color}`}>
 
@@ -131,7 +159,7 @@ if (book.data.collection === 'product-deep-dives') {
             <li>
               <a href={`/books/${b.slug}`} class="related-card" style={`--accent-color: ${b.data.accent_color}`}>
                 <div class="related-cover">
-                  <img src={b.data.cover_image} alt={`${b.data.title} cover`} loading="lazy" width="200" height="320" />
+                  <img src={b.data.cover_thumb ?? b.data.cover_image} alt={`${b.data.title} cover`} loading="lazy" width="200" height="320" />
                 </div>
                 <div class="related-meta">
                   <span class="position">{b.data.series_position}</span>

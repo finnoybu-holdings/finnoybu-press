@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#20B2AA"
 cover_image: /images/cover-10-perplexity-advanced.jpg
+cover_thumb: /images/thumbs/cover-10-perplexity-advanced.jpg
 
 description: Advanced query architecture, the Perplexity API, enterprise workflows, and multi-model research strategies.
 chapter_count: 21

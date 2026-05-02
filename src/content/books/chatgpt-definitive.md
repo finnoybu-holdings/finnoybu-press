@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#10a37f"
 cover_image: /images/cover-01-chatgpt-definitive.jpg
+cover_thumb: /images/thumbs/cover-01-chatgpt-definitive.jpg
 
 description: Master every feature — from your first conversation to Agent Mode, Deep Research, and beyond.
 chapter_count: 32

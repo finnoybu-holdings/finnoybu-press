@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#EA4335"
 cover_image: /images/cover-05-gemini-complete.jpg
+cover_thumb: /images/thumbs/cover-05-gemini-complete.jpg
 
 description: "Master Google's AI assistant — Gems, Extensions, Deep Research, NotebookLM integration, and Workspace."
 chapter_count: 27

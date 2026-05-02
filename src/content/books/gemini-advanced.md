@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#EA4335"
 cover_image: /images/cover-06-gemini-advanced.jpg
+cover_thumb: /images/thumbs/cover-06-gemini-advanced.jpg
 
 description: Advanced prompting, the Gemini API, Google Workspace mastery, and power workflows.
 chapter_count: 24

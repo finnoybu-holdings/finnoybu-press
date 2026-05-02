@@ -9,6 +9,7 @@ cover_variant: platform
 
 accent_color: "#20B2AA"
 cover_image: /images/cover-09-perplexity-research.jpg
+cover_thumb: /images/thumbs/cover-09-perplexity-research.jpg
 
 description: AI-powered research, cited and sourced. Master Pro Search, Deep Research, Spaces, Pages, and Focus Modes.
 chapter_count: 25

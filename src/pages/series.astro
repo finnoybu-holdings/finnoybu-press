@@ -55,7 +55,7 @@ const collectionOrder = ['product-deep-dives', 'product-guides', 'cross-platform
             <li class="book-grid-item">
               <a href={`/books/${b.slug}`} class="book-link" style={`--accent-color: ${b.data.accent_color}`}>
                 <div class="cover-wrap">
-                  <img src={b.data.cover_image} alt={`${b.data.title}: ${b.data.subtitle}`} loading="lazy" width="160" height="256" />
+                  <img src={b.data.cover_thumb ?? b.data.cover_image} alt={`${b.data.title}: ${b.data.subtitle}`} loading="lazy" width="160" height="256" />
                 </div>
                 <div class="book-meta">
                   <span class="position">{b.data.series_position}</span>

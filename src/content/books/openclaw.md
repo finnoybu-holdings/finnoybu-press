@@ -9,6 +9,7 @@ cover_variant: guide
 
 accent_color: "#9B2C2C"
 cover_image: /images/cover-14-openclaw.jpg
+cover_thumb: /images/thumbs/cover-14-openclaw.jpg
 
 description: The open-source personal AI agent that runs locally and automates real work. Installation, models, skills, messaging integrations, safety.
 chapter_count: null

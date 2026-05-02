@@ -76,7 +76,7 @@ if (meta.source === 'books') {
     .sort((a, b) => a.data.number - b.data.number)
     .map((b) => ({
       url: `/books/${b.slug}`,
-      cover: b.data.cover_image,
+      cover: b.data.cover_thumb ?? b.data.cover_image,
       coverAlt: `${b.data.title}: ${b.data.subtitle}`,
       eyebrow: b.data.series_position,
       title: b.data.title,

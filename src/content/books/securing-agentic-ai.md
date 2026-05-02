@@ -9,6 +9,7 @@ cover_variant: skills
 
 accent_color: "#7C3AED"
 cover_image: /images/cover-21-securing-agentic-ai.jpg
+cover_thumb: /images/thumbs/cover-21-securing-agentic-ai.jpg
 
 description: Security strategies for autonomous AI agents — threat models, guardrails, monitoring, and safe deployment patterns for agentic systems.
 chapter_count: 13

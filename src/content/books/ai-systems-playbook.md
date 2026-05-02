@@ -9,6 +9,7 @@ cover_variant: skills
 
 accent_color: "#C73030"
 cover_image: /images/cover-15-ai-systems-playbook.jpg
+cover_thumb: /images/thumbs/cover-15-ai-systems-playbook.jpg
 
 description: How to choose the right AI for every task and build workflows that span multiple platforms. The multi-AI strategy guide.
 chapter_count: 22

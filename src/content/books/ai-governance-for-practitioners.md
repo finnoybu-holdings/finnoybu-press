@@ -9,6 +9,7 @@ cover_variant: skills
 
 accent_color: "#4338CA"
 cover_image: /images/cover-20-ai-governance.jpg
+cover_thumb: /images/thumbs/cover-20-ai-governance.jpg
 
 description: Practical frameworks for responsible AI adoption — policy, compliance, risk management, and governance for organizations of every size.
 chapter_count: 11
