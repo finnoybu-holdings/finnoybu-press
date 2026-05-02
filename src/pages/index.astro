@@ -65,7 +65,7 @@ const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
 
 <style>
   .hero {
-    padding: var(--space-5) 0 var(--space-5);
+    padding-block: var(--space-5);
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-4);
@@ -125,7 +125,7 @@ const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
     .hero {
       grid-template-columns: 1.4fr 1fr;
       align-items: center;
-      padding: var(--space-6) 0;
+      padding-block: var(--space-6);
       gap: var(--space-5);
     }
     .hero-cover { order: 0; }
@@ -133,23 +133,28 @@ const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
       width: clamp(220px, 28vw, 340px);
       transform: rotateY(-15deg) rotateX(2deg);
     }
+    /* Tighter buttons so both CTAs fit on one row in the narrower 2-col hero */
+    .cta-row :global(.btn) {
+      padding: 0.7em 1.1em;
+      font-size: 0.875rem;
+    }
   }
 
   @media (min-width: 1024px) {
-    .hero { padding: var(--space-7) 0; }
+    .hero { padding-block: var(--space-7); }
     .hero-cover img { width: clamp(280px, 32vw, 420px); }
   }
 
   /* Manifesto */
   .manifesto {
     background: var(--paper-warm);
-    padding: var(--space-5) 0;
+    padding-block: var(--space-5);
     border-top: 1px solid var(--ink-100);
     border-bottom: 1px solid var(--ink-100);
   }
 
   @media (min-width: 768px) {
-    .manifesto { padding: var(--space-7) 0; }
+    .manifesto { padding-block: var(--space-7); }
   }
 
   .manifesto-inner {

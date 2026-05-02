@@ -8,27 +8,22 @@ const year = new Date().getFullYear();
         <span class="wordmark">Finnoybu Press</span>
         <p>Practical books and governance tools for the people actually using AI at work. An imprint of Finnoybu Holdings LLC.</p>
       </div>
-      <div>
-        <h5>Catalog</h5>
-        <ul>
-          <li><a href="/series">All books</a></li>
-          <li><a href="/#collections">Collections</a></li>
-          <li><a href="/governance">AEGIS Toolkits</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>About</h5>
-        <ul>
-          <li><a href="/about">The author</a></li>
-          <li><a href="/series">The series</a></li>
-          <li><a href="mailto:kenneth.tannenbaum@gmail.com">Contact</a></li>
-        </ul>
-      </div>
-      <div>
-        <h5>Elsewhere</h5>
-        <ul>
-          <li><a href="https://aegis-initiative.com" target="_blank" rel="noopener">AEGIS Initiative ↗</a></li>
-        </ul>
+      <div class="footer-cols">
+        <div>
+          <h5>Catalog</h5>
+          <ul>
+            <li><a href="/series">All books</a></li>
+            <li><a href="/#collections">Collections</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>About</h5>
+          <ul>
+            <li><a href="/about">The author</a></li>
+            <li><a href="/series">The series</a></li>
+            <li><a href="mailto:kenneth.tannenbaum@gmail.com">Contact</a></li>
+          </ul>
+        </div>
       </div>
     </div>
     <div class="footer-bottom">
@@ -42,7 +37,7 @@ const year = new Date().getFullYear();
   .footer {
     background: var(--paper-dark);
     color: var(--ink-300);
-    padding: var(--space-5) 0 var(--space-4);
+    padding-block: var(--space-5) var(--space-4);
   }
 
   .footer-grid {
@@ -53,12 +48,21 @@ const year = new Date().getFullYear();
     border-bottom: 1px solid #2c2622;
   }
 
-  @media (min-width: 640px) {
-    .footer-grid { grid-template-columns: 1fr 1fr; }
+  /* Catalog + About sit side-by-side at all widths (even 360px) */
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  /* On tablet+, brand block sits beside the columns */
+  @media (min-width: 768px) {
+    .footer-grid { grid-template-columns: 2fr 1fr; align-items: start; gap: var(--space-5); }
   }
 
   @media (min-width: 1024px) {
-    .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
+    .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+    .footer-cols { display: contents; }
   }
 
   .footer-about .wordmark {
@@ -111,9 +115,6 @@ const year = new Date().getFullYear();
   }
 
   @media (min-width: 640px) {
-    .footer-bottom {
-      flex-direction: row;
-      justify-content: space-between;
-    }
+    .footer-bottom { flex-direction: row; justify-content: space-between; }
   }
 </style>
