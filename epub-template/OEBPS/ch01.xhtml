@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+  <title>Chapter 1</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body>
+
+  <div class="chapter" epub:type="chapter">
+    <div class="chapter-header">
+      <span class="chapter-num">Chapter 1</span>
+      <h2>Chapter Title Goes Here</h2>
+    </div>
+
+    <!-- Drop cap on first paragraph -->
+    <p class="drop-cap no-indent">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vivamus lacinia odio vitae vestibulum vestibulum.</p>
+
+    <p>Subsequent paragraphs are automatically indented via CSS. This gives the book a professional, traditional typeset look that readers expect from nonfiction.</p>
+
+    <h3>Section Heading</h3>
+
+    <p>First paragraph after a heading has no indent. This follows standard book typography conventions.</p>
+
+    <p>Regular body text continues with the standard indent. Keep paragraphs focused and concise for digital reading.</p>
+
+    <!-- Tip callout -->
+    <div class="callout callout-tip">
+      <p class="callout-label">Tip</p>
+      <p>Use callout boxes to highlight key takeaways, shortcuts, or practical advice that readers should remember.</p>
+    </div>
+
+    <!-- Warning callout -->
+    <div class="callout callout-warning">
+      <p class="callout-label">Warning</p>
+      <p>Warning callouts draw attention to common mistakes or pitfalls readers should avoid.</p>
+    </div>
+
+    <!-- Blockquote -->
+    <blockquote>
+      <p>Blockquotes work well for quoting interfaces, prompts, or other sources. They render with a subtle left border.</p>
+    </blockquote>
+
+    <!-- Bullet list -->
+    <ul>
+      <li>Lists render cleanly on all Kindle devices</li>
+      <li>Keep list items short for small screens</li>
+      <li>Use lists for steps, features, or comparisons</li>
+    </ul>
+
+    <!-- Code block (for tech books) -->
+    <pre><code>// Code blocks for technical content
+const response = await ai.chat("Hello, world!");
+console.log(response.text);</code></pre>
+
+    <!-- Image -->
+    <figure>
+      <img src="images/placeholder.png" alt="Description of the image"/>
+      <figcaption>Figure 1.1 — Caption describing the image.</figcaption>
+    </figure>
+
+    <!-- Table -->
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Free Plan</th>
+        <th>Pro Plan</th>
+      </tr>
+      <tr>
+        <td>Messages per day</td>
+        <td>Limited</td>
+        <td>Unlimited</td>
+      </tr>
+      <tr>
+        <td>Model access</td>
+        <td>Base only</td>
+        <td>All models</td>
+      </tr>
+    </table>
+
+  </div>
+
+</body>
+</html>

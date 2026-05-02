@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta name="dtb:uid" content="urn:isbn:REPLACE-WITH-ISBN"/>
+  </head>
+  <docTitle><text>BOOK TITLE HERE</text></docTitle>
+  <navMap>
+    <navPoint id="cover" playOrder="1">
+      <navLabel><text>Cover</text></navLabel>
+      <content src="cover.xhtml"/>
+    </navPoint>
+    <navPoint id="toc" playOrder="2">
+      <navLabel><text>Table of Contents</text></navLabel>
+      <content src="toc.xhtml"/>
+    </navPoint>
+    <navPoint id="ch01" playOrder="3">
+      <navLabel><text>Chapter 1: Chapter Title</text></navLabel>
+      <content src="ch01.xhtml"/>
+    </navPoint>
+    <navPoint id="ch02" playOrder="4">
+      <navLabel><text>Chapter 2: Chapter Title</text></navLabel>
+      <content src="ch02.xhtml"/>
+    </navPoint>
+    <navPoint id="ch03" playOrder="5">
+      <navLabel><text>Chapter 3: Chapter Title</text></navLabel>
+      <content src="ch03.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>
