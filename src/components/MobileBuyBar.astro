@@ -1,0 +1,222 @@
+---
+// Sticky bottom bar shown on mobile/tablet only. Tapping opens a sheet
+// with all formats. Hidden at desktop where the buy formats live in the hero.
+
+interface Format {
+  type: string;
+  label: string;
+  price: string;
+  url?: string;
+}
+
+interface Props {
+  title: string;
+  formats: Format[];
+}
+
+const { title, formats } = Astro.props;
+
+// Find the cheapest with a URL (fallback to first format)
+const available = formats.filter((f) => f.url);
+const primary = available[0] ?? formats[0];
+---
+{formats.length > 0 && (
+  <>
+    <aside class="mobile-buy-bar" aria-label={`Buy ${title}`}>
+      <button class="buy-trigger" id="mobile-buy-trigger" aria-haspopup="dialog">
+        <span class="buy-label">
+          <span class="from">From</span>
+          <span class="price">{primary.price}</span>
+        </span>
+        <span class="cta">Buy this book ↗</span>
+      </button>
+    </aside>
+
+    <dialog class="buy-sheet" id="mobile-buy-sheet" aria-label="Choose a format">
+      <div class="sheet-inner">
+        <header class="sheet-head">
+          <h3>{title}</h3>
+          <button class="close" id="buy-sheet-close" aria-label="Close">×</button>
+        </header>
+        <ul class="sheet-formats">
+          {formats.map((f) => (
+            <li>
+              {f.url ? (
+                <a href={f.url} target="_blank" rel="noopener" class="sheet-format">
+                  <span class="format-type">{f.label}</span>
+                  <span class="format-price">{f.price}</span>
+                </a>
+              ) : (
+                <span class="sheet-format unavailable">
+                  <span class="format-type">{f.label}</span>
+                  <span class="format-price">Coming soon</span>
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </dialog>
+
+    <script>
+      const trigger = document.getElementById('mobile-buy-trigger') as HTMLButtonElement | null;
+      const sheet = document.getElementById('mobile-buy-sheet') as HTMLDialogElement | null;
+      const close = document.getElementById('buy-sheet-close') as HTMLButtonElement | null;
+
+      trigger?.addEventListener('click', () => sheet?.showModal());
+      close?.addEventListener('click', () => sheet?.close());
+      sheet?.addEventListener('click', (e) => {
+        if (e.target === sheet) sheet.close();
+      });
+    </script>
+  </>
+)}
+
+<style>
+  .mobile-buy-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--ink-900);
+    color: var(--paper);
+    border-top: 1px solid #2c2622;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    z-index: 90;
+    box-shadow: 0 -8px 24px -8px rgba(0,0,0,0.25);
+  }
+
+  .buy-trigger {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--sans);
+  }
+
+  .buy-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .buy-label .from {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8b837a;
+  }
+  .buy-label .price {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--paper);
+  }
+
+  .buy-trigger .cta {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    background: var(--paper);
+    color: var(--ink-900);
+    padding: 0.625rem 1rem;
+    border-radius: 0;
+  }
+
+  /* Hidden at desktop — formats live in the hero there */
+  @media (min-width: 768px) {
+    .mobile-buy-bar { display: none; }
+  }
+
+  /* Buy sheet (modal dialog) */
+  .buy-sheet {
+    margin: auto;
+    margin-bottom: 0;
+    border: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink-700);
+    width: 100%;
+    max-width: 480px;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .buy-sheet[open] {
+    animation: sheet-in 0.2s ease-out;
+  }
+
+  @keyframes sheet-in {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .buy-sheet::backdrop {
+    background: rgba(26, 22, 20, 0.5);
+  }
+
+  .sheet-inner { padding: 1.25rem; }
+
+  .sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--ink-100);
+    margin-bottom: 1rem;
+  }
+  .sheet-head h3 {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    color: var(--ink-900);
+    line-height: 1.2;
+  }
+  .close {
+    background: transparent;
+    border: 0;
+    font-size: 1.75rem;
+    line-height: 1;
+    color: var(--ink-500);
+    cursor: pointer;
+    padding: 0 0.25rem;
+  }
+
+  .sheet-formats {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sheet-format {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--ink-200);
+    color: var(--ink-900);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  a.sheet-format:hover {
+    border-color: var(--ink-900);
+    background: var(--paper-warm);
+  }
+  .sheet-format.unavailable { color: var(--ink-300); }
+
+  .format-type {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .format-price {
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    font-weight: 600;
+  }
+</style>

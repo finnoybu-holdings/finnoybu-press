@@ -52,4 +52,40 @@ const books = defineCollection({
   }),
 });
 
-export const collections = { books };
+// Toolkits — AEGIS SMB governance kits. Schema kept compatible with books
+// where it makes sense (formats[], accent_color, etc.) so MobileBuyBar etc.
+// can be reused, but distinct fields for tier and included docs.
+const toolkits = defineCollection({
+  type: 'content',
+  schema: z.object({
+    number: z.number().int().min(1).max(99),       // 1-3 (Starter/Standard/Pro)
+    tier: z.enum(['starter', 'standard', 'pro']),
+    title: z.string(),                              // e.g. "AEGIS™ SMB Governance Toolkit"
+    subtitle: z.string(),                           // e.g. "Starter Edition"
+
+    collection: z.literal('aegis-toolkits'),
+
+    accent_color: z.string(),
+    cover_image: z.string(),                        // landscape cover for hero
+    cover_thumb: z.string(),                        // square thumb for grids/lists
+
+    author: z.string().default('Ken Tannenbaum'),
+    edition: z.string().default('2026 Edition'),
+    publisher: z.string().default('Finnoybu Press'),
+
+    description: z.string(),
+    doc_count: z.number().int(),
+    docs: z.array(z.string()),                      // list of included documents
+
+    formats: z.array(z.object({
+      type: z.enum(['pdf-epub', 'kindle', 'paperback', 'hardcover']),
+      label: z.string(),
+      price: z.string(),
+      url: z.string().url().optional(),
+    })),
+
+    status: z.enum(['draft', 'in-development', 'published']).default('published'),
+  }),
+});
+
+export const collections = { books, toolkits };

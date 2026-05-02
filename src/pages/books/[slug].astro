@@ -1,0 +1,444 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MobileBuyBar from '../../components/MobileBuyBar.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const books = await getCollection('books');
+  return books.map((book) => ({
+    params: { slug: book.slug },
+    props: { book },
+  }));
+}
+
+interface Props {
+  book: CollectionEntry<'books'>;
+}
+
+const { book } = Astro.props;
+const { Content } = await book.render();
+
+const COLLECTION_LABELS: Record<string, { label: string; href: string }> = {
+  'product-deep-dives': { label: 'Product Deep Dives', href: '/collections/product-deep-dives' },
+  'product-guides': { label: 'Product Guides', href: '/collections/product-guides' },
+  'cross-platform-skills': { label: 'Cross-Platform Skills', href: '/collections/cross-platform-skills' },
+  'aegis-toolkits': { label: 'AEGIS Toolkits', href: '/governance' },
+};
+
+const collectionInfo = COLLECTION_LABELS[book.data.collection];
+
+// Related books logic differs per collection:
+//   Deep Dives (1-10): show the 5 platform-flagship books (1,3,5,7,9). If
+//     the current book is one of those, swap it for its pair (current+1)
+//     so the reader sees its companion, not itself.
+//   Product Guides (11-14): show the other 3.
+//   Cross-Platform Skills (15-21): show all the other 6.
+const allBooks = await getCollection('books');
+
+let related: typeof allBooks;
+if (book.data.collection === 'product-deep-dives') {
+  const flagships = [1, 3, 5, 7, 9];
+  const targetNums = flagships.map((n) => (n === book.data.number ? n + 1 : n));
+  related = allBooks
+    .filter((b) => targetNums.includes(b.data.number))
+    .sort((a, b) => a.data.number - b.data.number);
+} else {
+  related = allBooks
+    .filter((b) => b.data.collection === book.data.collection && b.slug !== book.slug)
+    .sort((a, b) => a.data.number - b.data.number);
+}
+
+---
+<BaseLayout
+  title={`${book.data.title}: ${book.data.subtitle} — Finnoybu Press`}
+  description={book.data.description}
+  ogImage={book.data.cover_image}
+  ogType="book"
+>
+  <article class="book-page" style={`--accent-color: ${book.data.accent_color}`}>
+
+    <header class="book-hero container">
+      <div class="hero-meta">
+        <a href={collectionInfo.href} class="breadcrumb">← {collectionInfo.label}</a>
+        <span class="eyebrow accent">{book.data.series_position}</span>
+      </div>
+
+      <div class="book-hero-grid">
+        <div class="cover-stage">
+          <img
+            src={book.data.cover_image}
+            alt={`${book.data.title}: ${book.data.subtitle}`}
+            class="cover"
+            loading="eager"
+            width="500"
+            height="800"
+          />
+        </div>
+
+        <div class="hero-text">
+          <h1>{book.data.title}</h1>
+          <p class="subtitle">{book.data.subtitle}</p>
+
+          <div class="byline">
+            <span>By {book.data.author}</span>
+            <span>{book.data.edition}</span>
+            {book.data.chapter_count && <span>{book.data.chapter_count} chapters</span>}
+          </div>
+
+          <p class="pitch">{book.data.description}</p>
+
+          {book.data.status === 'in-development' ? (
+            <p class="dev-notice">
+              <strong>In development.</strong> Sign up for notification when this book launches.
+            </p>
+          ) : (
+            <div class="formats">
+              {book.data.formats.map((f) => (
+                <a
+                  href={f.url ?? '#'}
+                  target={f.url ? '_blank' : undefined}
+                  rel={f.url ? 'noopener' : undefined}
+                  class={`format ${!f.url ? 'unavailable' : ''}`}
+                  data-type={f.type}
+                  aria-disabled={!f.url}
+                >
+                  <span class="format-type">{f.label}</span>
+                  <span class="format-price">{f.url ? f.price : 'Coming soon'}</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+
+    {Astro.props.book.body && Astro.props.book.body.trim().length > 0 && (
+      <section class="section container">
+        <div class="prose-section">
+          <Content />
+        </div>
+      </section>
+    )}
+
+    {related.length > 0 && (
+      <section class="section container">
+        <div class="section-head">
+          <span class="eyebrow accent">Continue reading</span>
+          <h2>Also in {collectionInfo.label}.</h2>
+        </div>
+        <ul class={`related-grid count-${related.length}`}>
+          {related.map((b) => (
+            <li>
+              <a href={`/books/${b.slug}`} class="related-card" style={`--accent-color: ${b.data.accent_color}`}>
+                <div class="related-cover">
+                  <img src={b.data.cover_image} alt={`${b.data.title} cover`} loading="lazy" width="200" height="320" />
+                </div>
+                <div class="related-meta">
+                  <span class="position">{b.data.series_position}</span>
+                  <h4>{b.data.title}</h4>
+                  <p class="related-subtitle">{b.data.subtitle}</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+
+  {book.data.status !== 'in-development' && (
+    <MobileBuyBar title={book.data.title} formats={book.data.formats} />
+  )}
+</BaseLayout>
+
+<style>
+  .book-page { padding-bottom: 6rem; } /* room for sticky mobile buy bar */
+
+  @media (min-width: 768px) {
+    .book-page { padding-bottom: 0; }
+  }
+
+  /* ---------- Hero ---------- */
+  .book-hero {
+    padding-block: var(--space-4) var(--space-2);
+  }
+
+  /* Tighten section padding on book pages at all widths so related books
+     feel like a continuation, not a separate page */
+  .book-page .section { padding-block: var(--space-3); }
+
+  .hero-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .breadcrumb {
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+    align-self: flex-start;
+  }
+  .breadcrumb:hover { border-bottom-color: var(--ink-300); }
+
+  .eyebrow.accent { color: var(--accent-color); }
+
+  .book-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .cover-stage {
+    text-align: center;
+  }
+
+  .cover {
+    width: clamp(180px, 60vw, 280px);
+    height: auto;
+    box-shadow: -10px 18px 30px -10px rgba(26, 22, 20, 0.3);
+    transform: rotateY(-8deg);
+    transform-origin: center;
+    display: inline-block;
+  }
+
+  .hero-text h1 {
+    font-size: clamp(2rem, 6vw, 3rem);
+    line-height: 1.05;
+    margin-bottom: 0.2em;
+    color: var(--ink-900);
+  }
+
+  .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.125rem, 1.6vw, 1.375rem);
+    color: var(--ink-700);
+    margin-bottom: var(--space-3);
+  }
+
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--ink-500);
+    letter-spacing: 0.02em;
+    margin-bottom: var(--space-3);
+  }
+  .byline span + span::before {
+    content: '·';
+    color: var(--ink-300);
+    margin-right: 1.25rem;
+  }
+
+  .pitch {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    line-height: 1.55;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+  }
+
+  .dev-notice {
+    background: var(--paper-warm);
+    border: 1px solid var(--ink-200);
+    padding: 1rem 1.25rem;
+    color: var(--ink-700);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  /* ---------- Formats (desktop only — mobile uses MobileBuyBar) ---------- */
+  .formats {
+    display: none;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+    margin-top: var(--space-3);
+  }
+
+  @media (min-width: 768px) {
+    .formats { display: flex; }
+  }
+
+  .format {
+    display: flex;
+    flex-direction: column;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--ink-200);
+    background: var(--paper);
+    color: var(--ink-900);
+    transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    min-width: 130px;
+  }
+  .format:hover { border-color: var(--accent-color); transform: translateY(-2px); }
+  .format.unavailable { color: var(--ink-300); cursor: default; pointer-events: none; }
+
+  /* Primary CTA — PDF/EPUB stands out via accent-tinted background */
+  .format[data-type="pdf-epub"] {
+    background: color-mix(in srgb, var(--accent-color) 18%, var(--paper));
+    border-color: var(--accent-color);
+  }
+  .format[data-type="pdf-epub"]:hover {
+    background: color-mix(in srgb, var(--accent-color) 28%, var(--paper));
+  }
+  .format[data-type="pdf-epub"] .format-type { color: var(--accent-color); }
+  .format[data-type="pdf-epub"] .format-price { color: var(--accent-color); }
+
+  .format-type {
+    font-size: 0.75rem;
+    color: var(--ink-500);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .format-price {
+    font-family: var(--serif);
+    font-size: 1.375rem;
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
+
+  /* Narrow tablet: PDF/EPUB spans full row, others share row 2 */
+  @media (min-width: 768px) and (max-width: 840px) {
+    .formats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.625rem;
+    }
+    .format[data-type="pdf-epub"] {
+      grid-column: 1 / -1;
+      align-items: flex-start;
+    }
+  }
+
+  /* ---------- Tablet+ : 2-col hero ---------- */
+  @media (min-width: 768px) {
+    .book-hero { padding-block: var(--space-5) var(--space-3); }
+    .book-hero-grid {
+      grid-template-columns: 1fr 1.4fr;
+      gap: var(--space-5);
+      align-items: center;
+    }
+    .cover-stage { text-align: left; }
+    .cover {
+      width: clamp(220px, 28vw, 320px);
+      transform: rotateY(-12deg) rotateX(2deg);
+    }
+    .book-page .section { padding-block: var(--space-4); }
+  }
+
+  @media (min-width: 1024px) {
+    .book-page .section { padding-block: var(--space-5); }
+  }
+
+  @media (min-width: 1024px) {
+    .book-hero-grid { gap: var(--space-6); }
+    .cover { width: clamp(280px, 30vw, 400px); }
+  }
+
+  /* ---------- Body content ---------- */
+  .prose-section {
+    max-width: var(--max-narrow);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .prose-section :global(h2) { font-size: 1.5rem; margin-top: 2em; margin-bottom: 0.5em; }
+  .prose-section :global(h3) { font-size: 1.25rem; margin-top: 1.75em; margin-bottom: 0.5em; }
+  .prose-section :global(p + p) { margin-top: 1.25em; }
+
+  /* ---------- Related books ---------- */
+  .section-head {
+    margin-bottom: var(--space-3);
+    max-width: var(--max-narrow);
+  }
+  .section-head .eyebrow { display: block; margin-bottom: var(--space-2); }
+  .section-head h2 {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.1;
+  }
+
+  /* Grid columns chosen explicitly per count. Minimum 2 across at every width;
+     never single-column. Avoids awkward stacks like 5+1.
+       3 books → 3 cols always (3×1)
+       5 books → 3 cols narrow (3+2) → 5 cols wide (5×1)
+       6 books → 2 cols narrow (2×3) → 3 cols medium (3×2) → 6 cols wide (6×1)
+  */
+  .related-grid {
+    list-style: none;
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(2, 1fr);  /* default minimum */
+  }
+
+  /* count-3 (Product Guides): always 3 cols */
+  .related-grid.count-3 { grid-template-columns: repeat(3, 1fr); }
+
+  /* count-5 (Deep Dives): 3 cols narrow (3+2 stack) → 5 cols wide */
+  .related-grid.count-5 { grid-template-columns: repeat(3, 1fr); }
+  @media (min-width: 900px) {
+    .related-grid.count-5 { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  /* count-6 (Cross-Platform): 2 → 3 → 6 (only the 3 allowed shapes) */
+  .related-grid.count-6 { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 768px) {
+    .related-grid.count-6 { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 1280px) {
+    .related-grid.count-6 { grid-template-columns: repeat(6, 1fr); }
+  }
+
+  @media (min-width: 1024px) {
+    .related-grid { gap: var(--space-4); }
+  }
+
+  .related-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: inherit;
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .related-card:hover { transform: translateY(-3px); }
+
+  .related-cover {
+    aspect-ratio: 1 / 1.6;
+    overflow: hidden;
+    box-shadow: -4px 8px 16px -6px rgba(26, 22, 20, 0.2);
+    transition: box-shadow 0.3s;
+  }
+  .related-card:hover .related-cover {
+    box-shadow: -10px 18px 30px -10px rgba(26, 22, 20, 0.32);
+  }
+  .related-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+  .position {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-color, var(--ink-500));
+  }
+
+  .related-meta h4 {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.2rem;
+    color: var(--ink-900);
+    line-height: 1.2;
+  }
+
+  .related-subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.875rem;
+    color: var(--ink-500);
+    margin-top: 0.15rem;
+    line-height: 1.4;
+  }
+</style>

@@ -1,0 +1,281 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+interface CollectionMeta {
+  slug: string;
+  eyebrow: string;
+  title: string;
+  description: string;          // longer narrative description for the hero
+  shortDesc: string;            // shorter summary
+  accentColor: string;          // CSS variable
+  source: 'books' | 'toolkits';
+  bookFilter?: (b: any) => boolean;  // for book sub-collections
+}
+
+const COLLECTIONS: Record<string, CollectionMeta> = {
+  'product-deep-dives': {
+    slug: 'product-deep-dives',
+    eyebrow: 'Collection One',
+    title: 'Product Deep Dives',
+    description: "Comprehensive paired guides for the major AI assistants. Each platform gets a definitive guide for new and intermediate users, then an advanced companion for power users who want to push the tool further.",
+    shortDesc: 'Paired guides for the major AI assistants.',
+    accentColor: 'var(--accent-deep-dives)',
+    source: 'books',
+    bookFilter: (b) => b.data.collection === 'product-deep-dives',
+  },
+  'product-guides': {
+    slug: 'product-guides',
+    eyebrow: 'Collection Two',
+    title: 'Product Guides',
+    description: 'Focused single-volume guides for the next wave of AI tools — research, reasoning, code, and agentic work. Each book covers one product end-to-end, written for the people putting it to work this week.',
+    shortDesc: 'Single-volume guides for the next wave of AI tools.',
+    accentColor: 'var(--accent-product-guides)',
+    source: 'books',
+    bookFilter: (b) => b.data.collection === 'product-guides',
+  },
+  'cross-platform-skills': {
+    slug: 'cross-platform-skills',
+    eyebrow: 'Collection Three',
+    title: 'Cross-Platform Skills',
+    description: "The skills that hold the rest together: prompting, AI for business, AI for developers, AI for students, and the governance and security practices behind responsible deployment. Tool-agnostic — what you learn applies wherever you work.",
+    shortDesc: 'Skills, roles, and governance — tool-agnostic.',
+    accentColor: 'var(--accent-cross-platform)',
+    source: 'books',
+    bookFilter: (b) => b.data.collection === 'cross-platform-skills',
+  },
+  'aegis-toolkits': {
+    slug: 'aegis-toolkits',
+    eyebrow: 'Collection Four · Toolkits',
+    title: 'AEGIS™ SMB Governance Toolkits',
+    description: 'Fill-in-the-blank AI governance kits for small and midsize businesses. Three tiers — Starter, Standard, and Pro — sized for real teams, not Fortune 500s. Hand the docs to your team and have a working AI policy by next week.',
+    shortDesc: 'Fill-in-the-blank governance kits for SMBs.',
+    accentColor: 'var(--accent-aegis)',
+    source: 'toolkits',
+  },
+};
+
+export async function getStaticPaths() {
+  // NOTE: getStaticPaths runs in isolation and can't reference module-level
+  // constants. Slug list duplicated from COLLECTIONS keys below — keep in sync.
+  return ['product-deep-dives', 'product-guides', 'cross-platform-skills', 'aegis-toolkits']
+    .map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const meta = COLLECTIONS[slug as string];
+
+if (!meta) throw new Error(`Unknown collection: ${slug}`);
+
+let items: { url: string; cover: string; coverAlt: string; eyebrow: string; title: string; subtitle: string; status?: string }[];
+
+if (meta.source === 'books') {
+  const allBooks = await getCollection('books');
+  items = allBooks
+    .filter(meta.bookFilter!)
+    .sort((a, b) => a.data.number - b.data.number)
+    .map((b) => ({
+      url: `/books/${b.slug}`,
+      cover: b.data.cover_image,
+      coverAlt: `${b.data.title}: ${b.data.subtitle}`,
+      eyebrow: b.data.series_position,
+      title: b.data.title,
+      subtitle: b.data.subtitle,
+      status: b.data.status,
+    }));
+} else {
+  const toolkits = await getCollection('toolkits');
+  items = toolkits
+    .sort((a, b) => a.data.number - b.data.number)
+    .map((t) => ({
+      url: `/toolkits/${t.slug}`,
+      cover: t.data.cover_thumb,        // square thumb works better in a grid than landscape
+      coverAlt: `${t.data.title} — ${t.data.subtitle}`,
+      eyebrow: `${t.data.tier.charAt(0).toUpperCase() + t.data.tier.slice(1)} · ${t.data.doc_count} docs`,
+      title: t.data.subtitle,           // "Starter Edition" / "Standard Edition" / "Pro Edition" reads better as title here
+      subtitle: t.data.description.split(/[.!?]\s/)[0] + '.',  // first sentence
+      status: t.data.status,
+    }));
+}
+---
+<BaseLayout
+  title={`${meta.title} — Finnoybu Press`}
+  description={meta.shortDesc}
+>
+  <article class="collection-page" style={`--accent-color: ${meta.accentColor}`}>
+
+    <header class="page-hero container">
+      <a href="/#collections" class="breadcrumb">← All collections</a>
+      <span class="eyebrow accent">{meta.eyebrow}</span>
+      <h1>{meta.title}</h1>
+      <p class="lede">{meta.description}</p>
+    </header>
+
+    <section class="container item-section">
+      <ul class={`item-grid count-${items.length} ${meta.source === 'toolkits' ? 'square-thumbs' : ''}`}>
+        {items.map((item) => (
+          <li>
+            <a href={item.url} class="item-link">
+              <div class="cover-wrap">
+                <img src={item.cover} alt={item.coverAlt} loading="lazy" />
+              </div>
+              <div class="item-meta">
+                <span class="position">{item.eyebrow}</span>
+                <h3>{item.title}</h3>
+                <p class="subtitle">{item.subtitle}</p>
+                {item.status === 'in-development' && (
+                  <span class="status-badge">In development</span>
+                )}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .page-hero { padding-block: var(--space-4) var(--space-3); }
+
+  @media (min-width: 768px) {
+    .page-hero { padding-block: var(--space-5) var(--space-4); }
+  }
+
+  .breadcrumb {
+    display: inline-block;
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-2);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .breadcrumb:hover { border-bottom-color: var(--ink-300); }
+
+  .eyebrow.accent {
+    display: block;
+    color: var(--accent-color);
+    margin-bottom: var(--space-2);
+  }
+
+  .page-hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-hero .lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+    line-height: 1.5;
+    color: var(--ink-700);
+    max-width: 42rem;
+  }
+
+  /* ---------- Item grid ---------- */
+  .item-section { padding-bottom: var(--space-6); }
+
+  .item-grid {
+    list-style: none;
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* For book collections, use clean stacks per count.
+       count-3 → 3 cols always
+       count-4 → 2×2 → 4 cols at desktop
+       count-7 → 2×4 narrow (one orphan ok) → 4×2 (one orphan ok at 768) → 7 wide
+       count-10 → 2 → 5 → 10 wide */
+  .item-grid.count-3 { grid-template-columns: repeat(3, 1fr); }
+
+  .item-grid.count-4 { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 768px) {
+    .item-grid.count-4 { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .item-grid.count-7 { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 640px) {
+    .item-grid.count-7 { grid-template-columns: repeat(4, 1fr); }  /* 4+3 */
+  }
+  @media (min-width: 1280px) {
+    .item-grid.count-7 { grid-template-columns: repeat(7, 1fr); }
+  }
+
+  .item-grid.count-10 { grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 640px) {
+    .item-grid.count-10 { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  @media (min-width: 1024px) { .item-grid { gap: var(--space-4); } }
+
+  .item-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: inherit;
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .item-link:hover { transform: translateY(-3px); }
+
+  .cover-wrap {
+    aspect-ratio: 1 / 1.6;
+    overflow: hidden;
+    box-shadow: -4px 8px 16px -6px rgba(26, 22, 20, 0.2);
+    transition: box-shadow 0.3s;
+  }
+  .item-link:hover .cover-wrap {
+    box-shadow: -10px 18px 30px -10px rgba(26, 22, 20, 0.32);
+  }
+  .cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Toolkits use square thumbs */
+  .item-grid.square-thumbs .cover-wrap { aspect-ratio: 1 / 1; }
+
+  .position {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-color, var(--ink-500));
+  }
+
+  .item-meta h3 {
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-top: 0.2rem;
+    color: var(--ink-900);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+
+  .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--ink-500);
+    margin-top: 0.15rem;
+    line-height: 1.4;
+  }
+
+  .status-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.2rem 0.55rem;
+    background: var(--paper-warm);
+    border: 1px solid var(--ink-200);
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+</style>

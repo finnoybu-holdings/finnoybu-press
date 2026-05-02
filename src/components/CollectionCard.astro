@@ -18,6 +18,7 @@ interface Props {
   accentColor: string;      // hex color for accent line + arrow
   covers: CoverItem[];      // covers shown in the stack
   ctaLabel?: string;        // defaults to "View collection →"
+  mobileCoverLimit?: number; // if set, hide covers beyond this index at narrow widths (<1024px)
 }
 
 const {
@@ -30,14 +31,16 @@ const {
   accentColor,
   covers,
   ctaLabel = 'View collection →',
+  mobileCoverLimit,
 } = Astro.props;
+
 ---
 <a href={href} class="collection-card" style={`--accent-color: ${accentColor}`}>
   <span class="eyebrow accent">{eyebrow}</span>
   <h3>{title}</h3>
   <p class="desc">{description}</p>
 
-  <div class="stack">
+  <div class={`stack${mobileCoverLimit ? ` stack-mobile-${mobileCoverLimit}` : ''}`}>
     {covers.map((c) => (
       <img src={c.src} alt={c.alt} loading="lazy" width="80" height="128" />
     ))}
@@ -155,6 +158,21 @@ const {
   @media (min-width: 768px) {
     .collection-card { padding: var(--space-4); gap: var(--space-3); }
     h3 { font-size: 1.875rem; }
+    /* Stack stays at 110px through the 2-col tablet range — gives 5 deep-dive
+       covers room to fit. Only bumps to full 130px at desktop. */
+  }
+
+  @media (min-width: 1024px) {
     .stack { height: 130px; }
+  }
+
+  /* Hide overflow covers at narrow widths — show only first N */
+  @media (max-width: 1023px) {
+    .stack-mobile-3 img:nth-child(n+4),
+    .stack-mobile-4 img:nth-child(n+5),
+    .stack-mobile-5 img:nth-child(n+6),
+    .stack-mobile-6 img:nth-child(n+7) {
+      display: none;
+    }
   }
 </style>

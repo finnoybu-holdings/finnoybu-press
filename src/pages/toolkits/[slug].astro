@@ -1,0 +1,374 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import MobileBuyBar from '../../components/MobileBuyBar.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const toolkits = await getCollection('toolkits');
+  return toolkits.map((tk) => ({
+    params: { slug: tk.slug },
+    props: { tk },
+  }));
+}
+
+interface Props {
+  tk: CollectionEntry<'toolkits'>;
+}
+
+const { tk } = Astro.props;
+const { Content } = await tk.render();
+
+const allToolkits = await getCollection('toolkits');
+const related = allToolkits
+  .filter((t) => t.slug !== tk.slug)
+  .sort((a, b) => a.data.number - b.data.number);
+---
+<BaseLayout
+  title={`${tk.data.title} — ${tk.data.subtitle} — Finnoybu Press`}
+  description={tk.data.description}
+  ogImage={tk.data.cover_image}
+  ogType="product"
+>
+  <article class="toolkit-page" style={`--accent-color: ${tk.data.accent_color}`}>
+
+    <header class="toolkit-hero container">
+      <div class="hero-meta">
+        <a href="/collections/aegis-toolkits" class="breadcrumb">← AEGIS Toolkits</a>
+        <span class="eyebrow accent">{tk.data.tier.charAt(0).toUpperCase() + tk.data.tier.slice(1)} Edition · {tk.data.doc_count} docs</span>
+      </div>
+
+      <div class="hero-grid">
+        <div class="cover-stage">
+          <img
+            src={tk.data.cover_image}
+            alt={`${tk.data.title} ${tk.data.subtitle}`}
+            class="cover"
+            loading="eager"
+            width="640"
+            height="360"
+          />
+        </div>
+
+        <div class="hero-text">
+          <h1>{tk.data.title}</h1>
+          <p class="subtitle">{tk.data.subtitle}</p>
+
+          <div class="byline">
+            <span>By {tk.data.author}</span>
+            <span>{tk.data.edition}</span>
+          </div>
+
+          <p class="pitch">{tk.data.description}</p>
+
+          <div class="formats">
+            {tk.data.formats.map((f) => (
+              <a
+                href={f.url ?? '#'}
+                target={f.url ? '_blank' : undefined}
+                rel={f.url ? 'noopener' : undefined}
+                class={`format ${!f.url ? 'unavailable' : ''}`}
+                data-type={f.type}
+              >
+                <span class="format-type">{f.label}</span>
+                <span class="format-price">{f.url ? f.price : 'Coming soon'}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="section container">
+      <div class="section-head">
+        <span class="eyebrow accent">What's inside</span>
+        <h2>{tk.data.doc_count} fill-in-the-blank documents.</h2>
+      </div>
+      <ul class="doc-list">
+        {tk.data.docs.map((d, i) => (
+          <li>
+            <span class="doc-num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="doc-name">{d}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    {tk.body && tk.body.trim().length > 0 && (
+      <section class="section container">
+        <div class="prose-section"><Content /></div>
+      </section>
+    )}
+
+    {related.length > 0 && (
+      <section class="section container">
+        <div class="section-head">
+          <span class="eyebrow accent">Other tiers</span>
+          <h2>Compare with the rest of the AEGIS line.</h2>
+        </div>
+        <ul class="related-grid">
+          {related.map((r) => (
+            <li>
+              <a href={`/toolkits/${r.slug}`} class="related-card" style={`--accent-color: ${r.data.accent_color}`}>
+                <div class="related-cover">
+                  <img src={r.data.cover_thumb} alt={r.data.title} loading="lazy" />
+                </div>
+                <div class="related-meta">
+                  <span class="position">{r.data.tier.charAt(0).toUpperCase() + r.data.tier.slice(1)} · {r.data.doc_count} docs</span>
+                  <h4>{r.data.subtitle}</h4>
+                  <p class="related-subtitle">{r.data.description.split(/[.!?]\s/)[0] + '.'}</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+
+  <MobileBuyBar title={`${tk.data.title} — ${tk.data.subtitle}`} formats={tk.data.formats} />
+</BaseLayout>
+
+<style>
+  .toolkit-page { padding-bottom: 6rem; }
+
+  @media (min-width: 768px) {
+    .toolkit-page { padding-bottom: 0; }
+  }
+
+  /* ---------- Hero ---------- */
+  .toolkit-hero { padding-block: var(--space-4) var(--space-2); }
+
+  .toolkit-page .section { padding-block: var(--space-3); }
+
+  @media (min-width: 768px) {
+    .toolkit-hero { padding-block: var(--space-5) var(--space-3); }
+    .toolkit-page .section { padding-block: var(--space-4); }
+  }
+
+  @media (min-width: 1024px) {
+    .toolkit-page .section { padding-block: var(--space-5); }
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: var(--space-3);
+  }
+
+  .breadcrumb {
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+    align-self: flex-start;
+  }
+  .breadcrumb:hover { border-bottom-color: var(--ink-300); }
+
+  .eyebrow.accent { color: var(--accent-color); }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .cover-stage { text-align: center; }
+
+  /* Toolkit covers are landscape (1280x720 ~ 16:9), not portrait. */
+  .cover {
+    width: clamp(220px, 80vw, 480px);
+    height: auto;
+    box-shadow: -10px 18px 30px -10px rgba(26, 22, 20, 0.3);
+    transform: rotateY(-8deg);
+    display: inline-block;
+  }
+
+  @media (min-width: 768px) {
+    .hero-grid { grid-template-columns: 1fr 1.4fr; gap: var(--space-5); align-items: center; }
+    .cover-stage { text-align: left; }
+    .cover {
+      width: clamp(280px, 36vw, 480px);
+      transform: rotateY(-12deg) rotateX(2deg);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero-grid { gap: var(--space-6); }
+    .cover { width: clamp(320px, 38vw, 560px); }
+  }
+
+  .hero-text h1 {
+    font-size: clamp(1.625rem, 4vw, 2.25rem);
+    line-height: 1.1;
+    margin-bottom: 0.2em;
+    color: var(--ink-900);
+  }
+
+  .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.125rem, 1.5vw, 1.375rem);
+    color: var(--ink-700);
+    margin-bottom: var(--space-3);
+  }
+
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--ink-500);
+    letter-spacing: 0.02em;
+    margin-bottom: var(--space-3);
+  }
+  .byline span + span::before {
+    content: '·';
+    color: var(--ink-300);
+    margin-right: 1.25rem;
+  }
+
+  .pitch {
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+  }
+
+  /* ---------- Formats (toolkits have just one) ---------- */
+  .formats { display: none; gap: 0.625rem; flex-wrap: wrap; margin-top: var(--space-3); }
+
+  @media (min-width: 768px) { .formats { display: flex; } }
+
+  .format {
+    display: flex;
+    flex-direction: column;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--ink-200);
+    background: var(--paper);
+    color: var(--ink-900);
+    transition: border-color 0.2s, transform 0.2s, background 0.2s;
+    min-width: 130px;
+  }
+  .format:hover { border-color: var(--accent-color); transform: translateY(-2px); }
+
+  /* Single-format toolkit gets the primary CTA treatment */
+  .format[data-type="pdf-epub"] {
+    background: color-mix(in srgb, var(--accent-color) 18%, var(--paper));
+    border-color: var(--accent-color);
+  }
+  .format[data-type="pdf-epub"]:hover {
+    background: color-mix(in srgb, var(--accent-color) 28%, var(--paper));
+  }
+  .format[data-type="pdf-epub"] .format-type,
+  .format[data-type="pdf-epub"] .format-price { color: var(--accent-color); }
+
+  .format-type {
+    font-size: 0.75rem;
+    color: var(--ink-500);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .format-price {
+    font-family: var(--serif);
+    font-size: 1.375rem;
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
+
+  /* ---------- Doc list ---------- */
+  .section-head { margin-bottom: var(--space-3); max-width: var(--max-narrow); }
+  .section-head .eyebrow { display: block; margin-bottom: var(--space-2); }
+  .section-head h2 {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.1;
+  }
+
+  .doc-list {
+    list-style: none;
+    display: grid;
+    gap: 0;
+    max-width: var(--max-narrow);
+  }
+  .doc-list li {
+    display: grid;
+    grid-template-columns: 2.5em 1fr;
+    align-items: baseline;
+    padding-block: 0.875rem;
+    border-top: 1px solid var(--ink-100);
+    font-size: 1rem;
+  }
+  .doc-list li:first-child { border-top: 0; }
+  .doc-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--accent-color, var(--ink-300));
+    font-variant-numeric: tabular-nums;
+  }
+  .doc-name { color: var(--ink-700); line-height: 1.5; }
+
+  /* ---------- Related (other tiers) ---------- */
+  .related-grid {
+    list-style: none;
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .related-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .related-card {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border: 1px solid var(--ink-200);
+    color: inherit;
+    transition: border-color 0.2s, transform 0.2s;
+    align-items: center;
+  }
+  .related-card:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+
+  .related-cover { width: 80px; aspect-ratio: 1 / 1; overflow: hidden; }
+  .related-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+  .related-meta .position {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+  }
+  .related-meta h4 {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.2rem;
+    color: var(--ink-900);
+    line-height: 1.2;
+  }
+  .related-subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    margin-top: 0.15rem;
+    line-height: 1.4;
+  }
+
+  /* ---------- Body content ---------- */
+  .prose-section {
+    max-width: var(--max-narrow);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+</style>
