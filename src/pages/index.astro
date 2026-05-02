@@ -1,10 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CollectionCard from '../components/CollectionCard.astro';
 import { getCollection } from 'astro:content';
 
 const allBooks = await getCollection('books');
 const sorted = allBooks.sort((a, b) => a.data.number - b.data.number);
 const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
+
+// Helper to grab cover items from a list of books
+const coversFor = (books: typeof sorted) =>
+  books.map((b) => ({ src: b.data.cover_image, alt: `${b.data.title}: ${b.data.subtitle}` }));
+
+const deepDives = sorted.filter((b) => b.data.collection === 'product-deep-dives');
+const productGuides = sorted.filter((b) => b.data.collection === 'product-guides');
+const skills = sorted.filter((b) => b.data.collection === 'cross-platform-skills');
+
+// Show 8 of the 10 deep-dive covers (drop Perplexity Advanced #10 for visual room — keeps 5 platforms visible)
+const deepDivesCovers = coversFor(deepDives.slice(0, 8));
 ---
 <BaseLayout
   title="Finnoybu Press — AI guides for every user"
@@ -57,8 +69,59 @@ const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
       <span class="eyebrow">Four Collections</span>
       <h2>A library, organized.</h2>
       <p class="prose">
-        Catalog overview coming as components are built — see <a href="/series">the series page</a> for the full 21-book list.
+        The catalog is structured into four collections, each solving a different shape of problem — from learning a single tool to standing up governance across a team.
       </p>
+    </div>
+
+    <div class="collections-grid">
+      <CollectionCard
+        eyebrow="Collection One"
+        title="Product Deep Dives"
+        description="Comprehensive paired guides for the major AI assistants. Start with the definitive guide, then go deeper with the advanced companion."
+        href="/collections/product-deep-dives"
+        bookCount={deepDives.length}
+        bookList="ChatGPT · Claude · Gemini · Copilot · Perplexity"
+        accentColor="var(--accent-deep-dives)"
+        covers={deepDivesCovers}
+      />
+
+      <CollectionCard
+        eyebrow="Collection Two"
+        title="Product Guides"
+        description="Focused single-volume guides for the next wave of AI tools — research, reasoning, code, and agentic work."
+        href="/collections/product-guides"
+        bookCount={productGuides.length}
+        bookList="NotebookLM · DeepSeek · Cursor · OpenClaw"
+        accentColor="var(--accent-product-guides)"
+        covers={coversFor(productGuides)}
+      />
+
+      <CollectionCard
+        eyebrow="Collection Three"
+        title="Cross-Platform Skills"
+        description="The skills that hold the rest together: prompting, AI for business, AI for developers, governance, and security."
+        href="/collections/cross-platform-skills"
+        bookCount={skills.length}
+        bookList="Skills · Roles · Governance"
+        accentColor="var(--accent-cross-platform)"
+        covers={coversFor(skills)}
+      />
+
+      <CollectionCard
+        eyebrow="Collection Four · Toolkits"
+        title="AEGIS™ SMB Governance"
+        description="Fill-in-the-blank AI governance kits for small and midsize businesses. Three tiers — Starter, Standard, Pro — sized for real teams, not Fortune 500s."
+        href="/governance"
+        bookCount={3}
+        bookList="Starter · Standard · Pro"
+        accentColor="var(--accent-aegis)"
+        covers={[
+          { src: '/images/thumb-aegis-smb-starter.png', alt: 'AEGIS SMB Starter' },
+          { src: '/images/thumb-aegis-smb-standard.png', alt: 'AEGIS SMB Standard' },
+          { src: '/images/thumb-aegis-smb-pro.png', alt: 'AEGIS SMB Pro' },
+        ]}
+        ctaLabel="View toolkits →"
+      />
     </div>
   </section>
 </BaseLayout>
@@ -197,5 +260,21 @@ const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
   .section-head h2 {
     font-size: clamp(1.85rem, 3vw, 2.5rem);
     line-height: 1.1;
+  }
+
+  /* Collections grid — single col on mobile, 2x2 on tablet+ */
+  .collections-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .collections-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-top: var(--space-5);
+    }
   }
 </style>

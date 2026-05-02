@@ -8,7 +8,7 @@ collection: cross-platform-skills
 cover_variant: skills
 
 accent_color: "#4338CA"
-cover_image: /images/cover-20-ai-governance-for-practitioners.jpg
+cover_image: /images/cover-20-ai-governance.jpg
 
 description: Practical frameworks for responsible AI adoption — policy, compliance, risk management, and governance for organizations of every size.
 chapter_count: 11

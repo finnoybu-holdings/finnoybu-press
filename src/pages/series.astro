@@ -1,0 +1,207 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allBooks = await getCollection('books');
+const books = allBooks.sort((a, b) => a.data.number - b.data.number);
+
+const COLLECTION_LABELS: Record<string, string> = {
+  'product-deep-dives': 'Product Deep Dives',
+  'product-guides': 'Product Guides',
+  'cross-platform-skills': 'Cross-Platform Skills',
+};
+
+const COLLECTION_DESCRIPTIONS: Record<string, string> = {
+  'product-deep-dives': 'Comprehensive paired guides for the major AI assistants. Definitive guide + advanced companion for each platform.',
+  'product-guides': 'Focused single-volume guides for the next wave of AI tools — research, reasoning, code, and agentic work.',
+  'cross-platform-skills': 'The skills that hold the rest together: prompting, AI for business, AI for developers, governance, and security.',
+};
+
+// Group books by collection, preserving order within each collection
+const groups = books.reduce((acc, book) => {
+  const c = book.data.collection;
+  if (c === 'aegis-toolkits') return acc;  // toolkits handled on /governance, not in book series
+  if (!acc[c]) acc[c] = [];
+  acc[c].push(book);
+  return acc;
+}, {} as Record<string, typeof books>);
+
+const collectionOrder = ['product-deep-dives', 'product-guides', 'cross-platform-skills'];
+---
+<BaseLayout
+  title="The AI for Everyone Series — Finnoybu Press"
+  description="Twenty-one practical books on AI tools, skills, and systems. Browse the full series."
+>
+  <header class="page-hero container">
+    <span class="eyebrow">The Series</span>
+    <h1>AI for Everyone.</h1>
+    <p class="lede">
+      Twenty-one books across three collections. Each book is written to be useful on day one and to serve as a reference you come back to.
+    </p>
+  </header>
+
+  {collectionOrder.map((cid) => {
+    const list = groups[cid] ?? [];
+    if (list.length === 0) return null;
+    return (
+      <section class="series-section container">
+        <div class="series-section-head">
+          <span class="eyebrow">{COLLECTION_LABELS[cid]} · {list.length} books</span>
+          <p class="prose">{COLLECTION_DESCRIPTIONS[cid]}</p>
+        </div>
+
+        <ul class="book-grid">
+          {list.map((b) => (
+            <li class="book-grid-item">
+              <a href={`/books/${b.slug}`} class="book-link" style={`--accent-color: ${b.data.accent_color}`}>
+                <div class="cover-wrap">
+                  <img src={b.data.cover_image} alt={`${b.data.title}: ${b.data.subtitle}`} loading="lazy" width="160" height="256" />
+                </div>
+                <div class="book-meta">
+                  <span class="position">{b.data.series_position}</span>
+                  <h3>{b.data.title}</h3>
+                  <p class="subtitle">{b.data.subtitle}</p>
+                  {b.data.status === 'in-development' && (
+                    <span class="status-badge">In development</span>
+                  )}
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  })}
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding-block: var(--space-5) var(--space-3);
+  }
+
+  .page-hero .eyebrow { display: block; margin-bottom: var(--space-2); }
+
+  .page-hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-hero .lede {
+    font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+    max-width: 38rem;
+  }
+
+  @media (min-width: 768px) {
+    .page-hero { padding-block: var(--space-6) var(--space-4); }
+  }
+
+  /* Section per collection */
+  .series-section {
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--ink-100);
+  }
+
+  @media (min-width: 768px) {
+    .series-section { padding-block: var(--space-5); }
+  }
+
+  .series-section-head {
+    margin-bottom: var(--space-3);
+    max-width: var(--max-narrow);
+  }
+
+  .series-section-head .eyebrow {
+    display: block;
+    margin-bottom: var(--space-2);
+  }
+
+  /* Grid: 1 col mobile → 2 col small tablet → 3 col tablet → 4 col desktop */
+  .book-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 640px) {
+    .book-grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+  }
+
+  @media (min-width: 1024px) {
+    .book-grid { grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+  }
+
+  .book-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: inherit;
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .book-link:hover { transform: translateY(-3px); }
+
+  .cover-wrap {
+    aspect-ratio: 1 / 1.6;
+    overflow: hidden;
+    background: var(--paper-warm);
+    box-shadow: -4px 8px 16px -6px rgba(26, 22, 20, 0.2);
+    transition: box-shadow 0.3s;
+  }
+  .book-link:hover .cover-wrap {
+    box-shadow: -10px 18px 30px -10px rgba(26, 22, 20, 0.32);
+  }
+
+  .cover-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .book-meta { padding-top: 0.25rem; }
+
+  .position {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-color, var(--ink-500));
+  }
+
+  .book-meta h3 {
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-top: 0.2rem;
+    color: var(--ink-900);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.9375rem;
+    color: var(--ink-500);
+    margin-top: 0.15rem;
+    line-height: 1.4;
+  }
+
+  .status-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.2rem 0.55rem;
+    background: var(--paper-warm);
+    border: 1px solid var(--ink-200);
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+</style>

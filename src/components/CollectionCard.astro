@@ -1,0 +1,160 @@
+---
+// CollectionCard — destination tile on the homepage. Each card represents
+// one of the 4 collections, with an accent color, brief description,
+// stack of cover thumbs, and a "View collection →" CTA.
+
+interface CoverItem {
+  src: string;
+  alt: string;
+}
+
+interface Props {
+  eyebrow: string;          // e.g. "Collection One"
+  title: string;            // e.g. "Product Deep Dives"
+  description: string;
+  href: string;             // destination URL
+  bookCount: number;        // for meta line
+  bookList: string;         // e.g. "ChatGPT · Claude · Gemini · Copilot · Perplexity"
+  accentColor: string;      // hex color for accent line + arrow
+  covers: CoverItem[];      // covers shown in the stack
+  ctaLabel?: string;        // defaults to "View collection →"
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  href,
+  bookCount,
+  bookList,
+  accentColor,
+  covers,
+  ctaLabel = 'View collection →',
+} = Astro.props;
+---
+<a href={href} class="collection-card" style={`--accent-color: ${accentColor}`}>
+  <span class="eyebrow accent">{eyebrow}</span>
+  <h3>{title}</h3>
+  <p class="desc">{description}</p>
+
+  <div class="stack">
+    {covers.map((c) => (
+      <img src={c.src} alt={c.alt} loading="lazy" width="80" height="128" />
+    ))}
+  </div>
+
+  <div class="meta">
+    <span>{bookCount} {bookCount === 1 ? 'book' : 'books'} · {bookList}</span>
+    <span class="arrow">{ctaLabel}</span>
+  </div>
+</a>
+
+<style>
+  .collection-card {
+    background: var(--paper);
+    border: 1px solid var(--ink-200);
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: inherit;
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+                border-color 0.3s,
+                box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .collection-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-color, var(--ink-300));
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .collection-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-color);
+    box-shadow: 0 30px 60px -30px rgba(26, 22, 20, 0.15);
+  }
+  .collection-card:hover::before { transform: scaleX(1); }
+
+  .eyebrow.accent { color: var(--accent-color); }
+
+  h3 {
+    font-size: 1.625rem;
+    letter-spacing: -0.025em;
+    color: var(--ink-900);
+    margin-bottom: 0.1em;
+  }
+
+  .desc {
+    color: var(--ink-500);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    flex-grow: 1;
+  }
+
+  .stack {
+    display: flex;
+    margin-top: var(--space-3);
+    height: 100px;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .stack img {
+    height: 100%;
+    width: auto;
+    border-radius: 2px;
+    box-shadow: -6px 10px 16px -8px rgba(26, 22, 20, 0.28);
+    margin-left: -22px;
+    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .stack img:first-child { margin-left: 0; }
+
+  /* Stagger the lift on hover */
+  .collection-card:hover .stack img { transform: translateY(-3px); }
+  .collection-card:hover .stack img:nth-child(2) { transform: translateY(-6px); transition-delay: 0.04s; }
+  .collection-card:hover .stack img:nth-child(3) { transform: translateY(-9px); transition-delay: 0.08s; }
+  .collection-card:hover .stack img:nth-child(4) { transform: translateY(-12px); transition-delay: 0.12s; }
+  .collection-card:hover .stack img:nth-child(5) { transform: translateY(-15px); transition-delay: 0.16s; }
+  .collection-card:hover .stack img:nth-child(6) { transform: translateY(-18px); transition-delay: 0.20s; }
+  .collection-card:hover .stack img:nth-child(7) { transform: translateY(-21px); transition-delay: 0.24s; }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    padding-top: var(--space-2);
+    margin-top: var(--space-2);
+    border-top: 1px solid var(--ink-100);
+  }
+
+  .arrow {
+    color: var(--accent-color);
+    font-weight: 600;
+    transition: transform 0.3s;
+    align-self: flex-start;
+  }
+
+  .collection-card:hover .arrow { transform: translateX(4px); }
+
+  @media (min-width: 480px) {
+    .meta { flex-direction: row; justify-content: space-between; align-items: baseline; }
+    .stack { height: 110px; }
+  }
+
+  @media (min-width: 768px) {
+    .collection-card { padding: var(--space-4); gap: var(--space-3); }
+    h3 { font-size: 1.875rem; }
+    .stack { height: 130px; }
+  }
+</style>
