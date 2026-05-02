@@ -372,25 +372,35 @@ a { color: inherit; text-decoration: none; }
 }
 .collection-card .stack img:first-child { margin-left: 0; }
 
-/* Paired layout — two-cover sets, gap between pairs */
+/* Paired layout — single row, 2 covers per pair staggered (book A
+   in front, book B offset down-and-back). Gap between pairs. */
 .collection-card .stack-pairs {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+  flex-wrap: nowrap;
+  gap: 16px;
   margin-top: var(--space-3);
+  align-items: flex-start;
+  height: 130px;
 }
 .collection-card .pair {
   display: flex;
-  height: 110px;
+  align-items: flex-start;
+  position: relative;
 }
 .collection-card .pair img {
-  height: 100%;
+  height: 105px;
   width: auto;
   border-radius: 2px;
-  box-shadow: -6px 10px 16px -8px rgba(26, 22, 20, 0.28);
+  box-shadow: -5px 9px 15px -7px rgba(26, 22, 20, 0.3);
+  position: relative;
   transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.collection-card .pair img:nth-child(2) { margin-left: -8px; }
+.collection-card .pair img:nth-child(1) { z-index: 2; }
+.collection-card .pair img:nth-child(2) {
+  margin-left: -28px;
+  margin-top: 16px;
+  z-index: 1;
+}
 
 .collection-card:hover .pair img { transform: translateY(-4px); }
 .collection-card:hover .pair:nth-child(2) img { transition-delay: 0.04s; }
