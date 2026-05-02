@@ -1,0 +1,196 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allBooks = await getCollection('books');
+const sorted = allBooks.sort((a, b) => a.data.number - b.data.number);
+const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
+---
+<BaseLayout
+  title="Finnoybu Press — AI guides for every user"
+  description="Twenty-one practical books on the tools, the skills, and the systems behind useful AI — plus governance toolkits for the teams deploying it."
+>
+  <header class="hero container">
+    <div class="hero-text">
+      <span class="eyebrow">Finnoybu Press · 2026</span>
+      <h1 class="display">AI guides for every user.</h1>
+      <p class="lede">
+        Twenty-one practical books on the tools, the skills, and the systems
+        behind useful AI — plus governance toolkits for the teams deploying it.
+      </p>
+      <div class="cta-row">
+        <a href="#collections" class="btn">Browse the series</a>
+        {featured && (
+          <a href={`/books/${featured.slug}`} class="btn ghost">
+            Start with {featured.data.title} →
+          </a>
+        )}
+      </div>
+      <p class="hero-meta">A working library by Ken Tannenbaum</p>
+    </div>
+
+    {featured && (
+      <div class="hero-cover">
+        <img
+          src={featured.data.cover_image}
+          alt={`${featured.data.title}: ${featured.data.subtitle}`}
+          loading="eager"
+          width="420"
+          height="672"
+        />
+      </div>
+    )}
+  </header>
+
+  <section class="manifesto">
+    <div class="container manifesto-inner">
+      <span class="eyebrow">The Publisher's Note</span>
+      <p class="manifesto-quote">
+        Most writing about AI is either selling you the future or warning you about it. We wanted something else: <em>clear, practical books for the people who actually have to use these tools at work.</em>
+      </p>
+      <p class="manifesto-attr">— Ken Tannenbaum, founder</p>
+    </div>
+  </section>
+
+  <section class="section container" id="collections">
+    <div class="section-head">
+      <span class="eyebrow">Four Collections</span>
+      <h2>A library, organized.</h2>
+      <p class="prose">
+        Catalog overview coming as components are built — see <a href="/series">the series page</a> for the full 21-book list.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: var(--space-5) 0 var(--space-5);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .hero-text { max-width: 38rem; }
+
+  .hero-text .eyebrow { display: block; margin-bottom: var(--space-3); }
+
+  .hero-text .display {
+    font-size: clamp(2.4rem, 8vw, 5.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+    font-weight: 600;
+  }
+
+  .hero-text .lede {
+    font-size: clamp(1.125rem, 1.6vw, 1.5rem);
+    margin-bottom: var(--space-4);
+  }
+
+  .cta-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  @media (min-width: 480px) {
+    .cta-row { flex-direction: row; flex-wrap: wrap; }
+  }
+
+  .hero-meta {
+    margin-top: var(--space-4);
+    font-size: 0.875rem;
+    color: var(--ink-500);
+  }
+
+  /* Hero cover — small + above text on mobile, side by side on tablet+ */
+  .hero-cover {
+    order: -1;
+    text-align: center;
+  }
+
+  .hero-cover img {
+    display: inline-block;
+    width: clamp(160px, 50vw, 240px);
+    height: auto;
+    box-shadow: -10px 16px 28px -10px rgba(26, 22, 20, 0.28);
+    transform: rotateY(-12deg);
+    transform-origin: center;
+  }
+
+  @media (min-width: 768px) {
+    .hero {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: center;
+      padding: var(--space-6) 0;
+      gap: var(--space-5);
+    }
+    .hero-cover { order: 0; }
+    .hero-cover img {
+      width: clamp(220px, 28vw, 340px);
+      transform: rotateY(-15deg) rotateX(2deg);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero { padding: var(--space-7) 0; }
+    .hero-cover img { width: clamp(280px, 32vw, 420px); }
+  }
+
+  /* Manifesto */
+  .manifesto {
+    background: var(--paper-warm);
+    padding: var(--space-5) 0;
+    border-top: 1px solid var(--ink-100);
+    border-bottom: 1px solid var(--ink-100);
+  }
+
+  @media (min-width: 768px) {
+    .manifesto { padding: var(--space-7) 0; }
+  }
+
+  .manifesto-inner {
+    max-width: var(--max-narrow);
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .manifesto-inner .eyebrow {
+    display: block;
+    margin-bottom: var(--space-3);
+  }
+
+  .manifesto-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.25rem, 2.4vw, 2rem);
+    line-height: 1.4;
+    color: var(--ink-900);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+  .manifesto-quote em { font-style: italic; }
+
+  .manifesto-attr {
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+    color: var(--ink-500);
+    letter-spacing: 0.04em;
+  }
+
+  /* Sections */
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    max-width: var(--max-narrow);
+  }
+
+  .section-head h2 {
+    font-size: clamp(1.85rem, 3vw, 2.5rem);
+    line-height: 1.1;
+  }
+</style>

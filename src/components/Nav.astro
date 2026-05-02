@@ -1,0 +1,158 @@
+---
+// Nav component — wordmark + links + mobile hamburger.
+// Locked to top, blurs on scroll above 640px; opaque solid on smaller screens (perf).
+---
+<nav class="nav" id="site-nav">
+  <div class="nav-inner">
+    <a href="/" class="wordmark">Finnoybu Press</a>
+
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+      <span></span><span></span><span></span>
+    </button>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="/#collections">Collections</a></li>
+      <li><a href="/series">The Series</a></li>
+      <li><a href="/about">Author</a></li>
+      <li><a href="/#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+  const nav = document.getElementById('site-nav');
+  const toggle = nav?.querySelector('.nav-toggle');
+  const links = document.getElementById('nav-links');
+
+  toggle?.addEventListener('click', () => {
+    const open = nav?.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  // Close mobile menu on link click
+  links?.querySelectorAll('a').forEach((a) => {
+    a.addEventListener('click', () => {
+      nav?.classList.remove('open');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Subtle border when scrolled past hero
+  window.addEventListener('scroll', () => {
+    nav?.classList.toggle('scrolled', window.scrollY > 24);
+  }, { passive: true });
+</script>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    background: var(--paper);                   /* opaque on mobile — perf */
+    z-index: 100;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+
+  .nav.scrolled { border-bottom-color: var(--ink-200); }
+
+  .nav-inner {
+    max-width: var(--max-edit);
+    margin: 0 auto;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  .wordmark {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink-900);
+    white-space: nowrap;
+  }
+
+  /* Hamburger — visible below 640px */
+  .nav-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 18px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  .nav-toggle span {
+    display: block;
+    height: 2px;
+    background: var(--ink-900);
+    transition: transform 0.3s, opacity 0.3s;
+    transform-origin: left center;
+  }
+
+  .nav.open .nav-toggle span:nth-child(1) { transform: rotate(45deg) translate(2px, -1px); }
+  .nav.open .nav-toggle span:nth-child(2) { opacity: 0; }
+  .nav.open .nav-toggle span:nth-child(3) { transform: rotate(-45deg) translate(2px, 1px); }
+
+  /* Mobile-first links: hidden by default, drop-down panel when open */
+  .nav-links {
+    display: none;
+    list-style: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink-200);
+    padding: 0.5rem 1.25rem 1rem;
+    flex-direction: column;
+    gap: 0;
+  }
+  .nav.open .nav-links { display: flex; }
+
+  .nav-links li { width: 100%; }
+  .nav-links a {
+    display: block;
+    padding: 0.875rem 0;
+    color: var(--ink-700);
+    font-weight: 500;
+    border-top: 1px solid var(--ink-100);
+  }
+  .nav-links li:first-child a { border-top: 0; }
+
+  /* Tablet+ — inline links, no hamburger, glass blur */
+  @media (min-width: 768px) {
+    .nav {
+      background: rgba(247, 243, 236, 0.92);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+    }
+    .nav-inner { padding: 1.25rem 2rem; align-items: baseline; }
+    .nav-toggle { display: none; }
+    .nav-links {
+      display: flex;
+      flex-direction: row;
+      position: static;
+      border: 0;
+      padding: 0;
+      gap: 2.5rem;
+      background: transparent;
+    }
+    .nav-links a {
+      padding: 0;
+      border: 0;
+      font-size: 0.875rem;
+      color: var(--ink-500);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--ink-900); }
+  }
+
+  @media (min-width: 1024px) {
+    .nav-inner { padding: 1.25rem 3rem; }
+  }
+</style>

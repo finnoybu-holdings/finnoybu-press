@@ -1,0 +1,119 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <span class="wordmark">Finnoybu Press</span>
+        <p>Practical books and governance tools for the people actually using AI at work. An imprint of Finnoybu Holdings LLC.</p>
+      </div>
+      <div>
+        <h5>Catalog</h5>
+        <ul>
+          <li><a href="/series">All books</a></li>
+          <li><a href="/#collections">Collections</a></li>
+          <li><a href="/governance">AEGIS Toolkits</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>About</h5>
+        <ul>
+          <li><a href="/about">The author</a></li>
+          <li><a href="/series">The series</a></li>
+          <li><a href="mailto:kenneth.tannenbaum@gmail.com">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Elsewhere</h5>
+        <ul>
+          <li><a href="https://aegis-initiative.com" target="_blank" rel="noopener">AEGIS Initiative ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {year} Finnoybu Press. All rights reserved.</span>
+      <span>press.finnoybu.org</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--paper-dark);
+    color: var(--ink-300);
+    padding: var(--space-5) 0 var(--space-4);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid #2c2622;
+  }
+
+  @media (min-width: 640px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 1024px) {
+    .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
+  }
+
+  .footer-about .wordmark {
+    color: var(--paper);
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+    display: block;
+  }
+
+  .footer p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    max-width: 22rem;
+    color: #8b837a;
+  }
+
+  .footer h5 {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper);
+    margin-bottom: var(--space-3);
+  }
+
+  .footer ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+  }
+
+  .footer ul a {
+    color: #8b837a;
+    font-size: 0.9375rem;
+    transition: color 0.2s;
+  }
+  .footer ul a:hover { color: var(--paper); }
+
+  .footer-bottom {
+    padding-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: #5d5751;
+  }
+
+  @media (min-width: 640px) {
+    .footer-bottom {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+</style>
