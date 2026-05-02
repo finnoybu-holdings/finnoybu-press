@@ -358,7 +358,7 @@ a { color: inherit; text-decoration: none; }
 .collection-card .stack {
   display: flex;
   margin-top: var(--space-3);
-  height: 115px;
+  height: 100px;
   align-items: flex-end;
 }
 
@@ -379,6 +379,8 @@ a { color: inherit; text-decoration: none; }
 .collection-card:hover .stack img:nth-child(6) { transform: translateY(-19px); transition-delay: 0.20s; }
 .collection-card:hover .stack img:nth-child(7) { transform: translateY(-22px); transition-delay: 0.24s; }
 .collection-card:hover .stack img:nth-child(8) { transform: translateY(-25px); transition-delay: 0.28s; }
+.collection-card:hover .stack img:nth-child(9) { transform: translateY(-28px); transition-delay: 0.32s; }
+.collection-card:hover .stack img:nth-child(10) { transform: translateY(-31px); transition-delay: 0.36s; }
 
 .collection-card .meta {
   display: flex;
