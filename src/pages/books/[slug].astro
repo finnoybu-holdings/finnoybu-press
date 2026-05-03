@@ -95,7 +95,7 @@ if (book.data.collection === 'product-deep-dives') {
       </div>
 
       <div class="book-hero-grid">
-        <div class="cover-stage">
+        <div class="cover-stage" data-tilt-cover data-rest-y="-12" data-rest-x="2">
           <img
             src={book.data.cover_image}
             alt={`${book.data.title}: ${book.data.subtitle}`}
@@ -155,6 +155,44 @@ if (book.data.collection === 'product-deep-dives') {
         </div>
       </section>
     )}
+
+    <script>
+      // 3D parallax: cover follows the cursor with subtle perspective tilt.
+      // Disabled on touch devices (no hover) and for users who prefer reduced motion.
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const coarse = matchMedia('(pointer: coarse)').matches;
+
+      if (!reduce && !coarse) {
+        document.querySelectorAll<HTMLElement>('[data-tilt-cover]').forEach((stage) => {
+          const found = stage.querySelector<HTMLImageElement>('img');
+          if (!found) return;
+          const img: HTMLImageElement = found;
+          const restY = parseFloat(stage.dataset.restY ?? '-12');
+          const restX = parseFloat(stage.dataset.restX ?? '2');
+          const rangeY = 18;
+          const rangeX = 10;
+
+          let raf = 0;
+          function onMove(e: MouseEvent) {
+            const rect = stage.getBoundingClientRect();
+            const nx = (e.clientX - rect.left) / rect.width - 0.5;
+            const ny = (e.clientY - rect.top) / rect.height - 0.5;
+            const ry = restY + nx * rangeY;
+            const rx = restX - ny * rangeX;
+            if (raf) cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(() => {
+              img.style.transform = `rotateY(${ry}deg) rotateX(${rx}deg)`;
+            });
+          }
+          function onLeave() {
+            if (raf) cancelAnimationFrame(raf);
+            img.style.transform = '';
+          }
+          stage.addEventListener('mousemove', onMove);
+          stage.addEventListener('mouseleave', onLeave);
+        });
+      }
+    </script>
 
     {related.length > 0 && (
       <section class="section container">
@@ -230,6 +268,7 @@ if (book.data.collection === 'product-deep-dives') {
 
   .cover-stage {
     text-align: center;
+    perspective: 1500px;
   }
 
   .cover {
@@ -239,6 +278,8 @@ if (book.data.collection === 'product-deep-dives') {
     transform: rotateY(-8deg);
     transform-origin: center;
     display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    will-change: transform;
   }
 
   .hero-text h1 {

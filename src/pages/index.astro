@@ -54,7 +54,7 @@ const skillsCovers = coversFor(
     </div>
 
     {featured && (
-      <div class="hero-cover">
+      <div class="hero-cover" data-tilt-cover>
         <img
           src={featured.data.cover_image}
           alt={`${featured.data.title}: ${featured.data.subtitle}`}
@@ -65,6 +65,46 @@ const skillsCovers = coversFor(
       </div>
     )}
   </header>
+
+  <script>
+    // 3D parallax: cover follows the cursor with subtle perspective tilt.
+    // Disabled on touch devices (no hover) and for users who prefer reduced motion.
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const coarse = matchMedia('(pointer: coarse)').matches;
+
+    if (!reduce && !coarse) {
+      document.querySelectorAll<HTMLElement>('[data-tilt-cover]').forEach((stage) => {
+        const found = stage.querySelector<HTMLImageElement>('img');
+        if (!found) return;
+        const img: HTMLImageElement = found;
+        // Read rest pose from data-rest-y / data-rest-x so the JS layer respects
+        // the breakpoint-specific rotation set in CSS.
+        const restY = parseFloat(stage.dataset.restY ?? '-15');
+        const restX = parseFloat(stage.dataset.restX ?? '2');
+        const rangeY = 18;
+        const rangeX = 10;
+
+        let raf = 0;
+        function onMove(e: MouseEvent) {
+          const rect = stage.getBoundingClientRect();
+          const nx = (e.clientX - rect.left) / rect.width - 0.5;
+          const ny = (e.clientY - rect.top) / rect.height - 0.5;
+          const ry = restY + nx * rangeY;
+          const rx = restX - ny * rangeX;
+          if (raf) cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            img.style.transform = `rotateY(${ry}deg) rotateX(${rx}deg)`;
+          });
+        }
+        function onLeave() {
+          if (raf) cancelAnimationFrame(raf);
+          img.style.transform = '';
+        }
+        stage.addEventListener('mousemove', onMove);
+        stage.addEventListener('mouseleave', onLeave);
+      });
+    }
+  </script>
 
   <section class="manifesto">
     <div class="container manifesto-inner">
@@ -187,6 +227,7 @@ const skillsCovers = coversFor(
   .hero-cover {
     order: -1;
     text-align: center;
+    perspective: 1500px;
   }
 
   .hero-cover img {
@@ -196,6 +237,8 @@ const skillsCovers = coversFor(
     box-shadow: -10px 16px 28px -10px rgba(26, 22, 20, 0.28);
     transform: rotateY(-12deg);
     transform-origin: center;
+    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    will-change: transform;
   }
 
   @media (min-width: 768px) {
