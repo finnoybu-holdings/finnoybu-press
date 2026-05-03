@@ -2,6 +2,13 @@
 dist/
 .astro/
 
+# Vercel adapter build output
+.vercel/
+
+# Digital book files (auth-gated; not committed)
+output/digital/*/*.pdf
+output/digital/*/*.epub
+
 # Node
 node_modules/
 npm-debug.log*
