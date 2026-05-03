@@ -1,0 +1,304 @@
+---
+// SignInModal — opens via the `data-open-signin` attribute on any element
+// (Nav button, cart "sign in to checkout" link, etc.). Closes on backdrop
+// click, Esc key, or the close button. Mirrors the fiction sign-in modal.
+---
+
+<dialog id="signin-modal" class="signin-modal" aria-labelledby="signin-title">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="signin-title">Sign in</h2>
+      <button type="button" class="close" data-close-signin aria-label="Close">×</button>
+    </div>
+
+    <div class="oauth-grid">
+      <button type="button" class="oauth-btn" data-provider="apple"><span aria-hidden="true"></span> Apple</button>
+      <button type="button" class="oauth-btn" data-provider="github"><span aria-hidden="true"></span> GitHub</button>
+      <button type="button" class="oauth-btn" data-provider="facebook"><span aria-hidden="true"></span> Facebook</button>
+      <button type="button" class="oauth-btn" data-provider="google"><span aria-hidden="true"></span> Google</button>
+    </div>
+
+    <div class="divider"><span>or</span></div>
+
+    <form class="email-form" id="signin-form">
+      <label>
+        <span class="field-label">Email</span>
+        <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+      </label>
+      <label>
+        <span class="field-label">Password</span>
+        <input type="password" name="password" autocomplete="current-password" placeholder="At least 8 characters" minlength="8" required />
+      </label>
+
+      <p class="form-error" id="signin-error" hidden></p>
+
+      <button type="submit" class="submit">Sign in</button>
+
+      <div class="form-links">
+        <button type="button" class="link" id="forgot-password">Forgot password?</button>
+        <span>Don't have an account? <button type="button" class="link" id="toggle-signup">Sign up</button></span>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+  import { getBrowserClient } from '../lib/supabase/client';
+
+  const modal = document.getElementById('signin-modal') as HTMLDialogElement | null;
+  const form = document.getElementById('signin-form') as HTMLFormElement | null;
+  const errorEl = document.getElementById('signin-error') as HTMLParagraphElement | null;
+  const toggleSignup = document.getElementById('toggle-signup') as HTMLButtonElement | null;
+  const forgot = document.getElementById('forgot-password') as HTMLButtonElement | null;
+  const submit = form?.querySelector<HTMLButtonElement>('button.submit');
+  const titleEl = document.getElementById('signin-title');
+
+  let mode: 'signin' | 'signup' = 'signin';
+
+  function setMode(next: 'signin' | 'signup') {
+    mode = next;
+    if (titleEl) titleEl.textContent = next === 'signup' ? 'Create account' : 'Sign in';
+    if (submit) submit.textContent = next === 'signup' ? 'Sign up' : 'Sign in';
+    if (toggleSignup) {
+      toggleSignup.textContent = next === 'signup' ? 'Sign in' : 'Sign up';
+      toggleSignup.previousSibling!.textContent = next === 'signup' ? 'Already have an account? ' : "Don't have an account? ";
+    }
+    showError(null);
+  }
+
+  function showError(msg: string | null) {
+    if (!errorEl) return;
+    if (msg) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    } else {
+      errorEl.textContent = '';
+      errorEl.hidden = true;
+    }
+  }
+
+  // Triggers
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-open-signin]')) {
+      e.preventDefault();
+      modal?.showModal();
+    } else if (target.closest('[data-close-signin]')) {
+      modal?.close();
+    } else if (modal && e.target === modal) {
+      // Backdrop click
+      modal.close();
+    }
+  });
+
+  // Mode toggle
+  toggleSignup?.addEventListener('click', () => setMode(mode === 'signup' ? 'signin' : 'signup'));
+
+  // Email/password submit
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showError(null);
+    const fd = new FormData(form);
+    const email = String(fd.get('email') || '');
+    const password = String(fd.get('password') || '');
+    const supabase = getBrowserClient();
+
+    const { error } = mode === 'signup'
+      ? await supabase.auth.signUp({ email, password })
+      : await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showError(error.message);
+      return;
+    }
+
+    if (mode === 'signup') {
+      showError('Check your email to confirm your account, then sign in.');
+      return;
+    }
+
+    // Reload so server-side rendered state (Nav, cart, etc.) picks up the session.
+    window.location.reload();
+  });
+
+  // Forgot password
+  forgot?.addEventListener('click', async () => {
+    const emailInput = form?.querySelector<HTMLInputElement>('input[name="email"]');
+    const email = emailInput?.value;
+    if (!email) {
+      showError('Enter your email above first.');
+      return;
+    }
+    const supabase = getBrowserClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/account/update-password`,
+    });
+    if (error) showError(error.message);
+    else showError('Reset email sent. Check your inbox.');
+  });
+
+  // OAuth providers
+  document.querySelectorAll<HTMLButtonElement>('.oauth-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const provider = btn.dataset.provider as 'apple' | 'github' | 'facebook' | 'google';
+      const supabase = getBrowserClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (error) showError(error.message);
+    });
+  });
+</script>
+
+<style>
+  .signin-modal {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: 420px;
+    width: 90vw;
+  }
+  .signin-modal::backdrop {
+    background: rgba(26, 22, 20, 0.55);
+    backdrop-filter: blur(2px);
+  }
+  .modal-card {
+    background: var(--paper, #f5efe2);
+    border: 1px solid var(--ink-200, #d4cab2);
+    padding: 1.75rem 1.5rem 1.5rem;
+    box-shadow: 0 30px 60px -20px rgba(26, 22, 20, 0.35);
+    color: var(--ink-900, #1c1814);
+  }
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+  .modal-head h2 {
+    font-family: var(--serif, Georgia, serif);
+    font-size: 1.5rem;
+    margin: 0;
+  }
+  .close {
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--ink-500, #6e665a);
+    padding: 0.25rem 0.5rem;
+  }
+  .close:hover { color: var(--ink-900); }
+
+  .oauth-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .oauth-btn {
+    background: var(--paper);
+    border: 1px solid var(--ink-200);
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    color: var(--ink-900);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .oauth-btn:hover { border-color: var(--ink-500); background: #ede5cf; }
+
+  .divider {
+    text-align: center;
+    margin: 0.75rem 0 1rem;
+    position: relative;
+    color: var(--ink-500);
+    font-size: 0.8125rem;
+  }
+  .divider::before,
+  .divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 1.5rem);
+    height: 1px;
+    background: var(--ink-200);
+  }
+  .divider::before { left: 0; }
+  .divider::after { right: 0; }
+  .divider span { background: var(--paper); padding: 0 0.5rem; }
+
+  .email-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+  .email-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .field-label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    font-weight: 600;
+  }
+  .email-form input {
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--ink-200);
+    background: var(--paper);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    color: var(--ink-900);
+  }
+  .email-form input:focus {
+    outline: 2px solid var(--ink-700, #2e2820);
+    outline-offset: -1px;
+  }
+
+  .form-error {
+    margin: 0;
+    color: #a13d2c;
+    font-size: 0.875rem;
+  }
+
+  .submit {
+    background: var(--ink-900);
+    color: var(--paper);
+    border: 0;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.25rem;
+  }
+  .submit:hover { background: #2e2820; }
+
+  .form-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    margin-top: 0.5rem;
+  }
+  .link {
+    background: transparent;
+    border: 0;
+    color: var(--ink-900);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: inherit;
+    padding: 0;
+  }
+</style>

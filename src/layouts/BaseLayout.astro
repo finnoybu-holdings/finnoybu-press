@@ -2,6 +2,22 @@
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import SignInModal from '../components/SignInModal.astro';
+import { createClient } from '../lib/supabase/server';
+
+// Check session at layout level so the global SignInModal is only rendered
+// for signed-out visitors. Wrapped in try/catch so prerendered pages and
+// dev environments without Supabase env vars still build cleanly.
+let layoutUser: { id: string } | null = null;
+try {
+  if (import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY) {
+    const supabase = createClient(Astro.cookies);
+    const { data } = await supabase.auth.getUser();
+    layoutUser = data.user;
+  }
+} catch {
+  layoutUser = null;
+}
 
 interface Props {
   title: string;
@@ -74,5 +90,6 @@ const schemas = [orgSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonL
     <slot />
   </main>
   <Footer />
+  {!layoutUser && <SignInModal />}
 </body>
 </html>

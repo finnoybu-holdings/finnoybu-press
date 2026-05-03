@@ -1,0 +1,167 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { stripe } from '../../lib/stripe';
+
+export const prerender = false;
+
+const sessionId = Astro.url.searchParams.get('session_id');
+
+let lineItemNames: string[] = [];
+let totalDisplay = '';
+let valid = false;
+
+if (sessionId) {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['line_items'],
+    });
+    if (session.payment_status === 'paid') {
+      valid = true;
+      const items = (session as any).line_items?.data || [];
+      lineItemNames = items.map((it: any) => it.description);
+      const total = (session.amount_total || 0) / 100;
+      totalDisplay = `$${total.toFixed(2)}`;
+    }
+  } catch {
+    valid = false;
+  }
+}
+---
+<BaseLayout title="Purchase Confirmed — Finnoybu Press" description="Thank you for your purchase.">
+  <article class="success-page container">
+    {valid ? (
+      <>
+        <header class="success-head">
+          <span class="eyebrow">Purchase confirmed</span>
+          <h1>Thank you.</h1>
+          <p class="subtitle">Your downloads are ready in your account library.</p>
+        </header>
+
+        <section class="success-summary">
+          <h2>What you bought</h2>
+          <ul class="items">
+            {lineItemNames.map((name) => <li>{name}</li>)}
+          </ul>
+          {totalDisplay && (
+            <p class="total"><strong>Total:</strong> {totalDisplay}</p>
+          )}
+        </section>
+
+        <section class="next-steps">
+          <a href="/account" class="primary-btn">Go to your library</a>
+          <a href="/#collections" class="secondary-link">Continue browsing →</a>
+        </section>
+
+        <p class="receipt-note">A receipt has been emailed to the address on your account.</p>
+      </>
+    ) : (
+      <header class="success-head">
+        <h1>Purchase status unclear.</h1>
+        <p class="subtitle">
+          We couldn't verify your checkout session. If you completed payment,
+          your order should appear in <a href="/account">your library</a> within
+          a few seconds. If something looks wrong, please contact
+          <a href="mailto:press@finnoybu.org">press@finnoybu.org</a>.
+        </p>
+      </header>
+    )}
+  </article>
+
+  <script>
+    // Clear the cart on successful purchase. Run regardless of valid flag —
+    // if Stripe redirected here with a session_id, the items were ordered.
+    if (new URL(window.location.href).searchParams.has('session_id')) {
+      try {
+        localStorage.removeItem('fp-cart');
+        window.dispatchEvent(new Event('fp-cart-change'));
+      } catch {}
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .success-page {
+    padding-block: var(--space-5) var(--space-6);
+    max-width: var(--max-narrow, 640px);
+  }
+  .success-head { margin-bottom: var(--space-4); }
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #2e8a5f;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .success-head h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+  }
+  .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--ink-700);
+    font-size: 1.0625rem;
+    margin-top: var(--space-2);
+  }
+
+  .success-summary {
+    margin: var(--space-4) 0;
+    padding: var(--space-3);
+    background: #ede5cf;
+    border-left: 3px solid var(--ink-900);
+  }
+  .success-summary h2 {
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 var(--space-2);
+    color: var(--ink-500);
+  }
+  .items {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-2);
+  }
+  .items li {
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--ink-200);
+  }
+  .items li:last-child { border-bottom: 0; }
+  .total { margin: 0.5rem 0 0; }
+
+  .next-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: flex-start;
+    margin-bottom: var(--space-3);
+  }
+  @media (min-width: 480px) {
+    .next-steps { flex-direction: row; align-items: center; gap: var(--space-3); }
+  }
+
+  .primary-btn {
+    background: var(--ink-900);
+    color: var(--paper);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .primary-btn:hover { background: #2e2820; }
+
+  .secondary-link {
+    color: var(--ink-700);
+    text-decoration: underline;
+  }
+
+  .receipt-note {
+    color: var(--ink-500);
+    font-size: 0.8125rem;
+    font-style: italic;
+  }
+</style>

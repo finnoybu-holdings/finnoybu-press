@@ -1,0 +1,319 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SignInModal from '../components/SignInModal.astro';
+import { getCollection } from 'astro:content';
+import { createClient } from '../lib/supabase/server';
+
+export const prerender = false;
+
+const supabase = createClient(Astro.cookies);
+const { data: { user } } = await supabase.auth.getUser();
+
+const allBooks = await getCollection('books');
+const bookMap = new Map(allBooks.map((b) => [b.slug, b]));
+// Pass the full catalog as JSON so the client can render cart items by slug.
+const catalogForClient = allBooks.map((b) => ({
+  slug: b.slug,
+  title: b.data.title,
+  subtitle: b.data.subtitle,
+  cover_thumb: b.data.cover_thumb || b.data.cover_image,
+}));
+---
+<BaseLayout title="Cart — Finnoybu Press" description="Your Finnoybu Press cart.">
+  <article class="cart-page">
+    <header class="page-head container">
+      <h1>Cart</h1>
+      <p class="subtitle">PDF + ePub digital bundles. $7.49 each.</p>
+    </header>
+
+    <section class="container cart-section">
+      <div id="cart-empty" class="cart-empty" hidden>
+        <p>Your cart is empty.</p>
+        <a href="/#collections" class="link">Browse the catalog →</a>
+      </div>
+
+      <ul id="cart-list" class="cart-list" hidden></ul>
+
+      <div id="cart-summary" class="cart-summary" hidden>
+        <div class="totals">
+          <span class="totals-label">Total</span>
+          <span class="totals-amount" id="cart-total">$0.00</span>
+        </div>
+
+        {user ? (
+          <button type="button" id="checkout-btn" class="checkout-btn">Proceed to checkout</button>
+        ) : (
+          <div class="signin-cta">
+            <button type="button" data-open-signin class="checkout-btn">Sign in to checkout</button>
+            <p class="signin-note">Sign in or create an account to complete your purchase.</p>
+          </div>
+        )}
+
+        <p id="checkout-error" class="checkout-error" hidden></p>
+      </div>
+    </section>
+  </article>
+
+  <SignInModal />
+
+  <script define:vars={{ catalog: catalogForClient, signedIn: !!user }}>
+    const PRICE_CENTS = 749;
+
+    const cartList = document.getElementById('cart-list');
+    const cartEmpty = document.getElementById('cart-empty');
+    const cartSummary = document.getElementById('cart-summary');
+    const cartTotal = document.getElementById('cart-total');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const checkoutError = document.getElementById('checkout-error');
+
+    const STORAGE_KEY = 'fp-cart';
+    const CHANGE_EVENT = 'fp-cart-change';
+
+    function readCart() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed.filter((it) => it && typeof it.slug === 'string') : [];
+      } catch {
+        return [];
+      }
+    }
+    function writeCart(items) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      window.dispatchEvent(new Event(CHANGE_EVENT));
+    }
+    function fmt(cents) {
+      return '$' + (cents / 100).toFixed(2);
+    }
+
+    function render() {
+      const items = readCart();
+      const catalogMap = new Map(catalog.map((b) => [b.slug, b]));
+
+      if (items.length === 0) {
+        cartEmpty.hidden = false;
+        cartList.hidden = true;
+        cartSummary.hidden = true;
+        return;
+      }
+
+      cartEmpty.hidden = true;
+      cartList.hidden = false;
+      cartSummary.hidden = false;
+
+      cartList.innerHTML = '';
+      for (const item of items) {
+        const book = catalogMap.get(item.slug);
+        if (!book) continue;
+        const li = document.createElement('li');
+        li.className = 'cart-item';
+        li.innerHTML = `
+          <a href="/books/${book.slug}" class="cart-cover">
+            <img src="${book.cover_thumb}" alt="${book.title}" loading="lazy" />
+          </a>
+          <div class="cart-meta">
+            <h3>${book.title}</h3>
+            <p class="cart-subtitle">${book.subtitle}</p>
+            <p class="cart-format">PDF + ePub bundle</p>
+          </div>
+          <div class="cart-price-col">
+            <span class="cart-price">${fmt(PRICE_CENTS)}</span>
+            <button type="button" class="cart-remove" data-remove="${book.slug}">Remove</button>
+          </div>
+        `;
+        cartList.appendChild(li);
+      }
+
+      cartTotal.textContent = fmt(items.length * PRICE_CENTS);
+    }
+
+    cartList.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-remove]');
+      if (!target) return;
+      const slug = target.dataset.remove;
+      writeCart(readCart().filter((it) => it.slug !== slug));
+    });
+
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', async () => {
+        checkoutError.hidden = true;
+        const items = readCart();
+        if (items.length === 0) return;
+
+        checkoutBtn.disabled = true;
+        checkoutBtn.textContent = 'Redirecting…';
+
+        try {
+          const res = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slugs: items.map((it) => it.slug) }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            checkoutError.textContent = data.error || 'Checkout failed.';
+            checkoutError.hidden = false;
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = 'Proceed to checkout';
+            return;
+          }
+          window.location.href = data.url;
+        } catch (err) {
+          checkoutError.textContent = 'Network error. Please try again.';
+          checkoutError.hidden = false;
+          checkoutBtn.disabled = false;
+          checkoutBtn.textContent = 'Proceed to checkout';
+        }
+      });
+    }
+
+    window.addEventListener(CHANGE_EVENT, render);
+    window.addEventListener('storage', render);
+    render();
+  </script>
+</BaseLayout>
+
+<style>
+  .cart-page { padding-bottom: 6rem; }
+  .page-head {
+    padding-block: var(--space-4) var(--space-3);
+  }
+  .page-head h1 {
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    line-height: 1.1;
+    margin-bottom: 0.25em;
+  }
+  .subtitle {
+    color: var(--ink-500);
+    font-family: var(--serif);
+    font-style: italic;
+  }
+
+  .cart-section { padding-block: var(--space-3) var(--space-5); }
+
+  .cart-empty {
+    text-align: center;
+    padding: var(--space-5) var(--space-3);
+    color: var(--ink-500);
+  }
+  .cart-empty .link {
+    display: inline-block;
+    margin-top: var(--space-2);
+    color: var(--ink-900);
+    text-decoration: underline;
+  }
+
+  .cart-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .cart-item {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--ink-100);
+    align-items: center;
+  }
+  .cart-item:last-child { border-bottom: 1px solid var(--ink-100); }
+
+  .cart-cover img {
+    width: 64px;
+    height: auto;
+    border: 1px solid var(--ink-200);
+  }
+  .cart-meta h3 {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    margin: 0 0 0.15em;
+    color: var(--ink-900);
+  }
+  .cart-subtitle {
+    font-style: italic;
+    color: var(--ink-700);
+    font-family: var(--serif);
+    font-size: 0.9375rem;
+    margin: 0;
+  }
+  .cart-format {
+    color: var(--ink-500);
+    font-size: 0.8125rem;
+    margin: 0.25rem 0 0;
+  }
+  .cart-price-col {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .cart-price {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .cart-remove {
+    background: transparent;
+    border: 0;
+    color: var(--ink-500);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    padding: 0;
+  }
+  .cart-remove:hover { color: var(--ink-900); }
+
+  .cart-summary {
+    border-top: 2px solid var(--ink-900);
+    padding-top: var(--space-3);
+    max-width: 480px;
+    margin-left: auto;
+  }
+  .totals {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--space-3);
+  }
+  .totals-label {
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+  }
+  .totals-amount {
+    font-family: var(--serif);
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+  .checkout-btn {
+    width: 100%;
+    background: var(--ink-900);
+    color: var(--paper);
+    border: 0;
+    padding: 0.875rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .checkout-btn:hover { background: #2e2820; }
+  .checkout-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .signin-note {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    text-align: center;
+  }
+
+  .checkout-error {
+    margin-top: 0.75rem;
+    color: #a13d2c;
+    font-size: 0.875rem;
+  }
+</style>

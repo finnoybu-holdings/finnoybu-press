@@ -1,7 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MobileBuyBar from '../../components/MobileBuyBar.astro';
+import AddToCartButton from '../../components/AddToCartButton.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
+
+export const prerender = true;
 
 export async function getStaticPaths() {
   const books = await getCollection('books');
@@ -120,21 +123,26 @@ if (book.data.collection === 'product-deep-dives') {
               <strong>In development.</strong> Sign up for notification when this book launches.
             </p>
           ) : (
-            <div class="formats">
-              {book.data.formats.map((f) => (
-                <a
-                  href={f.url ?? '#'}
-                  target={f.url ? '_blank' : undefined}
-                  rel={f.url ? 'noopener' : undefined}
-                  class={`format ${!f.url ? 'unavailable' : ''}`}
-                  data-type={f.type}
-                  aria-disabled={!f.url}
-                >
-                  <span class="format-type">{f.label}</span>
-                  <span class="format-price">{f.url ? f.price : 'Coming soon'}</span>
-                </a>
-              ))}
-            </div>
+            <>
+              <div class="primary-buy">
+                <AddToCartButton slug={book.slug} />
+              </div>
+              <div class="formats">
+                {book.data.formats.map((f) => (
+                  <a
+                    href={f.url ?? '#'}
+                    target={f.url ? '_blank' : undefined}
+                    rel={f.url ? 'noopener' : undefined}
+                    class={`format ${!f.url ? 'unavailable' : ''}`}
+                    data-type={f.type}
+                    aria-disabled={!f.url}
+                  >
+                    <span class="format-type">{f.label}</span>
+                    <span class="format-price">{f.url ? f.price : 'Coming soon'}</span>
+                  </a>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>

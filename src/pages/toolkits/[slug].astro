@@ -3,6 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import MobileBuyBar from '../../components/MobileBuyBar.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 
+export const prerender = true;
+
 export async function getStaticPaths() {
   const toolkits = await getCollection('toolkits');
   return toolkits.map((tk) => ({

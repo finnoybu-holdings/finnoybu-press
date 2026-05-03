@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CollectionCard from '../components/CollectionCard.astro';
 import { getCollection } from 'astro:content';
 
+export const prerender = true;
+
 const allBooks = await getCollection('books');
 const sorted = allBooks.sort((a, b) => a.data.number - b.data.number);
 const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
