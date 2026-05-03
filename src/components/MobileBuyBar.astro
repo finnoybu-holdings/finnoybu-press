@@ -12,9 +12,10 @@ interface Format {
 interface Props {
   title: string;
   formats: Format[];
+  itemNoun?: string;        // for the CTA label ("Buy this <noun>"), defaults to "book"
 }
 
-const { title, formats } = Astro.props;
+const { title, formats, itemNoun = 'book' } = Astro.props;
 
 // Find the cheapest with a URL (fallback to first format)
 const available = formats.filter((f) => f.url);
@@ -28,7 +29,7 @@ const primary = available[0] ?? formats[0];
           <span class="from">From</span>
           <span class="price">{primary.price}</span>
         </span>
-        <span class="cta">Buy this book ↗</span>
+        <span class="cta">Buy this {itemNoun} ↗</span>
       </button>
     </aside>
 

@@ -48,6 +48,9 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Offset anchor jumps so the target isn't tucked under the sticky nav */
+[id] { scroll-margin-top: 4rem; }
+
 body {
   font-family: var(--sans);
   font-size: 1.0625rem;
