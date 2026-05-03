@@ -19,6 +19,7 @@ interface Props {
   covers: CoverItem[];      // covers shown in the stack
   ctaLabel?: string;        // defaults to "View collection →"
   mobileCoverLimit?: number; // if set, hide covers beyond this index at narrow widths (<1024px)
+  itemNoun?: string;        // singular noun for the meta count, defaults to "book"
 }
 
 const {
@@ -32,6 +33,7 @@ const {
   covers,
   ctaLabel = 'View collection →',
   mobileCoverLimit,
+  itemNoun = 'book',
 } = Astro.props;
 
 ---
@@ -47,7 +49,7 @@ const {
   </div>
 
   <div class="meta">
-    <span>{bookCount} {bookCount === 1 ? 'book' : 'books'} · {bookList}</span>
+    <span>{bookCount} {bookCount === 1 ? itemNoun : `${itemNoun}s`} · {bookList}</span>
     <span class="arrow">{ctaLabel}</span>
   </div>
 </a>
@@ -65,7 +67,6 @@ const {
                 border-color 0.3s,
                 box-shadow 0.3s;
     position: relative;
-    overflow: hidden;
     height: 100%;
   }
 
@@ -108,7 +109,6 @@ const {
     margin-top: var(--space-3);
     height: 100px;
     align-items: flex-end;
-    overflow: hidden;
   }
 
   .stack img {
