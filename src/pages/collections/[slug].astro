@@ -1,8 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import BundleCTA from '../../components/BundleCTA.astro';
 import { getCollection } from 'astro:content';
 
 export const prerender = true;
+
+// Map collection slug → bundle id (only collections with bundles).
+const COLLECTION_BUNDLES: Record<string, string> = {
+  'product-deep-dives': 'collection-product-deep-dives',
+  'product-guides': 'collection-product-guides',
+  'cross-platform-skills': 'collection-cross-platform-skills',
+};
 
 interface CollectionMeta {
   slug: string;
@@ -112,6 +120,12 @@ if (meta.source === 'books') {
       <h1>{meta.title}</h1>
       <p class="lede">{meta.description}</p>
     </header>
+
+    {COLLECTION_BUNDLES[slug as string] && (
+      <section class="container bundle-section">
+        <BundleCTA bundleId={COLLECTION_BUNDLES[slug as string]} />
+      </section>
+    )}
 
     <section class="container item-section">
       <ul class={`item-grid count-${items.length} ${meta.source === 'toolkits' ? 'square-thumbs' : ''}`}>

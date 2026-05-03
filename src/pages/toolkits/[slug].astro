@@ -93,18 +93,71 @@ const productSchema = {
 
           <div class="formats">
             {tk.data.formats.map((f) => (
-              <a
-                href={f.url ?? '#'}
-                target={f.url ? '_blank' : undefined}
-                rel={f.url ? 'noopener' : undefined}
-                class={`format ${!f.url ? 'unavailable' : ''}`}
-                data-type={f.type}
-              >
-                <span class="format-type">{f.label}</span>
-                <span class="format-price">{f.url ? f.price : 'Coming soon'}</span>
-              </a>
+              f.type === 'pdf-epub' ? (
+                <button
+                  type="button"
+                  class="format format-cart"
+                  data-type={f.type}
+                  data-add-toolkit-cart
+                  data-slug={tk.slug}
+                >
+                  <span class="format-type">{f.label}</span>
+                  <span class="format-price" data-cart-price>{f.price}</span>
+                </button>
+              ) : (
+                <a
+                  href={f.url ?? '#'}
+                  target={f.url ? '_blank' : undefined}
+                  rel={f.url ? 'noopener' : undefined}
+                  class={`format ${!f.url ? 'unavailable' : ''}`}
+                  data-type={f.type}
+                >
+                  <span class="format-type">{f.label}</span>
+                  <span class="format-price">{f.url ? f.price : 'Coming soon'}</span>
+                </a>
+              )
             ))}
           </div>
+
+          <script>
+            import { addToCart, removeFromCart, isInCart, onCartChange } from '../../lib/cart';
+
+            function refreshToolkitButtons() {
+              document.querySelectorAll<HTMLButtonElement>('[data-add-toolkit-cart]').forEach((btn) => {
+                const slug = btn.dataset.slug;
+                if (!slug) return;
+                const inCart = isInCart(slug, 'toolkit');
+                btn.classList.toggle('in-cart', inCart);
+                const typeEl = btn.querySelector<HTMLSpanElement>('.format-type');
+                const priceEl = btn.querySelector<HTMLSpanElement>('[data-cart-price]');
+                if (typeEl && priceEl) {
+                  if (inCart) {
+                    typeEl.textContent = 'In cart';
+                    priceEl.textContent = 'Remove';
+                  } else {
+                    typeEl.textContent = typeEl.dataset.original ?? typeEl.textContent;
+                    priceEl.textContent = priceEl.dataset.original ?? priceEl.textContent;
+                  }
+                }
+              });
+            }
+
+            document.querySelectorAll<HTMLButtonElement>('[data-add-toolkit-cart]').forEach((btn) => {
+              const typeEl = btn.querySelector<HTMLSpanElement>('.format-type');
+              const priceEl = btn.querySelector<HTMLSpanElement>('[data-cart-price]');
+              if (typeEl && !typeEl.dataset.original) typeEl.dataset.original = typeEl.textContent || '';
+              if (priceEl && !priceEl.dataset.original) priceEl.dataset.original = priceEl.textContent || '';
+              btn.addEventListener('click', () => {
+                const slug = btn.dataset.slug;
+                if (!slug) return;
+                if (isInCart(slug, 'toolkit')) removeFromCart(slug, 'toolkit');
+                else addToCart(slug, 'toolkit');
+              });
+            });
+
+            onCartChange(refreshToolkitButtons);
+            refreshToolkitButtons();
+          </script>
         </div>
       </div>
     </header>

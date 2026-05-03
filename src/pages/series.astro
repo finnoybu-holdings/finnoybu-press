@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import BundleCTA from '../components/BundleCTA.astro';
 import { getCollection } from 'astro:content';
 
 export const prerender = true;
@@ -41,6 +42,10 @@ const collectionOrder = ['product-deep-dives', 'product-guides', 'cross-platform
       Twenty-one books across three collections. Each book is written to be useful on day one and to serve as a reference you come back to.
     </p>
   </header>
+
+  <section class="container series-bundle-section">
+    <BundleCTA bundleId="series-complete" />
+  </section>
 
   {collectionOrder.map((cid) => {
     const list = groups[cid] ?? [];

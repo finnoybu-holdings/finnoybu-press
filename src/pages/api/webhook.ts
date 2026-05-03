@@ -4,6 +4,8 @@ import { createServiceClient } from '../../lib/supabase/server';
 
 export const prerender = false;
 
+type Grant = { slug: string; kind: 'book' | 'toolkit' };
+
 export const POST: APIRoute = async ({ request }) => {
   const sig = request.headers.get('stripe-signature');
   const webhookSecret = import.meta.env.STRIPE_WEBHOOK_SECRET;
@@ -24,34 +26,61 @@ export const POST: APIRoute = async ({ request }) => {
   if (event.type === 'checkout.session.completed') {
     const session: any = event.data.object;
     const userId = session.metadata?.user_id;
-    const productId = session.metadata?.product_id || DIGITAL_BUNDLE_PRODUCT_ID;
-    let slugs: string[] = [];
-    try {
-      slugs = JSON.parse(session.metadata?.book_slugs || '[]');
-    } catch {
-      slugs = [];
+    if (!userId) {
+      return Response.json({ received: true });
     }
 
-    if (userId && slugs.length > 0) {
-      const supabase = createServiceClient();
-      const rows = slugs.map((slug) => ({
-        user_id: userId,
-        book_slug: slug,
-        product_id: productId,
-        stripe_session_id: session.id,
-        amount_cents: Math.round((session.amount_total || 0) / slugs.length),
-        currency: session.currency || 'usd',
-      }));
-
-      // Use upsert against the unique (stripe_session_id, book_slug) index so
-      // webhook retries are idempotent.
-      const { error } = await supabase
-        .from('purchases')
-        .upsert(rows, { onConflict: 'stripe_session_id,book_slug' });
-
-      if (error) {
-        return Response.json({ error: error.message }, { status: 500 });
+    // Parse the grants list (current format: every item the buyer should
+    // receive, expanded from any bundles at checkout time). Fall back to
+    // the legacy book_slugs list for any old sessions still in flight.
+    let grants: Grant[] = [];
+    try {
+      const raw = session.metadata?.grants;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          grants = parsed.filter(
+            (g: any) =>
+              g && typeof g.slug === 'string' && (g.kind === 'book' || g.kind === 'toolkit')
+          );
+        }
       }
+      if (grants.length === 0 && session.metadata?.book_slugs) {
+        const legacySlugs = JSON.parse(session.metadata.book_slugs);
+        if (Array.isArray(legacySlugs)) {
+          grants = legacySlugs.map((slug: string) => ({ slug, kind: 'book' as const }));
+        }
+      }
+    } catch {
+      grants = [];
+    }
+
+    if (grants.length === 0) {
+      return Response.json({ received: true });
+    }
+
+    const supabase = createServiceClient();
+    const totalAmount = session.amount_total || 0;
+    const perGrant = Math.round(totalAmount / grants.length);
+
+    // Schema's `book_slug` column actually holds any item slug (book or
+    // toolkit). `product_id` differentiates: 'pdf-epub' for books,
+    // 'toolkit-pdf' for toolkits. Future schema rename → `item_slug`.
+    const rows = grants.map((g) => ({
+      user_id: userId,
+      book_slug: g.slug,
+      product_id: g.kind === 'toolkit' ? 'toolkit-pdf' : DIGITAL_BUNDLE_PRODUCT_ID,
+      stripe_session_id: session.id,
+      amount_cents: perGrant,
+      currency: session.currency || 'usd',
+    }));
+
+    const { error } = await supabase
+      .from('purchases')
+      .upsert(rows, { onConflict: 'stripe_session_id,book_slug' });
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
     }
   }
 

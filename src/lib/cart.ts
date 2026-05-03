@@ -1,13 +1,15 @@
-// Client-side cart, persisted in localStorage. The cart holds book slugs;
-// titles, prices, and cover images are looked up from the books content
-// collection at render time so they stay in sync if anything changes.
+// Client-side cart, persisted in localStorage. Holds three kinds of items:
+// books, toolkits, and bundles (multi-item discount packages). Lookups
+// (titles, prices, covers) happen at render time against the catalog so
+// metadata stays in sync across content updates.
 
 const STORAGE_KEY = 'fp-cart';
+const CHANGE_EVENT = 'fp-cart-change';
 
-export interface CartItem {
-  slug: string;       // matches a book in the content collection
-  addedAt: number;    // timestamp; useful for "newest first" sorts
-}
+export type CartItem =
+  | { kind: 'book'; slug: string; addedAt: number }
+  | { kind: 'toolkit'; slug: string; addedAt: number }
+  | { kind: 'bundle'; bundleId: string; addedAt: number };
 
 export function getCart(): CartItem[] {
   if (typeof window === 'undefined') return [];
@@ -16,7 +18,22 @@ export function getCart(): CartItem[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((it) => it && typeof it.slug === 'string');
+    // Migrate legacy entries that have only { slug, addedAt } — treat as book.
+    return parsed
+      .filter((it) => it && typeof it === 'object')
+      .map((it: any): CartItem | null => {
+        if (it.kind === 'bundle' && typeof it.bundleId === 'string') {
+          return { kind: 'bundle', bundleId: it.bundleId, addedAt: it.addedAt || Date.now() };
+        }
+        if (it.kind === 'toolkit' && typeof it.slug === 'string') {
+          return { kind: 'toolkit', slug: it.slug, addedAt: it.addedAt || Date.now() };
+        }
+        if (typeof it.slug === 'string') {
+          return { kind: 'book', slug: it.slug, addedAt: it.addedAt || Date.now() };
+        }
+        return null;
+      })
+      .filter((it): it is CartItem => it !== null);
   } catch {
     return [];
   }
@@ -28,28 +45,63 @@ export function setCart(items: CartItem[]): void {
   notifyChange();
 }
 
-export function addToCart(slug: string): boolean {
+// Convenience predicates over cart contents.
+function bookSlugsInCart(cart: CartItem[]): Set<string> {
+  return new Set(cart.filter((it) => it.kind === 'book').map((it) => (it as any).slug));
+}
+function toolkitSlugsInCart(cart: CartItem[]): Set<string> {
+  return new Set(cart.filter((it) => it.kind === 'toolkit').map((it) => (it as any).slug));
+}
+function bundleIdsInCart(cart: CartItem[]): Set<string> {
+  return new Set(cart.filter((it) => it.kind === 'bundle').map((it) => (it as any).bundleId));
+}
+
+export function addToCart(slug: string, kind: 'book' | 'toolkit' = 'book'): boolean {
   const cart = getCart();
-  if (cart.some((it) => it.slug === slug)) return false;
-  cart.push({ slug, addedAt: Date.now() });
+  const existing = kind === 'book' ? bookSlugsInCart(cart) : toolkitSlugsInCart(cart);
+  if (existing.has(slug)) return false;
+  cart.push({ kind, slug, addedAt: Date.now() } as CartItem);
   setCart(cart);
   return true;
 }
 
-export function removeFromCart(slug: string): void {
-  setCart(getCart().filter((it) => it.slug !== slug));
+export function removeFromCart(slug: string, kind: 'book' | 'toolkit' = 'book'): void {
+  setCart(getCart().filter((it) => !(it.kind === kind && (it as any).slug === slug)));
+}
+
+// Add a bundle to the cart. Removes any individual books/toolkits the bundle
+// subsumes (caller passes the included slug lists since bundle resolution
+// requires the catalog).
+export function addBundleToCart(bundleId: string, includedBookSlugs: string[], includedToolkitSlugs: string[]): boolean {
+  const cart = getCart();
+  if (bundleIdsInCart(cart).has(bundleId)) return false;
+  const bookSet = new Set(includedBookSlugs);
+  const toolkitSet = new Set(includedToolkitSlugs);
+  const remaining = cart.filter((it) => {
+    if (it.kind === 'book' && bookSet.has((it as any).slug)) return false;
+    if (it.kind === 'toolkit' && toolkitSet.has((it as any).slug)) return false;
+    return true;
+  });
+  remaining.push({ kind: 'bundle', bundleId, addedAt: Date.now() });
+  setCart(remaining);
+  return true;
+}
+
+export function removeBundleFromCart(bundleId: string): void {
+  setCart(getCart().filter((it) => !(it.kind === 'bundle' && (it as any).bundleId === bundleId)));
 }
 
 export function clearCart(): void {
   setCart([]);
 }
 
-export function isInCart(slug: string): boolean {
-  return getCart().some((it) => it.slug === slug);
+export function isInCart(slug: string, kind: 'book' | 'toolkit' = 'book'): boolean {
+  return getCart().some((it) => it.kind === kind && (it as any).slug === slug);
 }
 
-// Pub-sub for cart changes so the Nav badge can update without polling
-const CHANGE_EVENT = 'fp-cart-change';
+export function isBundleInCart(bundleId: string): boolean {
+  return bundleIdsInCart(getCart()).has(bundleId);
+}
 
 export function onCartChange(handler: () => void): () => void {
   if (typeof window === 'undefined') return () => {};

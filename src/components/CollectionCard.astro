@@ -151,8 +151,9 @@ const {
   .collection-card:hover .arrow { transform: translateX(4px); }
 
   @media (min-width: 480px) {
-    .meta { flex-direction: row; justify-content: space-between; align-items: baseline; }
     .stack { height: 110px; }
+    /* Meta stays in column orientation at all sizes so the "View collection →"
+       link always sits on its own line below the wrapping book list. */
   }
 
   @media (min-width: 768px) {
