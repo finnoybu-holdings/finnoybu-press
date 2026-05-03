@@ -6,17 +6,28 @@ import { createClient } from '../../lib/supabase/server';
 
 export const prerender = false;
 
-const supabase = createClient(Astro.cookies);
-const { data: { user } } = await supabase.auth.getUser();
-
+// Env-guarded user check — page still renders (with sign-in CTA) when
+// Supabase isn't configured yet, instead of throwing a 500.
+let user: { id: string; email?: string | null } | null = null;
 let purchases: { book_slug: string; created_at: string }[] = [];
-if (user) {
-  const { data } = await supabase
-    .from('purchases')
-    .select('book_slug, created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
-  purchases = data || [];
+try {
+  if (import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY) {
+    const supabase = createClient(Astro.cookies);
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+
+    if (user) {
+      const { data: rows } = await supabase
+        .from('purchases')
+        .select('book_slug, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      purchases = rows || [];
+    }
+  }
+} catch {
+  user = null;
+  purchases = [];
 }
 
 const allBooks = await getCollection('books');
