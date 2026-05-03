@@ -22,12 +22,41 @@ const allToolkits = await getCollection('toolkits');
 const related = allToolkits
   .filter((t) => t.slug !== tk.slug)
   .sort((a, b) => a.data.number - b.data.number);
+
+// schema.org Product metadata for SEO + rich results
+const paidOffers = tk.data.formats.filter((f) => f.url);
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: `${tk.data.title} — ${tk.data.subtitle}`,
+  description: tk.data.description,
+  image: new URL(tk.data.cover_image, Astro.site).toString(),
+  brand: { '@type': 'Brand', name: tk.data.publisher },
+  category: 'AI Governance / Compliance Toolkit',
+  url: new URL(Astro.url.pathname, Astro.site).toString(),
+  ...(paidOffers.length > 0 && {
+    offers: paidOffers.map((f) => ({
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      price: f.price.replace(/[^0-9.]/g, ''),
+      url: f.url,
+      availability: 'https://schema.org/InStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    })),
+  }),
+  additionalProperty: [
+    { '@type': 'PropertyValue', name: 'Tier', value: tk.data.tier },
+    { '@type': 'PropertyValue', name: 'Document count', value: tk.data.doc_count },
+    { '@type': 'PropertyValue', name: 'Edition', value: tk.data.edition },
+  ],
+};
 ---
 <BaseLayout
   title={`${tk.data.title} — ${tk.data.subtitle} — Finnoybu Press`}
   description={tk.data.description}
-  ogImage={tk.data.cover_image}
+  ogImage={tk.data.cover_image.replace('/images/', '/images/og/').replace('.png', '.jpg')}
   ogType="product"
+  jsonLd={productSchema}
 >
   <article class="toolkit-page" style={`--accent-color: ${tk.data.accent_color}`}>
 
@@ -125,7 +154,7 @@ const related = allToolkits
     )}
   </article>
 
-  <MobileBuyBar title={`${tk.data.title} — ${tk.data.subtitle}`} formats={tk.data.formats} />
+  <MobileBuyBar title={`${tk.data.title} — ${tk.data.subtitle}`} formats={tk.data.formats} itemNoun="toolkit" />
 </BaseLayout>
 
 <style>

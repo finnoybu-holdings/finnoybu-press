@@ -79,7 +79,7 @@ if (book.data.collection === 'product-deep-dives') {
 <BaseLayout
   title={`${book.data.title}: ${book.data.subtitle} — Finnoybu Press`}
   description={book.data.description}
-  ogImage={book.data.cover_image}
+  ogImage={book.data.cover_image.replace('/images/', '/images/og/')}
   ogType="book"
   jsonLd={bookSchema}
 >
