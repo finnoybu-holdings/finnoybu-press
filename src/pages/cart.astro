@@ -10,14 +10,21 @@ const supabase = createClient(Astro.cookies);
 const { data: { user } } = await supabase.auth.getUser();
 
 const allBooks = await getCollection('books');
-const bookMap = new Map(allBooks.map((b) => [b.slug, b]));
 // Pass the full catalog as JSON so the client can render cart items by slug.
-const catalogForClient = allBooks.map((b) => ({
-  slug: b.slug,
-  title: b.data.title,
-  subtitle: b.data.subtitle,
-  cover_thumb: b.data.cover_thumb || b.data.cover_image,
-}));
+// Price comes from each book's pdf-epub format ($7.99, etc.) — no hardcoded constant.
+const catalogForClient = allBooks.map((b) => {
+  const bundle = b.data.formats.find((f: any) => f.type === 'pdf-epub');
+  const priceStr = bundle?.price ?? '';
+  const cents = priceStr ? Math.round(parseFloat(priceStr.replace(/[^0-9.]/g, '')) * 100) : 0;
+  return {
+    slug: b.slug,
+    title: b.data.title,
+    subtitle: b.data.subtitle,
+    cover_thumb: b.data.cover_thumb || b.data.cover_image,
+    price_str: priceStr,
+    price_cents: cents,
+  };
+});
 ---
 <BaseLayout title="Cart — Finnoybu Press" description="Your Finnoybu Press cart.">
   <article class="cart-page">
@@ -57,8 +64,6 @@ const catalogForClient = allBooks.map((b) => ({
   <SignInModal />
 
   <script define:vars={{ catalog: catalogForClient, signedIn: !!user }}>
-    const PRICE_CENTS = 749;
-
     const cartList = document.getElementById('cart-list');
     const cartEmpty = document.getElementById('cart-empty');
     const cartSummary = document.getElementById('cart-summary');
@@ -102,9 +107,11 @@ const catalogForClient = allBooks.map((b) => ({
       cartSummary.hidden = false;
 
       cartList.innerHTML = '';
+      let totalCents = 0;
       for (const item of items) {
         const book = catalogMap.get(item.slug);
         if (!book) continue;
+        totalCents += book.price_cents;
         const li = document.createElement('li');
         li.className = 'cart-item';
         li.innerHTML = `
@@ -117,14 +124,14 @@ const catalogForClient = allBooks.map((b) => ({
             <p class="cart-format">PDF + ePub bundle</p>
           </div>
           <div class="cart-price-col">
-            <span class="cart-price">${fmt(PRICE_CENTS)}</span>
+            <span class="cart-price">${fmt(book.price_cents)}</span>
             <button type="button" class="cart-remove" data-remove="${book.slug}">Remove</button>
           </div>
         `;
         cartList.appendChild(li);
       }
 
-      cartTotal.textContent = fmt(items.length * PRICE_CENTS);
+      cartTotal.textContent = fmt(totalCents);
     }
 
     cartList.addEventListener('click', (e) => {

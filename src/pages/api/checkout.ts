@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import { createClient } from '../../lib/supabase/server';
 import {
   stripe,
-  DIGITAL_BUNDLE_PRICE_CENTS,
+  priceStringToCents,
   DIGITAL_BUNDLE_CURRENCY,
   DIGITAL_BUNDLE_PRODUCT_ID,
 } from '../../lib/stripe';
@@ -42,11 +42,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (!book) {
       return Response.json({ error: `Unknown book: ${slug}` }, { status: 400 });
     }
+    const bundle = book.data.formats.find((f) => f.type === DIGITAL_BUNDLE_PRODUCT_ID);
+    if (!bundle) {
+      return Response.json({ error: `No PDF/EPUB bundle for: ${slug}` }, { status: 400 });
+    }
+    const cents = priceStringToCents(bundle.price);
+    if (!cents) {
+      return Response.json({ error: `Invalid price for: ${slug}` }, { status: 400 });
+    }
     validatedSlugs.push(slug);
     lineItems.push({
       price_data: {
         currency: DIGITAL_BUNDLE_CURRENCY,
-        unit_amount: DIGITAL_BUNDLE_PRICE_CENTS,
+        unit_amount: cents,
         product_data: {
           name: `${book.data.title} — PDF & ePub`,
           metadata: { book_slug: slug },

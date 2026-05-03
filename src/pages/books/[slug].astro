@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MobileBuyBar from '../../components/MobileBuyBar.astro';
-import AddToCartButton from '../../components/AddToCartButton.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export const prerender = true;
@@ -123,12 +122,20 @@ if (book.data.collection === 'product-deep-dives') {
               <strong>In development.</strong> Sign up for notification when this book launches.
             </p>
           ) : (
-            <>
-              <div class="primary-buy">
-                <AddToCartButton slug={book.slug} />
-              </div>
-              <div class="formats">
-                {book.data.formats.map((f) => (
+            <div class="formats">
+              {book.data.formats.map((f) => (
+                f.type === 'pdf-epub' ? (
+                  <button
+                    type="button"
+                    class="format format-cart"
+                    data-type={f.type}
+                    data-add-to-cart
+                    data-slug={book.slug}
+                  >
+                    <span class="format-type">{f.label}</span>
+                    <span class="format-price" data-cart-price>{f.price}</span>
+                  </button>
+                ) : (
                   <a
                     href={f.url ?? '#'}
                     target={f.url ? '_blank' : undefined}
@@ -140,9 +147,9 @@ if (book.data.collection === 'product-deep-dives') {
                     <span class="format-type">{f.label}</span>
                     <span class="format-price">{f.url ? f.price : 'Coming soon'}</span>
                   </a>
-                ))}
-              </div>
-            </>
+                )
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -155,6 +162,50 @@ if (book.data.collection === 'product-deep-dives') {
         </div>
       </section>
     )}
+
+    <script>
+      // PDF/EPUB format button is the cart trigger. Toggle between
+      // "PDF / EPUB" (add) and "In cart — remove" based on cart state.
+      import { addToCart, removeFromCart, isInCart, onCartChange } from '../../lib/cart';
+
+      function refreshCartButtons() {
+        document.querySelectorAll<HTMLButtonElement>('[data-add-to-cart]').forEach((btn) => {
+          const slug = btn.dataset.slug;
+          if (!slug) return;
+          const inCart = isInCart(slug);
+          btn.classList.toggle('in-cart', inCart);
+          const typeEl = btn.querySelector<HTMLSpanElement>('.format-type');
+          const priceEl = btn.querySelector<HTMLSpanElement>('[data-cart-price]');
+          if (typeEl && priceEl) {
+            if (inCart) {
+              typeEl.textContent = 'In cart';
+              priceEl.textContent = 'Remove';
+            } else {
+              // Reset from data attributes in case we toggled before
+              typeEl.textContent = typeEl.dataset.original ?? typeEl.textContent;
+              priceEl.textContent = priceEl.dataset.original ?? priceEl.textContent;
+            }
+          }
+        });
+      }
+
+      // Stash original labels once so we can restore after a Remove
+      document.querySelectorAll<HTMLButtonElement>('[data-add-to-cart]').forEach((btn) => {
+        const typeEl = btn.querySelector<HTMLSpanElement>('.format-type');
+        const priceEl = btn.querySelector<HTMLSpanElement>('[data-cart-price]');
+        if (typeEl && !typeEl.dataset.original) typeEl.dataset.original = typeEl.textContent || '';
+        if (priceEl && !priceEl.dataset.original) priceEl.dataset.original = priceEl.textContent || '';
+        btn.addEventListener('click', () => {
+          const slug = btn.dataset.slug;
+          if (!slug) return;
+          if (isInCart(slug)) removeFromCart(slug);
+          else addToCart(slug);
+        });
+      });
+
+      onCartChange(refreshCartButtons);
+      refreshCartButtons();
+    </script>
 
     <script>
       // 3D parallax: cover follows the cursor with subtle perspective tilt.
@@ -333,12 +384,15 @@ if (book.data.collection === 'product-deep-dives') {
   .formats {
     display: none;
     gap: 0.625rem;
-    flex-wrap: wrap;
     margin-top: var(--space-3);
   }
 
+  /* Desktop: 2-col grid. PDF/EPUB spans full row, kindle/paperback share row 2. */
   @media (min-width: 768px) {
-    .formats { display: flex; }
+    .formats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   .format {
@@ -350,20 +404,41 @@ if (book.data.collection === 'product-deep-dives') {
     color: var(--ink-900);
     transition: border-color 0.2s, transform 0.2s, background 0.2s;
     min-width: 130px;
+    /* Reset native button styles for the cart-trigger variant */
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
   }
   .format:hover { border-color: var(--accent-color); transform: translateY(-2px); }
   .format.unavailable { color: var(--ink-300); cursor: default; pointer-events: none; }
 
-  /* Primary CTA — PDF/EPUB stands out via accent-tinted background */
+  /* PDF/EPUB always spans full width above the kindle/paperback row */
   .format[data-type="pdf-epub"] {
+    grid-column: 1 / -1;
+    align-items: flex-start;
+  }
+
+  /* In-cart state: subtle inversion so it's visually distinct from "add" */
+  .format-cart.in-cart {
+    background: var(--accent-color);
+  }
+  .format-cart.in-cart .format-type,
+  .format-cart.in-cart .format-price {
+    color: var(--paper);
+  }
+
+  /* Primary CTA — PDF/EPUB stands out via accent-tinted background */
+  .format[data-type="pdf-epub"]:not(.in-cart) {
     background: color-mix(in srgb, var(--accent-color) 18%, var(--paper));
     border-color: var(--accent-color);
   }
-  .format[data-type="pdf-epub"]:hover {
+  .format[data-type="pdf-epub"]:not(.in-cart):hover {
     background: color-mix(in srgb, var(--accent-color) 28%, var(--paper));
   }
-  .format[data-type="pdf-epub"] .format-type { color: var(--accent-color); }
-  .format[data-type="pdf-epub"] .format-price { color: var(--accent-color); }
+  .format[data-type="pdf-epub"]:not(.in-cart) .format-type,
+  .format[data-type="pdf-epub"]:not(.in-cart) .format-price {
+    color: var(--accent-color);
+  }
 
   .format-type {
     font-size: 0.75rem;
@@ -377,19 +452,6 @@ if (book.data.collection === 'product-deep-dives') {
     font-size: 1.375rem;
     font-weight: 600;
     margin-top: 0.15rem;
-  }
-
-  /* Narrow tablet: PDF/EPUB spans full row, others share row 2 */
-  @media (min-width: 768px) and (max-width: 840px) {
-    .formats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.625rem;
-    }
-    .format[data-type="pdf-epub"] {
-      grid-column: 1 / -1;
-      align-items: flex-start;
-    }
   }
 
   /* ---------- Tablet+ : 2-col hero ---------- */
