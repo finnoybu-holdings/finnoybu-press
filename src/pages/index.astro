@@ -234,10 +234,17 @@ const skillsCovers = coversFor(
     display: inline-block;
     width: clamp(160px, 50vw, 240px);
     height: auto;
-    box-shadow: -10px 16px 28px -10px rgba(26, 22, 20, 0.28);
+    /* Layered shadow gives the cover physical presence: tight contact under
+       the bottom-left corner + a mid drop + a wide ambient lift. The book
+       leans left (negative rotateY) so all shadow X-offsets are negative. */
+    box-shadow:
+      -2px 4px 6px rgba(26, 22, 20, 0.14),
+      -10px 18px 28px -6px rgba(26, 22, 20, 0.32),
+      -22px 32px 56px -12px rgba(26, 22, 20, 0.22);
     transform: rotateY(-12deg);
     transform-origin: center;
-    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
     will-change: transform;
   }
 

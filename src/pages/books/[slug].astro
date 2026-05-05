@@ -94,7 +94,7 @@ if (book.data.collection === 'product-deep-dives') {
       </div>
 
       <div class="book-hero-grid">
-        <div class="cover-stage" data-tilt-cover data-rest-y="-12" data-rest-x="2">
+        <div class="cover-stage" data-tilt-cover data-rest-y="12" data-rest-x="2">
           <img
             src={book.data.cover_image}
             alt={`${book.data.title}: ${book.data.subtitle}`}
@@ -325,11 +325,20 @@ if (book.data.collection === 'product-deep-dives') {
   .cover {
     width: clamp(180px, 60vw, 280px);
     height: auto;
-    box-shadow: -10px 18px 30px -10px rgba(26, 22, 20, 0.3);
-    transform: rotateY(-8deg);
+    /* Book sits on the LEFT of the layout, so it tilts toward the right
+       (positive rotateY) to face inward toward the content panel. Shadow
+       falls to the right (positive X-offset) to match the lean. Layered
+       shadow gives the cover physical presence: tight contact + mid drop
+       + wide ambient lift. */
+    box-shadow:
+      2px 4px 6px rgba(26, 22, 20, 0.14),
+      10px 18px 30px -6px rgba(26, 22, 20, 0.34),
+      22px 32px 56px -12px rgba(26, 22, 20, 0.24);
+    transform: rotateY(8deg);
     transform-origin: center;
     display: inline-block;
-    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
     will-change: transform;
   }
 
@@ -465,7 +474,7 @@ if (book.data.collection === 'product-deep-dives') {
     .cover-stage { text-align: left; }
     .cover {
       width: clamp(220px, 28vw, 320px);
-      transform: rotateY(-12deg) rotateX(2deg);
+      transform: rotateY(12deg) rotateX(2deg);
     }
     .book-page .section { padding-block: var(--space-4); }
   }
