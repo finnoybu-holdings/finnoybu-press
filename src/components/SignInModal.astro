@@ -158,6 +158,11 @@
     background: transparent;
     max-width: 420px;
     width: 90vw;
+    /* Center in viewport. Browsers should do this for showModal() via the
+       UA stylesheet's `inset: 0; margin: auto;` but some hosts override
+       margin via global resets — set both explicitly to be sure. */
+    inset: 0;
+    margin: auto;
   }
   .signin-modal::backdrop {
     background: rgba(26, 22, 20, 0.55);
