@@ -16,9 +16,15 @@ chapter_count: null
 page_estimate: null
 
 formats:
-  []
+  - type: kindle
+    label: Kindle
+    price: $9.99
+    url: https://www.amazon.com/dp/B0GZLFP53Y
+  - type: paperback
+    label: Paperback
+    price: $19.99
 
-status: in-development
+status: published
 ---
 
 <!--
