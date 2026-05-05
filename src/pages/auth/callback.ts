@@ -17,6 +17,11 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
 
   const supabase = createClient(cookies);
 
+  // Default destination for password-recovery flows when the caller
+  // didn't set ?next=. Keeps recovery from landing on the regular
+  // signed-in /account home.
+  const recoveryNext = next === '/account' ? '/account/update-password' : next;
+
   // PKCE flow: signup confirmation, magic link, OAuth, recovery.
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -25,13 +30,14 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
       return redirect(`${origin}/?auth_error=true`);
     }
     // Recovery sessions carry a recent recovery_sent_at timestamp on the
-    // user. Redirect those to the recovery modal trigger so they're
-    // prompted to set a new password.
+    // user. Honour the caller's ?next= when present (the SignInModal's
+    // forgot-password flow sets it to /account/update-password); fall back
+    // to /account/update-password otherwise.
     const recoverySentAt = data.user?.recovery_sent_at;
     if (recoverySentAt) {
       const elapsed = Date.now() - new Date(recoverySentAt).getTime();
       if (elapsed < 60 * 60 * 1000) {
-        return redirect(`${origin}/?recovery=true`);
+        return redirect(`${origin}${recoveryNext}`);
       }
     }
     return redirect(`${origin}${next}`);
@@ -48,7 +54,7 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
       return redirect(`${origin}/?auth_error=true`);
     }
     if (type === 'recovery') {
-      return redirect(`${origin}/?recovery=true`);
+      return redirect(`${origin}${recoveryNext}`);
     }
     return redirect(`${origin}${next}`);
   }
