@@ -145,6 +145,19 @@
 
     const STRENGTH_LABELS = ['Very weak', 'Weak', 'Fair', 'Strong', 'Very strong'];
 
+    // Toggle visibility via inline style (NOT just the [hidden] attribute) so
+    // we can't lose to a more-specific .password-strength { display: flex }
+    // rule under Astro's scoped-CSS specificity.
+    function setHidden(el: HTMLElement | null | undefined, hidden: boolean) {
+      if (!el) return;
+      el.hidden = hidden;
+      if (hidden) {
+        el.style.display = 'none';
+      } else {
+        el.style.removeProperty('display');
+      }
+    }
+
     function getStrength() {
       const pw = passwordInput?.value ?? '';
       if (!pw) return null;
@@ -154,15 +167,15 @@
     function renderStrength() {
       if (!strengthBlock || !strengthBars || !strengthLabel) return;
       if (view !== 'sign_up') {
-        strengthBlock.hidden = true;
+        setHidden(strengthBlock, true);
         return;
       }
       const result = getStrength();
       if (!result) {
-        strengthBlock.hidden = true;
+        setHidden(strengthBlock, true);
         return;
       }
-      strengthBlock.hidden = false;
+      setHidden(strengthBlock, false);
       const score = result.score;
       strengthBars.forEach((bar, i) => {
         bar.classList.toggle('active', i <= score);
@@ -197,14 +210,13 @@
       if (msg) {
         // Flash so a repeat error (e.g. "Please choose a stronger password.")
         // re-registers visually instead of looking like the button did nothing.
-        errorEl.hidden = true;
-        // Force a reflow so the next assignment is treated as a state change.
+        setHidden(errorEl, true);
         void errorEl.offsetHeight;
         errorEl.textContent = msg;
-        errorEl.hidden = false;
+        setHidden(errorEl, false);
       } else {
         errorEl.textContent = '';
-        errorEl.hidden = true;
+        setHidden(errorEl, true);
       }
     }
 
@@ -213,14 +225,14 @@
       showError(null);
 
       if (next === 'check_email') {
-        if (authFormView) authFormView.hidden = true;
-        if (checkEmailView) checkEmailView.hidden = false;
+        setHidden(authFormView, true);
+        setHidden(checkEmailView, false);
         if (titleEl) titleEl.textContent = 'Check your email';
         return;
       }
 
-      if (authFormView) authFormView.hidden = false;
-      if (checkEmailView) checkEmailView.hidden = true;
+      setHidden(authFormView, false);
+      setHidden(checkEmailView, true);
 
       if (titleEl) {
         titleEl.textContent =
@@ -230,23 +242,23 @@
       }
 
       const showOAuth = next === 'sign_in' || next === 'sign_up';
-      if (oauthGrid) oauthGrid.hidden = !showOAuth;
-      if (divider) divider.hidden = !showOAuth;
+      setHidden(oauthGrid, !showOAuth);
+      setHidden(divider, !showOAuth);
 
-      if (passwordField) passwordField.hidden = next === 'forgot_password';
+      setHidden(passwordField, next === 'forgot_password');
       if (passwordInput) {
         passwordInput.required = next !== 'forgot_password';
         passwordInput.autocomplete = next === 'sign_up' ? 'new-password' : 'current-password';
       }
 
       const isSignUp = next === 'sign_up';
-      if (confirmField) confirmField.hidden = !isSignUp;
+      setHidden(confirmField, !isSignUp);
       if (confirmInput) confirmInput.required = isSignUp;
       renderStrength();
 
-      signinOnly.forEach((el) => { el.hidden = next !== 'sign_in'; });
-      signupOnly.forEach((el) => { el.hidden = next !== 'sign_up'; });
-      forgotOnly.forEach((el) => { el.hidden = next !== 'forgot_password'; });
+      signinOnly.forEach((el) => { setHidden(el, next !== 'sign_in'); });
+      signupOnly.forEach((el) => { setHidden(el, next !== 'sign_up'); });
+      forgotOnly.forEach((el) => { setHidden(el, next !== 'forgot_password'); });
 
       if (submitBtn && !loading) {
         submitBtn.textContent =
@@ -258,7 +270,7 @@
 
     function resetModal() {
       form?.reset();
-      if (strengthBlock) strengthBlock.hidden = true;
+      setHidden(strengthBlock, true);
       strengthBars?.forEach((bar) => {
         bar.classList.remove('active');
         bar.removeAttribute('data-score');
@@ -336,10 +348,16 @@
         } else if (view === 'sign_in') {
           setLoading(true);
           const supabase = getBrowserClient();
-          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
           if (error) { showError(error.message); setLoading(false); return; }
-          // Fiction calls onClose(); we additionally reload so the
-          // server-rendered Nav/account state picks up the new session.
+          if (!data?.session) {
+            showError('Sign-in returned no session. Email may not be confirmed yet.');
+            setLoading(false);
+            return;
+          }
+          console.info('[auth] sign-in OK', data.user?.email);
+          // Reload so server-rendered Nav/account state picks up the new
+          // session. Middleware on the next request will refresh cookies.
           window.location.reload();
         } else if (view === 'forgot_password') {
           setLoading(true);

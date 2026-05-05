@@ -1,7 +1,14 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
 
-const COOKIE_DOMAIN = import.meta.env.AUTH_COOKIE_DOMAIN || undefined;
+// Use PUBLIC_ prefix so the same value is reachable from the browser
+// client's createBrowserClient cookieOptions, matching fiction's
+// NEXT_PUBLIC_COOKIE_DOMAIN pattern. AUTH_COOKIE_DOMAIN (no prefix) is
+// kept as a fallback for older Vercel env-var configs.
+const COOKIE_DOMAIN =
+  import.meta.env.PUBLIC_AUTH_COOKIE_DOMAIN ||
+  import.meta.env.AUTH_COOKIE_DOMAIN ||
+  undefined;
 
 export function createClient(cookies: AstroCookies) {
   return createServerClient(

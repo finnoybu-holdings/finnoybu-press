@@ -30,10 +30,16 @@ try {
         <li><a href="/#collections">Collections</a></li>
         <li><a href="/series">The Series</a></li>
         <li><a href="/about#author">Author</a></li>
-        {user
-          ? <li><a href="/account">Account</a></li>
-          : <li><button type="button" data-open-signin class="nav-link-btn">Sign in</button></li>
-        }
+        {/* Both states are rendered. The server picks one based on its
+            cookie read; client-side JS below corrects the DOM if the page
+            was prerendered (no cookies at build time → falls back to
+            signed-out, then JS upgrades to signed-in via Supabase). */}
+        <li class="nav-account" data-auth-signed-in hidden={!user}>
+          <a href="/account">Account</a>
+        </li>
+        <li class="nav-account" data-auth-signed-out hidden={!!user}>
+          <button type="button" data-open-signin class="nav-link-btn">Sign in</button>
+        </li>
       </ul>
       <CartIcon />
     </div>
@@ -41,6 +47,8 @@ try {
 </nav>
 
 <script>
+  import { getBrowserClient } from '../lib/supabase/client';
+
   const nav = document.getElementById('site-nav');
   const toggle = nav?.querySelector('.nav-toggle');
   const links = document.getElementById('nav-links');
@@ -62,6 +70,39 @@ try {
   window.addEventListener('scroll', () => {
     nav?.classList.toggle('scrolled', window.scrollY > 24);
   }, { passive: true });
+
+  // Client-side auth check — corrects the Nav UI on prerendered pages
+  // (homepage, /series, /about, etc.) where the server has no cookies at
+  // build time and always renders the signed-out variant. On dynamic
+  // pages this just re-confirms what the server already chose.
+  async function syncNavAuth() {
+    if (!nav) return;
+    const signedIn = nav.querySelector<HTMLElement>('[data-auth-signed-in]');
+    const signedOut = nav.querySelector<HTMLElement>('[data-auth-signed-out]');
+    if (!signedIn || !signedOut) return;
+    try {
+      const supabase = getBrowserClient();
+      const { data } = await supabase.auth.getUser();
+      const isSignedIn = !!data.user;
+      signedIn.hidden = !isSignedIn;
+      signedOut.hidden = isSignedIn;
+    } catch (err) {
+      console.warn('[nav] auth sync failed', err);
+    }
+  }
+  syncNavAuth();
+
+  // Listen for sign-in / sign-out events and update Nav without reload.
+  try {
+    const supabase = getBrowserClient();
+    supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        syncNavAuth();
+      }
+    });
+  } catch (err) {
+    console.warn('[nav] auth listener failed', err);
+  }
 </script>
 
 <style>
