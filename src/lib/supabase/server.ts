@@ -10,9 +10,14 @@ export function createClient(cookies: AstroCookies) {
     {
       cookies: {
         getAll() {
+          // During static prerender (`prerender = true`), Astro passes a
+          // cookies stub that lacks .getAll(). Treat that as "no cookies"
+          // so a session lookup just returns no user, instead of throwing.
+          if (typeof cookies?.getAll !== 'function') return [];
           return cookies.getAll().map((c) => ({ name: c.name, value: c.value }));
         },
         setAll(cookiesToSet) {
+          if (typeof cookies?.set !== 'function') return;
           for (const { name, value, options } of cookiesToSet) {
             const opts: CookieOptions & { domain?: string } = { ...options };
             if (COOKIE_DOMAIN) opts.domain = COOKIE_DOMAIN;
