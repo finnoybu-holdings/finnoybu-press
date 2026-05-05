@@ -1,12 +1,26 @@
 import { defineMiddleware } from 'astro:middleware';
 import { createServerClient } from '@supabase/ssr';
 
-// Astro middleware — runs on every dynamic (prerender = false) request.
-// Builds a server client from the request cookies and calls
-// auth.getUser(). That single call is what refreshes/persists the
-// auth-token cookies for the rest of the request, so subsequent
-// createClient() calls on the same page see the user.
-export const onRequest = defineMiddleware(async ({ cookies, locals }, next) => {
+// Read cookies via the raw header so we don't depend on
+// AstroCookies.getAll being available — it isn't in some
+// Astro/adapter contexts and that was silently breaking auth.
+function parseCookieHeader(header: string | null) {
+  if (!header) return [] as { name: string; value: string }[];
+  return header
+    .split(';')
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .map((c) => {
+      const eq = c.indexOf('=');
+      if (eq < 0) return { name: c, value: '' };
+      return {
+        name: c.slice(0, eq),
+        value: decodeURIComponent(c.slice(eq + 1)),
+      };
+    });
+}
+
+export const onRequest = defineMiddleware(async ({ cookies, locals, request }, next) => {
   try {
     if (!import.meta.env.PUBLIC_SUPABASE_URL || !import.meta.env.PUBLIC_SUPABASE_ANON_KEY) {
       return next();
@@ -18,23 +32,16 @@ export const onRequest = defineMiddleware(async ({ cookies, locals }, next) => {
       {
         cookies: {
           getAll() {
-            try {
-              if (typeof cookies?.getAll !== 'function') return [];
-              return cookies.getAll().map((c) => ({ name: c.name, value: c.value }));
-            } catch {
-              return [];
-            }
+            return parseCookieHeader(request.headers.get('cookie'));
           },
           setAll(cookiesToSet) {
-            try {
-              if (typeof cookies?.set !== 'function') return;
-              for (const { name, value, options } of cookiesToSet) {
+            if (!cookies || typeof cookies.set !== 'function') return;
+            for (const { name, value, options } of cookiesToSet) {
+              try {
                 cookies.set(name, value, options as any);
+              } catch {
+                // headers may already be sent on streamed responses
               }
-            } catch {
-              // Astro can throw if response headers have already been
-              // sent (e.g. during a streamed response). Swallow — the
-              // refreshed cookie just won't persist on this request.
             }
           },
         },
@@ -48,8 +55,6 @@ export const onRequest = defineMiddleware(async ({ cookies, locals }, next) => {
       (locals as any).user = null;
     }
   } catch (err) {
-    // Never crash the request from middleware. Log and continue —
-    // pages will fall back to their own try/catch around getUser().
     console.error('[middleware] supabase init failed:', err);
   }
 

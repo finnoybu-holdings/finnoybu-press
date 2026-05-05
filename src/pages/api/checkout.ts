@@ -26,7 +26,7 @@ type CartItemWire =
 // 24 grants (21 books + 3 toolkits) from a single Stripe line item.
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const supabase = createClient(cookies);
+  const supabase = createClient(cookies, request);
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

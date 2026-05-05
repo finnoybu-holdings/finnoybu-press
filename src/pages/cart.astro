@@ -11,7 +11,7 @@ export const prerender = false;
 let user: { id: string; email?: string | null } | null = null;
 try {
   if (import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY) {
-    const supabase = createClient(Astro.cookies);
+    const supabase = createClient(Astro.cookies, Astro.request);
     const { data } = await supabase.auth.getUser();
     user = data.user;
   }

@@ -11,7 +11,7 @@ const FILE_TYPES: Record<string, { ext: string; contentType: string }> = {
   epub: { ext: 'epub', contentType: 'application/epub+zip' },
 };
 
-export const GET: APIRoute = async ({ params, url, cookies }) => {
+export const GET: APIRoute = async ({ params, url, cookies, request }) => {
   const slug = params.slug;
   const format = url.searchParams.get('format') || 'pdf';
 
@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ params, url, cookies }) => {
     return Response.json({ error: 'Invalid format (pdf or epub)' }, { status: 400 });
   }
 
-  const supabase = createClient(cookies);
+  const supabase = createClient(cookies, request);
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

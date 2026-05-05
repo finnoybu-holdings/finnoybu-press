@@ -8,14 +8,14 @@ export const prerender = false;
 // flow: PKCE code exchange + token_hash OTP verification + recovery
 // detection (a recovery session redirects to "/?recovery=true" so the
 // recovery modal can prompt the user to set a new password).
-export const GET: APIRoute = async ({ url, cookies, redirect }) => {
+export const GET: APIRoute = async ({ url, cookies, redirect, request }) => {
   const code = url.searchParams.get('code');
   const tokenHash = url.searchParams.get('token_hash');
   const type = url.searchParams.get('type');
   const next = url.searchParams.get('next') || '/account';
   const origin = url.origin;
 
-  const supabase = createClient(cookies);
+  const supabase = createClient(cookies, request);
 
   // Default destination for password-recovery flows when the caller
   // didn't set ?next=. Keeps recovery from landing on the regular
