@@ -1,14 +1,11 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import type { AstroCookies } from 'astro';
 
-// Use PUBLIC_ prefix so the same value is reachable from the browser
-// client's createBrowserClient cookieOptions, matching fiction's
-// NEXT_PUBLIC_COOKIE_DOMAIN pattern. AUTH_COOKIE_DOMAIN (no prefix) is
-// kept as a fallback for older Vercel env-var configs.
-const COOKIE_DOMAIN =
-  import.meta.env.PUBLIC_AUTH_COOKIE_DOMAIN ||
-  import.meta.env.AUTH_COOKIE_DOMAIN ||
-  undefined;
+// No cookie domain — let Supabase's browser client and the server use
+// defaults (current host = press.finnoybu.org). A domain attribute only
+// matters for cross-subdomain auth, which we don't have. Setting it
+// asymmetrically (server adds domain, browser doesn't) creates two
+// cookies with the same name and intermittent auth failures.
 
 export function createClient(cookies: AstroCookies) {
   return createServerClient(
@@ -26,9 +23,7 @@ export function createClient(cookies: AstroCookies) {
         setAll(cookiesToSet) {
           if (typeof cookies?.set !== 'function') return;
           for (const { name, value, options } of cookiesToSet) {
-            const opts: CookieOptions & { domain?: string } = { ...options };
-            if (COOKIE_DOMAIN) opts.domain = COOKIE_DOMAIN;
-            cookies.set(name, value, opts as any);
+            cookies.set(name, value, options as any);
           }
         },
       },

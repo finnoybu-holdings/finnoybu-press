@@ -1,10 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-
-const COOKIE_DOMAIN =
-  import.meta.env.PUBLIC_AUTH_COOKIE_DOMAIN ||
-  import.meta.env.AUTH_COOKIE_DOMAIN ||
-  undefined;
+import { createServerClient } from '@supabase/ssr';
 
 // Astro middleware — runs on every dynamic (prerender = false) request.
 // Mirrors the @supabase/ssr Astro recipe: build a server client from the
@@ -33,9 +28,7 @@ export const onRequest = defineMiddleware(async ({ cookies, locals, request }, n
         setAll(cookiesToSet) {
           if (typeof cookies?.set !== 'function') return;
           for (const { name, value, options } of cookiesToSet) {
-            const opts: CookieOptions & { domain?: string } = { ...options };
-            if (COOKIE_DOMAIN) opts.domain = COOKIE_DOMAIN;
-            cookies.set(name, value, opts as any);
+            cookies.set(name, value, options as any);
           }
         },
       },
