@@ -361,6 +361,13 @@
     inset: 0;
     margin: auto;
   }
+
+  /* Make the [hidden] attribute always win over our display rules.
+     `.password-strength`, `.confirm-field`, `.oauth-grid`, etc. all
+     declare display: flex/grid which override the UA's
+     `[hidden] { display: none }`. Without this rule, JS-toggled hidden
+     state shows the field anyway. */
+  .signin-modal [hidden] { display: none !important; }
   .signin-modal::backdrop {
     background: rgba(26, 22, 20, 0.55);
     backdrop-filter: blur(2px);
