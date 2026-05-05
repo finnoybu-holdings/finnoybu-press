@@ -4,6 +4,7 @@ import Analytics from '@vercel/analytics/astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import SignInModal from '../components/SignInModal.astro';
+import CookieBanner from '../components/CookieBanner.astro';
 import { createClient } from '../lib/supabase/server';
 
 // Check session at layout level so the global SignInModal is only rendered
@@ -92,6 +93,7 @@ const schemas = [orgSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonL
   </main>
   <Footer />
   {!layoutUser && <SignInModal />}
+  <CookieBanner />
   <Analytics />
 </body>
 </html>
