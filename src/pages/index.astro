@@ -1,0 +1,348 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CollectionCard from '../components/CollectionCard.astro';
+import { getCollection } from 'astro:content';
+
+export const prerender = true;
+
+const allBooks = await getCollection('books');
+const sorted = allBooks.sort((a, b) => a.data.number - b.data.number);
+const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
+
+// Helper to grab cover-thumb items from a list of books (small grid use)
+const coversFor = (books: typeof sorted) =>
+  books.map((b) => ({
+    src: b.data.cover_thumb ?? b.data.cover_image,
+    alt: `${b.data.title}: ${b.data.subtitle}`,
+  }));
+
+const deepDives = sorted.filter((b) => b.data.collection === 'product-deep-dives');
+const productGuides = sorted.filter((b) => b.data.collection === 'product-guides');
+const skills = sorted.filter((b) => b.data.collection === 'cross-platform-skills');
+
+// Show one cover per platform — the definitive guide of each pair (1, 3, 5,
+// 7, 9). Five covers mirror the five platforms named in the eyebrow text
+// ("ChatGPT · Claude · Gemini · Copilot · Perplexity") and keep the card
+// from overcrowding at desktop widths.
+const deepDivesCovers = coversFor(
+  deepDives.filter((b) => [1, 3, 5, 7, 9].includes(b.data.number))
+);
+
+// Cross-platform: alternating odd-numbered covers (15, 17, 19, 21). Four
+// covers visually balance the four-cover Product Guides card next to it.
+const skillsCovers = coversFor(
+  skills.filter((b) => [15, 17, 19, 21].includes(b.data.number))
+);
+---
+<BaseLayout
+  title="Finnoybu Press — AI guides for every user"
+  description="Twenty-one practical books on the tools, the skills, and the systems behind useful AI — plus governance toolkits for the teams deploying it."
+>
+  <header class="hero container">
+    <div class="hero-text">
+      <span class="eyebrow">Finnoybu Press · 2026</span>
+      <h1 class="display">AI guides for every user.</h1>
+      <p class="lede">
+        Twenty-one practical books on the tools, the skills, and the systems
+        behind useful AI — plus governance toolkits for the teams deploying it.
+      </p>
+      <div class="cta-row">
+        <a href="#collections" class="btn">Browse the series</a>
+        {featured && (
+          <a href={`/books/${featured.slug}`} class="btn ghost">
+            Start with {featured.data.title} →
+          </a>
+        )}
+      </div>
+      <p class="hero-meta">A working library by Ken Tannenbaum</p>
+    </div>
+
+    {featured && (
+      <div class="hero-cover" data-tilt-cover>
+        <img
+          src={featured.data.cover_image}
+          alt={`${featured.data.title}: ${featured.data.subtitle}`}
+          loading="eager"
+          width="420"
+          height="672"
+        />
+      </div>
+    )}
+  </header>
+
+  <script>
+    // 3D parallax: cover follows the cursor with subtle perspective tilt.
+    // Disabled on touch devices (no hover) and for users who prefer reduced motion.
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const coarse = matchMedia('(pointer: coarse)').matches;
+
+    if (!reduce && !coarse) {
+      document.querySelectorAll<HTMLElement>('[data-tilt-cover]').forEach((stage) => {
+        const found = stage.querySelector<HTMLImageElement>('img');
+        if (!found) return;
+        const img: HTMLImageElement = found;
+        // Read rest pose from data-rest-y / data-rest-x so the JS layer respects
+        // the breakpoint-specific rotation set in CSS.
+        const restY = parseFloat(stage.dataset.restY ?? '-15');
+        const restX = parseFloat(stage.dataset.restX ?? '2');
+        const rangeY = 18;
+        const rangeX = 10;
+
+        let raf = 0;
+        function onMove(e: MouseEvent) {
+          const rect = stage.getBoundingClientRect();
+          const nx = (e.clientX - rect.left) / rect.width - 0.5;
+          const ny = (e.clientY - rect.top) / rect.height - 0.5;
+          const ry = restY + nx * rangeY;
+          const rx = restX - ny * rangeX;
+          if (raf) cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            img.style.transform = `rotateY(${ry}deg) rotateX(${rx}deg)`;
+          });
+        }
+        function onLeave() {
+          if (raf) cancelAnimationFrame(raf);
+          img.style.transform = '';
+        }
+        stage.addEventListener('mousemove', onMove);
+        stage.addEventListener('mouseleave', onLeave);
+      });
+    }
+  </script>
+
+  <section class="manifesto">
+    <div class="container manifesto-inner">
+      <span class="eyebrow">The Publisher's Note</span>
+      <p class="manifesto-quote">
+        Most writing about AI is either selling you the future or warning you about it. We wanted something else: <em>clear, practical books for the people who actually have to use these tools at work.</em>
+      </p>
+      <p class="manifesto-attr">— Ken Tannenbaum, founder</p>
+    </div>
+  </section>
+
+  <section class="section container" id="collections">
+    <div class="section-head">
+      <span class="eyebrow">Four Collections</span>
+      <h2>A library, organized.</h2>
+      <p class="prose">
+        The catalog is structured into four collections, each solving a different shape of problem — from learning a single tool to standing up governance across a team.
+      </p>
+    </div>
+
+    <div class="collections-grid">
+      <CollectionCard
+        eyebrow="Collection One"
+        title="Product Deep Dives"
+        description="Comprehensive paired guides for the major AI assistants. Start with the definitive guide, then go deeper with the advanced companion."
+        href="/collections/product-deep-dives"
+        bookCount={deepDives.length}
+        bookList="ChatGPT · Claude · Gemini · Copilot · Perplexity"
+        accentColor="var(--accent-deep-dives)"
+        covers={deepDivesCovers}
+      />
+
+      <CollectionCard
+        eyebrow="Collection Two"
+        title="Product Guides"
+        description="Focused single-volume guides for the next wave of AI tools — research, reasoning, code, and agentic work."
+        href="/collections/product-guides"
+        bookCount={productGuides.length}
+        bookList="NotebookLM · DeepSeek · Cursor · OpenClaw"
+        accentColor="var(--accent-product-guides)"
+        covers={coversFor(productGuides)}
+      />
+
+      <CollectionCard
+        eyebrow="Collection Three"
+        title="Cross-Platform Skills"
+        description="The skills that hold the rest together: prompting, AI for business, AI for developers, governance, and security."
+        href="/collections/cross-platform-skills"
+        bookCount={skills.length}
+        bookList="Skills · Roles · Governance"
+        accentColor="var(--accent-cross-platform)"
+        covers={skillsCovers}
+      />
+
+      <CollectionCard
+        eyebrow="Collection Four · Toolkits"
+        title="AEGIS™ SMB Governance"
+        description="Fill-in-the-blank AI governance kits for small and midsize businesses. Three tiers — Starter, Standard, Pro — sized for real teams, not Fortune 500s."
+        href="/collections/aegis-toolkits"
+        bookCount={3}
+        bookList="Starter · Standard · Pro"
+        accentColor="var(--accent-aegis)"
+        covers={[
+          { src: '/images/thumb-aegis-smb-starter.png', alt: 'AEGIS SMB Starter' },
+          { src: '/images/thumb-aegis-smb-standard.png', alt: 'AEGIS SMB Standard' },
+          { src: '/images/thumb-aegis-smb-pro.png', alt: 'AEGIS SMB Pro' },
+        ]}
+        ctaLabel="View toolkits →"
+        mobileCoverLimit={2}
+        itemNoun="toolkit"
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: var(--space-5);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .hero-text { max-width: 38rem; }
+
+  .hero-text .eyebrow { display: block; margin-bottom: var(--space-3); }
+
+  .hero-text .display {
+    font-size: clamp(2.4rem, 8vw, 5.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    color: var(--ink-900);
+    margin-bottom: var(--space-3);
+    font-weight: 600;
+  }
+
+  .hero-text .lede {
+    font-size: clamp(1.125rem, 1.6vw, 1.5rem);
+    margin-bottom: var(--space-4);
+  }
+
+  .cta-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  @media (min-width: 480px) {
+    .cta-row { flex-direction: row; flex-wrap: wrap; }
+  }
+
+  .hero-meta {
+    margin-top: var(--space-4);
+    font-size: 0.875rem;
+    color: var(--ink-500);
+  }
+
+  /* Hero cover — small + above text on mobile, side by side on tablet+ */
+  .hero-cover {
+    order: -1;
+    text-align: center;
+    perspective: 1500px;
+  }
+
+  .hero-cover img {
+    display: inline-block;
+    width: clamp(160px, 50vw, 240px);
+    height: auto;
+    /* Layered shadow gives the cover physical presence: tight contact under
+       the bottom-left corner + a mid drop + a wide ambient lift. The book
+       leans left (negative rotateY) so all shadow X-offsets are negative. */
+    box-shadow:
+      -2px 4px 6px rgba(26, 22, 20, 0.14),
+      -10px 18px 28px -6px rgba(26, 22, 20, 0.32),
+      -22px 32px 56px -12px rgba(26, 22, 20, 0.22);
+    transform: rotateY(-12deg);
+    transform-origin: center;
+    transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+                box-shadow 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+    will-change: transform;
+  }
+
+  @media (min-width: 768px) {
+    .hero {
+      grid-template-columns: 1.4fr 1fr;
+      align-items: center;
+      padding-block: var(--space-6);
+      gap: var(--space-5);
+    }
+    .hero-cover { order: 0; }
+    .hero-cover img {
+      width: clamp(220px, 28vw, 340px);
+      transform: rotateY(-15deg) rotateX(2deg);
+    }
+    /* Tighter buttons so both CTAs fit on one row in the narrower 2-col hero */
+    .cta-row :global(.btn) {
+      padding: 0.7em 1.1em;
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hero { padding-block: var(--space-7); }
+    .hero-cover img { width: clamp(280px, 32vw, 420px); }
+  }
+
+  /* Manifesto */
+  .manifesto {
+    background: var(--paper-warm);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--ink-100);
+    border-bottom: 1px solid var(--ink-100);
+  }
+
+  @media (min-width: 768px) {
+    .manifesto { padding-block: var(--space-7); }
+  }
+
+  .manifesto-inner {
+    max-width: var(--max-narrow);
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .manifesto-inner .eyebrow {
+    display: block;
+    margin-bottom: var(--space-3);
+  }
+
+  .manifesto-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.25rem, 2.4vw, 2rem);
+    line-height: 1.4;
+    color: var(--ink-900);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+  .manifesto-quote em { font-style: italic; }
+
+  .manifesto-attr {
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+    color: var(--ink-500);
+    letter-spacing: 0.04em;
+  }
+
+  /* Sections */
+  .section-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    max-width: var(--max-narrow);
+  }
+
+  .section-head h2 {
+    font-size: clamp(1.85rem, 3vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  /* Collections grid — single col on mobile, 2x2 on tablet+ */
+  .collections-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .collections-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+      margin-top: var(--space-5);
+    }
+  }
+</style>

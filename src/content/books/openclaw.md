@@ -1,0 +1,38 @@
+---
+number: 14
+title: OpenClaw
+subtitle: Agentic AI for Everyday Work
+series_position: Book Fourteen
+
+collection: product-guides
+cover_variant: guide
+
+accent_color: "#9B2C2C"
+cover_image: /images/cover-14-openclaw.jpg
+cover_thumb: /images/thumbs/cover-14-openclaw.jpg
+
+description: The open-source personal AI agent that runs locally and automates real work. Installation, models, skills, messaging integrations, safety.
+chapter_count: null
+page_estimate: null
+
+formats:
+  - type: pdf-epub
+    label: PDF / EPUB
+    price: $7.99
+  - type: kindle
+    label: Kindle
+    price: $9.99
+    url: https://www.amazon.com/dp/B0GX2SQG3R
+  - type: paperback
+    label: Paperback
+    price: $19.99
+
+status: published
+---
+
+<!--
+This file is the content collection entry for OpenClaw: Agentic AI for Everyday Work.
+
+Body content (long-form description, sample, etc.) goes below the frontmatter.
+For now this is a stub — to be expanded in step 5 (book content drafting).
+-->

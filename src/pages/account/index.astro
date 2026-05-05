@@ -1,0 +1,247 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SignInModal from '../../components/SignInModal.astro';
+import { getCollection } from 'astro:content';
+import { createClient } from '../../lib/supabase/server';
+
+export const prerender = false;
+
+// Env-guarded user check — page still renders (with sign-in CTA) when
+// Supabase isn't configured yet, instead of throwing a 500.
+let user: { id: string; email?: string | null } | null = null;
+let purchases: { book_slug: string; created_at: string }[] = [];
+try {
+  if (import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY) {
+    const supabase = createClient(Astro.cookies);
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+
+    if (user) {
+      const { data: rows } = await supabase
+        .from('purchases')
+        .select('book_slug, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      purchases = rows || [];
+    }
+  }
+} catch {
+  user = null;
+  purchases = [];
+}
+
+const allBooks = await getCollection('books');
+const bookMap = new Map(allBooks.map((b) => [b.slug, b]));
+
+// Deduplicate by slug — a book bought twice still appears once in the library.
+const ownedSlugs = Array.from(new Set(purchases.map((p) => p.book_slug)));
+const owned = ownedSlugs
+  .map((slug) => {
+    const book = bookMap.get(slug);
+    if (!book) return null;
+    const earliest = purchases
+      .filter((p) => p.book_slug === slug)
+      .reduce((a, b) => (a.created_at < b.created_at ? a : b));
+    return { book, purchased_at: earliest.created_at };
+  })
+  .filter(Boolean) as { book: any; purchased_at: string }[];
+---
+<BaseLayout title="Your Account — Finnoybu Press" description="Your Finnoybu Press library and account.">
+  <article class="account-page">
+    <header class="page-head container">
+      <h1>Your account</h1>
+      {user && <p class="subtitle">Signed in as {user.email}</p>}
+    </header>
+
+    {!user ? (
+      <section class="container signed-out">
+        <p>Sign in to access your library.</p>
+        <button type="button" data-open-signin class="primary-btn">Sign in</button>
+      </section>
+    ) : (
+      <>
+        <section class="container library-section">
+          <div class="section-head">
+            <span class="eyebrow">Your library</span>
+            <h2>{owned.length === 0 ? 'No purchases yet.' : `${owned.length} book${owned.length === 1 ? '' : 's'}.`}</h2>
+          </div>
+
+          {owned.length === 0 ? (
+            <p class="empty-note">When you purchase a book, it'll appear here with download links for the PDF and ePub.</p>
+          ) : (
+            <ul class="library-list">
+              {owned.map(({ book, purchased_at }) => (
+                <li class="library-item">
+                  <a href={`/books/${book.slug}`} class="lib-cover">
+                    <img src={book.data.cover_thumb || book.data.cover_image} alt={book.data.title} loading="lazy" />
+                  </a>
+                  <div class="lib-meta">
+                    <h3>{book.data.title}</h3>
+                    <p class="lib-subtitle">{book.data.subtitle}</p>
+                    <p class="lib-purchased">Purchased {new Date(purchased_at).toLocaleDateString()}</p>
+                  </div>
+                  <div class="lib-actions">
+                    <a href={`/api/download/${book.slug}?format=pdf`} class="dl-btn" download>Download PDF</a>
+                    <a href={`/api/download/${book.slug}?format=epub`} class="dl-btn" download>Download ePub</a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section class="container account-actions">
+          <form action="/api/auth/signout" method="POST">
+            <button type="submit" class="link-btn">Sign out</button>
+          </form>
+        </section>
+      </>
+    )}
+  </article>
+
+  {!user && <SignInModal />}
+</BaseLayout>
+
+<style>
+  .account-page { padding-bottom: 6rem; }
+  .page-head { padding-block: var(--space-4) var(--space-3); }
+  .page-head h1 {
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    line-height: 1.1;
+  }
+  .subtitle {
+    color: var(--ink-500);
+    font-family: var(--serif);
+    font-style: italic;
+    margin-top: 0.5rem;
+  }
+
+  .signed-out {
+    text-align: center;
+    padding: var(--space-5) var(--space-3);
+  }
+  .signed-out p {
+    color: var(--ink-500);
+    margin-bottom: var(--space-3);
+  }
+  .primary-btn {
+    background: var(--ink-900);
+    color: var(--paper);
+    border: 0;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .library-section { padding-block: var(--space-3); }
+  .section-head { margin-bottom: var(--space-3); }
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .section-head h2 {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.1;
+  }
+
+  .empty-note {
+    color: var(--ink-500);
+    font-style: italic;
+    max-width: 32em;
+  }
+
+  .library-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .library-item {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-top: 1px solid var(--ink-100);
+  }
+  .library-item:last-child { border-bottom: 1px solid var(--ink-100); }
+
+  @media (min-width: 720px) {
+    .library-item {
+      grid-template-columns: 80px 1fr auto;
+      align-items: center;
+    }
+  }
+
+  .lib-cover img { width: 80px; height: auto; border: 1px solid var(--ink-200); }
+  .lib-meta h3 {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    margin: 0 0 0.15em;
+    color: var(--ink-900);
+  }
+  .lib-subtitle {
+    font-style: italic;
+    color: var(--ink-700);
+    font-family: var(--serif);
+    font-size: 0.9375rem;
+    margin: 0 0 0.4rem;
+  }
+  .lib-purchased {
+    color: var(--ink-500);
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+
+  .lib-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.5rem;
+    margin-top: var(--space-2);
+  }
+  @media (min-width: 720px) {
+    .lib-actions {
+      grid-column: auto;
+      flex-direction: column;
+      margin-top: 0;
+    }
+  }
+  .dl-btn {
+    background: var(--paper);
+    border: 1px solid var(--ink-300, #b4aa98);
+    color: var(--ink-900);
+    padding: 0.5rem 0.875rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .dl-btn:hover { border-color: var(--ink-900); background: #ede5cf; }
+
+  .account-actions {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--ink-100);
+  }
+  .link-btn {
+    background: transparent;
+    border: 0;
+    color: var(--ink-500);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0;
+  }
+  .link-btn:hover { color: var(--ink-900); }
+</style>

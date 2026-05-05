@@ -1,0 +1,655 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SignInModal from '../components/SignInModal.astro';
+import { getCollection } from 'astro:content';
+import { createClient } from '../lib/supabase/server';
+import { BUNDLES, bundleTotalCents } from '../lib/bundles';
+
+export const prerender = false;
+
+// Env-guarded user check.
+let user: { id: string; email?: string | null } | null = null;
+try {
+  if (import.meta.env.PUBLIC_SUPABASE_URL && import.meta.env.PUBLIC_SUPABASE_ANON_KEY) {
+    const supabase = createClient(Astro.cookies);
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
+} catch {
+  user = null;
+}
+
+function priceCents(priceStr: string): number {
+  const cleaned = (priceStr || '').replace(/[^0-9.]/g, '');
+  return cleaned ? Math.round(parseFloat(cleaned) * 100) : 0;
+}
+
+const allBooks = await getCollection('books');
+const allToolkits = await getCollection('toolkits');
+
+// Catalog data for client — includes book number for sort + cover for render.
+const booksForClient = allBooks.map((b) => {
+  const bundle = b.data.formats.find((f: any) => f.type === 'pdf-epub');
+  return {
+    slug: b.slug,
+    number: b.data.number,
+    title: b.data.title,
+    subtitle: b.data.subtitle,
+    cover_thumb: b.data.cover_thumb || b.data.cover_image,
+    accent_color: b.data.accent_color,
+    price_cents: priceCents(bundle?.price ?? ''),
+  };
+});
+
+const toolkitsForClient = allToolkits.map((t) => {
+  const bundle = t.data.formats.find((f: any) => f.type === 'pdf-epub');
+  return {
+    slug: t.slug,
+    number: t.data.number,
+    tier: t.data.tier,
+    title: t.data.title,
+    subtitle: t.data.subtitle,
+    cover_thumb: t.data.cover_thumb || t.data.cover_image,
+    accent_color: t.data.accent_color,
+    price_cents: priceCents(bundle?.price ?? ''),
+  };
+});
+
+// Resolve bundles for the client — include slugs + computed prices.
+const bundlesForClient = BUNDLES.map((b) => {
+  const totals = bundleTotalCents(b, booksForClient, toolkitsForClient);
+  return {
+    id: b.id,
+    label: b.label,
+    description: b.description,
+    discountPercent: b.discountPercent,
+    accent_color: b.accentColor,
+    book_count: totals.included_book_slugs.length,
+    toolkit_count: totals.included_toolkit_slugs.length,
+    included_book_slugs: totals.included_book_slugs,
+    included_toolkit_slugs: totals.included_toolkit_slugs,
+    gross_cents: totals.gross_cents,
+    net_cents: totals.net_cents,
+  };
+});
+---
+<BaseLayout title="Shopping Cart — Finnoybu Press" description="Your Finnoybu Press cart.">
+  <article class="cart-page container">
+
+    <div id="cart-empty" class="cart-empty" hidden>
+      <h1>Your Finnoybu Press cart is empty.</h1>
+      <p class="empty-prose">Browse the catalog to find your next book.</p>
+      <a href="/#collections" class="primary-btn">Browse the catalog</a>
+    </div>
+
+    <div id="cart-grid" class="cart-grid" hidden>
+
+      <section class="cart-main">
+        <div class="cart-head">
+          <h1>Shopping Cart</h1>
+          <span class="price-col-label">Price</span>
+        </div>
+
+        <p class="continue-shopping">
+          <a href="/#collections">← Continue shopping</a>
+        </p>
+
+        <ul id="cart-list" class="cart-list"></ul>
+      </section>
+
+      <aside class="cart-summary">
+        <p id="cart-summary-line" class="summary-line"></p>
+
+        {user ? (
+          <button type="button" id="checkout-btn" class="checkout-btn">Proceed to checkout</button>
+        ) : (
+          <>
+            <button type="button" data-open-signin class="checkout-btn">Sign in to checkout</button>
+            <p class="signin-note">Sign in or create an account to complete your purchase.</p>
+          </>
+        )}
+
+        <p id="checkout-error" class="checkout-error" hidden></p>
+
+        <p class="continue-shopping continue-aside">
+          <a href="/#collections">← Continue shopping</a>
+        </p>
+      </aside>
+
+    </div>
+  </article>
+
+  <SignInModal />
+
+  <script define:vars={{ books: booksForClient, toolkits: toolkitsForClient, bundles: bundlesForClient }}>
+    const cartEmpty = document.getElementById('cart-empty');
+    const cartGrid = document.getElementById('cart-grid');
+    const cartList = document.getElementById('cart-list');
+    const cartSummaryLine = document.getElementById('cart-summary-line');
+    const checkoutBtn = document.getElementById('checkout-btn');
+    const checkoutError = document.getElementById('checkout-error');
+
+    const STORAGE_KEY = 'fp-cart';
+    const CHANGE_EVENT = 'fp-cart-change';
+
+    const bookMap = new Map(books.map((b) => [b.slug, b]));
+    const toolkitMap = new Map(toolkits.map((t) => [t.slug, t]));
+    const bundleMap = new Map(bundles.map((b) => [b.id, b]));
+
+    function readCart() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+          .filter((it) => it && typeof it === 'object')
+          .map((it) => {
+            if (it.kind === 'bundle' && typeof it.bundleId === 'string') return { kind: 'bundle', bundleId: it.bundleId, addedAt: it.addedAt || Date.now() };
+            if (it.kind === 'toolkit' && typeof it.slug === 'string') return { kind: 'toolkit', slug: it.slug, addedAt: it.addedAt || Date.now() };
+            if (typeof it.slug === 'string') return { kind: 'book', slug: it.slug, addedAt: it.addedAt || Date.now() };
+            return null;
+          })
+          .filter((it) => it !== null);
+      } catch {
+        return [];
+      }
+    }
+    function writeCart(items) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      window.dispatchEvent(new Event(CHANGE_EVENT));
+    }
+    function fmt(cents) {
+      return '$' + (cents / 100).toFixed(2);
+    }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      })[c]);
+    }
+
+    function render() {
+      const items = readCart();
+      if (items.length === 0) {
+        cartEmpty.hidden = false;
+        cartGrid.hidden = true;
+        return;
+      }
+      cartEmpty.hidden = true;
+      cartGrid.hidden = false;
+
+      // Sort: bundles first (largest discount-percent first), then books by
+      // catalog number, then toolkits by tier (number).
+      const sorted = items.slice().sort((a, b) => {
+        const orderKind = (it) => it.kind === 'bundle' ? 0 : it.kind === 'book' ? 1 : 2;
+        const ka = orderKind(a), kb = orderKind(b);
+        if (ka !== kb) return ka - kb;
+        if (a.kind === 'bundle' && b.kind === 'bundle') {
+          const ba = bundleMap.get(a.bundleId)?.discountPercent ?? 0;
+          const bb = bundleMap.get(b.bundleId)?.discountPercent ?? 0;
+          return bb - ba;
+        }
+        if (a.kind === 'book' && b.kind === 'book') {
+          const ba = bookMap.get(a.slug)?.number ?? 999;
+          const bb = bookMap.get(b.slug)?.number ?? 999;
+          return ba - bb;
+        }
+        if (a.kind === 'toolkit' && b.kind === 'toolkit') {
+          const ba = toolkitMap.get(a.slug)?.number ?? 999;
+          const bb = toolkitMap.get(b.slug)?.number ?? 999;
+          return ba - bb;
+        }
+        return 0;
+      });
+
+      cartList.innerHTML = '';
+      let totalCents = 0;
+      let visibleCount = 0;
+
+      for (const item of sorted) {
+        if (item.kind === 'bundle') {
+          const bundle = bundleMap.get(item.bundleId);
+          if (!bundle) continue;
+          totalCents += bundle.net_cents;
+          visibleCount += 1;
+          const includedTitles = [
+            ...bundle.included_book_slugs.map((s) => bookMap.get(s)?.title).filter(Boolean),
+            ...bundle.included_toolkit_slugs.map((s) => toolkitMap.get(s)?.title + ' — ' + toolkitMap.get(s)?.subtitle).filter(Boolean),
+          ];
+          const includedShort = bundle.book_count > 0 && bundle.toolkit_count > 0
+            ? `${bundle.book_count} books + ${bundle.toolkit_count} toolkits`
+            : bundle.book_count > 0
+              ? `${bundle.book_count} books`
+              : `${bundle.toolkit_count} toolkits`;
+          const li = document.createElement('li');
+          li.className = 'cart-item cart-item-bundle';
+          li.style.setProperty('--accent', bundle.accent_color);
+          li.innerHTML = `
+            <div class="bundle-mark" aria-hidden="true">BUNDLE</div>
+            <div class="cart-meta">
+              <h3 class="cart-title">${escapeHtml(bundle.label)}</h3>
+              <p class="cart-availability">In stock — instant download</p>
+              <p class="cart-format">${includedShort} · PDF + ePub digital bundle</p>
+              <details class="bundle-included">
+                <summary>What's included</summary>
+                <ol>
+                  ${includedTitles.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}
+                </ol>
+              </details>
+              <div class="cart-actions">
+                <button type="button" class="cart-link-btn" data-remove-bundle="${escapeHtml(bundle.id)}">Delete</button>
+              </div>
+            </div>
+            <div class="cart-price-block">
+              <span class="cart-price">${fmt(bundle.net_cents)}</span>
+              <span class="cart-strike">${fmt(bundle.gross_cents)}</span>
+              <span class="cart-savings">Save ${bundle.discountPercent}%</span>
+            </div>
+          `;
+          cartList.appendChild(li);
+        } else if (item.kind === 'book') {
+          const book = bookMap.get(item.slug);
+          if (!book) continue;
+          totalCents += book.price_cents;
+          visibleCount += 1;
+          const li = document.createElement('li');
+          li.className = 'cart-item';
+          li.innerHTML = `
+            <a href="/books/${book.slug}" class="cart-cover" aria-label="${escapeHtml(book.title)}">
+              <img src="${escapeHtml(book.cover_thumb)}" alt="${escapeHtml(book.title)} cover" loading="lazy" />
+            </a>
+            <div class="cart-meta">
+              <a href="/books/${book.slug}" class="cart-title">${escapeHtml(book.title)}: ${escapeHtml(book.subtitle)}</a>
+              <p class="cart-availability">In stock — instant download</p>
+              <p class="cart-format">PDF + ePub digital bundle</p>
+              <div class="cart-actions">
+                <button type="button" class="cart-link-btn" data-remove-book="${escapeHtml(book.slug)}">Delete</button>
+              </div>
+            </div>
+            <div class="cart-price-block">
+              <span class="cart-price">${fmt(book.price_cents)}</span>
+            </div>
+          `;
+          cartList.appendChild(li);
+        } else if (item.kind === 'toolkit') {
+          const tk = toolkitMap.get(item.slug);
+          if (!tk) continue;
+          totalCents += tk.price_cents;
+          visibleCount += 1;
+          const li = document.createElement('li');
+          li.className = 'cart-item';
+          li.innerHTML = `
+            <a href="/toolkits/${tk.slug}" class="cart-cover" aria-label="${escapeHtml(tk.title)}">
+              <img src="${escapeHtml(tk.cover_thumb)}" alt="${escapeHtml(tk.title)} cover" loading="lazy" />
+            </a>
+            <div class="cart-meta">
+              <a href="/toolkits/${tk.slug}" class="cart-title">${escapeHtml(tk.title)} — ${escapeHtml(tk.subtitle)}</a>
+              <p class="cart-availability">In stock — instant download</p>
+              <p class="cart-format">PDF digital toolkit</p>
+              <div class="cart-actions">
+                <button type="button" class="cart-link-btn" data-remove-toolkit="${escapeHtml(tk.slug)}">Delete</button>
+              </div>
+            </div>
+            <div class="cart-price-block">
+              <span class="cart-price">${fmt(tk.price_cents)}</span>
+            </div>
+          `;
+          cartList.appendChild(li);
+        }
+      }
+
+      const itemsLabel = visibleCount === 1 ? '1 item' : `${visibleCount} items`;
+      cartSummaryLine.innerHTML = `Subtotal (${itemsLabel})<br><strong>${fmt(totalCents)}</strong>`;
+    }
+
+    cartList.addEventListener('click', (e) => {
+      const removeBook = e.target.closest('[data-remove-book]');
+      const removeToolkit = e.target.closest('[data-remove-toolkit]');
+      const removeBundle = e.target.closest('[data-remove-bundle]');
+      if (removeBook) {
+        const slug = removeBook.dataset.removeBook;
+        writeCart(readCart().filter((it) => !(it.kind === 'book' && it.slug === slug)));
+      } else if (removeToolkit) {
+        const slug = removeToolkit.dataset.removeToolkit;
+        writeCart(readCart().filter((it) => !(it.kind === 'toolkit' && it.slug === slug)));
+      } else if (removeBundle) {
+        const id = removeBundle.dataset.removeBundle;
+        writeCart(readCart().filter((it) => !(it.kind === 'bundle' && it.bundleId === id)));
+      }
+    });
+
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', async () => {
+        checkoutError.hidden = true;
+        const items = readCart();
+        if (items.length === 0) return;
+
+        checkoutBtn.disabled = true;
+        checkoutBtn.textContent = 'Redirecting…';
+
+        try {
+          const res = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            checkoutError.textContent = data.error || 'Checkout failed.';
+            checkoutError.hidden = false;
+            checkoutBtn.disabled = false;
+            checkoutBtn.textContent = 'Proceed to checkout';
+            return;
+          }
+          window.location.href = data.url;
+        } catch (err) {
+          checkoutError.textContent = 'Network error. Please try again.';
+          checkoutError.hidden = false;
+          checkoutBtn.disabled = false;
+          checkoutBtn.textContent = 'Proceed to checkout';
+        }
+      });
+    }
+
+    window.addEventListener(CHANGE_EVENT, render);
+    window.addEventListener('storage', render);
+    render();
+  </script>
+</BaseLayout>
+
+<style>
+  .cart-page {
+    padding-block: var(--space-4) 6rem;
+  }
+
+  /* ---------- Empty state ---------- */
+  .cart-empty {
+    text-align: center;
+    padding: var(--space-5) var(--space-3);
+    max-width: 36em;
+    margin: 0 auto;
+  }
+  .cart-empty h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.2;
+    margin-bottom: var(--space-2);
+  }
+  .empty-prose {
+    color: var(--ink-500);
+    margin-bottom: var(--space-3);
+  }
+  .primary-btn {
+    display: inline-block;
+    background: var(--ink-900);
+    color: var(--paper);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .primary-btn:hover { background: #2e2820; }
+
+  /* ---------- Cart layout ---------- */
+  .cart-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 900px) {
+    .cart-grid {
+      grid-template-columns: minmax(0, 1fr) 280px;
+      align-items: start;
+    }
+  }
+
+  .cart-main {
+    background: var(--paper);
+    border: 1px solid var(--ink-200);
+    padding: var(--space-3);
+  }
+  @media (min-width: 768px) {
+    .cart-main { padding: var(--space-4); }
+  }
+
+  .cart-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    column-gap: var(--space-3);
+    border-bottom: 1px solid var(--ink-200);
+    padding-bottom: var(--space-2);
+    margin-bottom: var(--space-1);
+  }
+  .cart-head h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    line-height: 1.1;
+    color: var(--ink-900);
+    margin: 0;
+  }
+  .price-col-label {
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-500);
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .continue-shopping {
+    margin: 0.5rem 0 var(--space-2);
+    font-size: 0.875rem;
+  }
+  .continue-shopping a {
+    color: var(--ink-700);
+    text-decoration: none;
+  }
+  .continue-shopping a:hover {
+    text-decoration: underline;
+    color: var(--ink-900);
+  }
+
+  .cart-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Cart-item rows are created via innerHTML — wrap with :global(). */
+  .cart-list :global(.cart-item) {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--ink-100);
+    align-items: start;
+  }
+  .cart-list :global(.cart-item:last-child) {
+    border-bottom: 0;
+  }
+
+  .cart-list :global(.cart-cover) {
+    display: block;
+    width: 110px;
+    flex-shrink: 0;
+  }
+  .cart-list :global(.cart-cover img) {
+    display: block;
+    width: 110px;
+    height: auto;
+    border: 1px solid var(--ink-200);
+  }
+  .cart-list :global(.cart-cover:hover img) {
+    border-color: var(--ink-500);
+  }
+
+  /* Bundle items don't have a cover image — instead a labeled placeholder
+     in the same column so the layout stays aligned. */
+  .cart-list :global(.cart-item-bundle .bundle-mark) {
+    width: 110px;
+    height: 110px;
+    background: var(--accent, var(--ink-900));
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+  }
+
+  .cart-list :global(.cart-meta) {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .cart-list :global(.cart-title) {
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--ink-900);
+    line-height: 1.25;
+    text-decoration: none;
+  }
+  .cart-list :global(.cart-title:hover) {
+    text-decoration: underline;
+    color: #c44a30;
+  }
+  .cart-list :global(h3.cart-title) { margin: 0; }
+  .cart-list :global(.cart-availability) {
+    color: #2e8a5f;
+    font-size: 0.8125rem;
+    margin: 0;
+    font-weight: 500;
+  }
+  .cart-list :global(.cart-format) {
+    color: var(--ink-500);
+    font-size: 0.8125rem;
+    margin: 0;
+  }
+
+  .cart-list :global(.bundle-included) {
+    margin: 0.25rem 0;
+    font-size: 0.8125rem;
+  }
+  .cart-list :global(.bundle-included summary) {
+    cursor: pointer;
+    color: var(--ink-700);
+    font-size: 0.8125rem;
+  }
+  .cart-list :global(.bundle-included summary:hover) {
+    color: var(--ink-900);
+  }
+  .cart-list :global(.bundle-included ol) {
+    margin: 0.5rem 0 0;
+    padding-left: 1.25rem;
+    color: var(--ink-700);
+  }
+  .cart-list :global(.bundle-included li) {
+    padding: 0.15rem 0;
+  }
+
+  .cart-list :global(.cart-actions) {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .cart-list :global(.cart-link-btn) {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    border: 1px solid var(--ink-200);
+    padding: 0.375rem 0.75rem;
+    color: var(--ink-700);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-family: inherit;
+    line-height: 1;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+  }
+  .cart-list :global(.cart-link-btn:hover) {
+    border-color: #a13d2c;
+    color: #a13d2c;
+  }
+
+  .cart-list :global(.cart-price-block) {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+  }
+  .cart-list :global(.cart-price) {
+    font-family: var(--serif);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--ink-900);
+    white-space: nowrap;
+  }
+  .cart-list :global(.cart-strike) {
+    color: var(--ink-500);
+    font-size: 0.875rem;
+    text-decoration: line-through;
+  }
+  .cart-list :global(.cart-savings) {
+    color: #2e8a5f;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- Summary aside ---------- */
+  .cart-summary {
+    background: var(--paper);
+    border: 1px solid var(--ink-200);
+    padding: var(--space-3);
+    position: sticky;
+    top: 5rem;
+  }
+  .summary-line {
+    margin: 0 0 var(--space-3);
+    font-size: 0.9375rem;
+    color: var(--ink-700);
+  }
+  .summary-line strong {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    color: var(--ink-900);
+    display: inline-block;
+    margin-top: 0.25rem;
+  }
+
+  .checkout-btn {
+    width: 100%;
+    background: var(--ink-900);
+    color: var(--paper);
+    border: 0;
+    padding: 0.875rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .checkout-btn:hover { background: #2e2820; }
+  .checkout-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .signin-note {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--ink-500);
+    text-align: center;
+  }
+
+  .checkout-error {
+    margin-top: 0.75rem;
+    color: #a13d2c;
+    font-size: 0.875rem;
+  }
+
+  .continue-aside {
+    margin-top: var(--space-3);
+    text-align: center;
+  }
+</style>

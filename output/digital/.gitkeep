@@ -1,0 +1,2 @@
+# Auth-gated digital files served via /api/download/[slug].
+# Each book gets a subdirectory: <slug>/<slug>.{pdf,epub}
