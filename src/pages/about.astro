@@ -35,7 +35,14 @@ export const prerender = true;
       </div>
 
       <div class="author-block">
-        <div class="author-photo" aria-hidden="true">KT</div>
+        <img
+          class="author-photo"
+          src="/images/ken-tannenbaum.png"
+          alt="Ken Tannenbaum"
+          width="320"
+          height="320"
+          loading="lazy"
+        />
         <div class="author-bio">
           <p class="author-role">Founder, Finnoybu Press · Author of all twenty-one titles in the AI for Everyone series</p>
           <div class="prose">
@@ -43,7 +50,10 @@ export const prerender = true;
               Ken writes practical books on the AI tools shaping today's work — and builds governance frameworks for the small and midsize businesses adopting them. He founded Finnoybu Press in 2026 to publish the kind of clear, useful AI writing he wished existed when he started the work.
             </p>
             <p>
-              <em>Bio is a placeholder — replace with your real positioning, prior roles, and credentials. Add a professional headshot at <code>/public/images/ken-tannenbaum.jpg</code> and update the markup to use it instead of the monogram.</em>
+              He also founded the AEGIS Initiative, an open framework for AI safety and accountability used by SMBs adopting AI without an in-house governance team. The Finnoybu Press AEGIS Toolkits — Starter, Standard, and Pro — translate AEGIS into ready-to-use templates, policies, and operating procedures.
+            </p>
+            <p>
+              Before Finnoybu Press, Ken spent two decades building software and leading technology teams across financial services, healthcare, and B2B SaaS. The pattern he kept seeing — capable people drowning in unclear documentation — is what the press exists to fix.
             </p>
           </div>
         </div>
@@ -187,24 +197,18 @@ export const prerender = true;
   .author-photo {
     width: 140px;
     height: 140px;
-    background: linear-gradient(135deg, var(--paper-warm), var(--ink-100));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--serif);
-    font-size: 3rem;
-    color: var(--ink-300);
-    font-style: italic;
-    letter-spacing: -0.02em;
+    object-fit: cover;
+    object-position: center top;
     border-radius: 2px;
+    display: block;
   }
 
   @media (min-width: 640px) {
-    .author-photo { width: 200px; height: 200px; font-size: 4rem; }
+    .author-photo { width: 200px; height: 200px; }
   }
 
   @media (min-width: 1024px) {
-    .author-photo { width: 240px; height: 240px; font-size: 4.5rem; }
+    .author-photo { width: 240px; height: 240px; }
   }
 
   .author-role {

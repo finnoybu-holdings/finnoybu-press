@@ -16,8 +16,8 @@ export interface Bundle {
   accentColor: string;
 }
 
-// All bundles cover the PDF + ePub edition only. Paperback / hardcover /
-// Kindle remain individual purchases through their respective channels.
+// All bundles cover the PDF + ePub edition only. Paperback and Kindle
+// remain individual purchases through their respective channels.
 export const BUNDLES: Bundle[] = [
   {
     id: 'collection-product-deep-dives',
@@ -49,7 +49,7 @@ export const BUNDLES: Bundle[] = [
   {
     id: 'series-complete',
     label: 'The Complete Series (PDF + ePub)',
-    description: 'All 21 books across the AI for Everyone series, plus all three AEGIS Toolkits — at 25% off. PDF + ePub editions only; paperback and hardcover sold separately.',
+    description: 'All 21 books across the AI for Everyone series, plus all three AEGIS Toolkits — at 25% off. PDF + ePub editions only; paperback sold separately.',
     bookNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
     toolkitSlugs: ['starter', 'standard', 'pro'],
     discountPercent: 25,

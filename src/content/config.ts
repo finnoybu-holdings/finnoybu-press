@@ -37,7 +37,7 @@ const books = defineCollection({
 
     // Buy links
     formats: z.array(z.object({
-      type: z.enum(['pdf-epub', 'kindle', 'paperback', 'hardcover']),
+      type: z.enum(['pdf-epub', 'kindle', 'paperback']),
       label: z.string(),                           // e.g. "PDF / EPUB"
       price: z.string(),                           // e.g. "$7.99"
       url: z.string().url().optional(),            // missing url = "coming soon"
@@ -78,7 +78,7 @@ const toolkits = defineCollection({
     docs: z.array(z.string()),                      // list of included documents
 
     formats: z.array(z.object({
-      type: z.enum(['pdf-epub', 'kindle', 'paperback', 'hardcover']),
+      type: z.enum(['pdf-epub', 'kindle', 'paperback']),
       label: z.string(),
       price: z.string(),
       url: z.string().url().optional(),
