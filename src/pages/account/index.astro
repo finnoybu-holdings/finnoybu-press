@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import SignInModal from '../../components/SignInModal.astro';
 import { getCollection } from 'astro:content';
 import { createClient } from '../../lib/supabase/server';
 
@@ -99,8 +98,6 @@ const owned = ownedSlugs
       </>
     )}
   </article>
-
-  {!user && <SignInModal />}
 </BaseLayout>
 
 <style>

@@ -16,8 +16,10 @@
     "@astrojs/vercel": "^8.0.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.2",
+    "@types/zxcvbn": "^4.4.5",
     "@vercel/analytics": "^2.0.1",
     "astro": "^5.0.0",
-    "stripe": "^22.0.1"
+    "stripe": "^22.0.1",
+    "zxcvbn": "^4.4.2"
   }
 }
