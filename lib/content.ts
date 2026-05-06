@@ -100,27 +100,29 @@ function readCollection<T>(folder: string): { slug: string; data: T; body: strin
 // have to special-case missing fields. Any new file may omit author /
 // edition / publisher / status and still render.
 function applyBookDefaults(b: Book): Book {
+  const data = b.data as Partial<BookData>
   return {
     ...b,
     data: {
-      author: 'Ken Tannenbaum',
-      edition: '2026 Edition',
-      publisher: 'Finnoybu Press',
-      status: 'published',
-      ...b.data,
+      ...(data as BookData),
+      author: data.author ?? 'Ken Tannenbaum',
+      edition: data.edition ?? '2026 Edition',
+      publisher: data.publisher ?? 'Finnoybu Press',
+      status: data.status ?? 'published',
     },
   }
 }
 
 function applyToolkitDefaults(t: Toolkit): Toolkit {
+  const data = t.data as Partial<ToolkitData>
   return {
     ...t,
     data: {
-      author: 'Ken Tannenbaum',
-      edition: '2026 Edition',
-      publisher: 'Finnoybu Press',
-      status: 'published',
-      ...t.data,
+      ...(data as ToolkitData),
+      author: data.author ?? 'Ken Tannenbaum',
+      edition: data.edition ?? '2026 Edition',
+      publisher: data.publisher ?? 'Finnoybu Press',
+      status: data.status ?? 'published',
     },
   }
 }

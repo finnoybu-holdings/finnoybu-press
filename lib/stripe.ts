@@ -1,10 +1,24 @@
 import Stripe from 'stripe'
 
-// Server-side only. STRIPE_SECRET_KEY must never be exposed to the
-// browser bundle — Next.js will refuse to inline non-NEXT_PUBLIC_ vars
-// into client code, which is exactly what we want here.
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2026-03-25.dahlia' as any,
+// Lazy Stripe client. Constructing eagerly at module load fails the
+// build when STRIPE_SECRET_KEY isn't set in the build environment
+// (the Stripe SDK throws "Neither apiKey nor config.authenticator
+// provided" during page-data collection). Wrapping in a Proxy gives
+// every consumer a real-looking client whose first method call is
+// what triggers the actual SDK constructor at request time.
+let _stripe: Stripe | null = null
+function getStripe(): Stripe {
+  if (_stripe) return _stripe
+  _stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+    apiVersion: '2026-03-25.dahlia' as any,
+  })
+  return _stripe
+}
+
+export const stripe = new Proxy({} as Stripe, {
+  get(_target, prop) {
+    return (getStripe() as any)[prop]
+  },
 })
 
 export const DIGITAL_BUNDLE_CURRENCY = 'usd'

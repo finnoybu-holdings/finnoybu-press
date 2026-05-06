@@ -22,7 +22,6 @@ export default function AuthModal() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
   const strength = usePasswordStrength(password)
 
   // Reset every field when the modal closes — opening fresh should
@@ -58,6 +57,7 @@ export default function AuthModal() {
         setLoading(false)
         return
       }
+      const supabase = createClient()
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -66,6 +66,7 @@ export default function AuthModal() {
       if (error) { setError(error.message); setLoading(false); return }
       setView('check_email')
     } else if (view === 'sign_in') {
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) { setError(error.message); setLoading(false); return }
       close()
@@ -73,6 +74,7 @@ export default function AuthModal() {
       window.location.reload()
       return
     } else if (view === 'forgot_password') {
+      const supabase = createClient()
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/callback?next=/account/update-password`,
       })
@@ -87,6 +89,7 @@ export default function AuthModal() {
     provider: 'google' | 'facebook' | 'apple' | 'github'
   ) => {
     setLoading(true)
+    const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
