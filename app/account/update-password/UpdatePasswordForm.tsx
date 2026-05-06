@@ -31,6 +31,7 @@ export default function UpdatePasswordForm() {
     setLoading(true)
     try {
       const supabase = createClient()
+      if (!supabase) { setError('Auth is not configured.'); setLoading(false); return }
       const { error } = await supabase.auth.updateUser({ password })
       if (error) {
         setError(error.message)

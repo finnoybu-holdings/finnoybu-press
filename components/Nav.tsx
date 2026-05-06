@@ -22,6 +22,7 @@ export default function Nav() {
 
   useEffect(() => {
     const supabase = createClient()
+    if (!supabase) return
     supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user))
     const {
       data: { subscription },

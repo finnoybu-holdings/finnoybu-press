@@ -8,7 +8,7 @@ export default function SignOutButton() {
   const handle = async () => {
     try {
       const supabase = createClient()
-      await supabase.auth.signOut()
+      if (supabase) await supabase.auth.signOut()
       try { clearCart() } catch {}
     } catch {}
     window.location.href = '/'

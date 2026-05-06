@@ -12,6 +12,7 @@ export default function ConfirmedActions() {
   // deliberate next action.
   useEffect(() => {
     const supabase = createClient()
+    if (!supabase) return
     supabase.auth.signOut().catch(() => {})
   }, [])
 

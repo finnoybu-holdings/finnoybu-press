@@ -58,6 +58,7 @@ export default function AuthModal() {
         return
       }
       const supabase = createClient()
+      if (!supabase) { setError('Auth is not configured.'); setLoading(false); return }
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -67,6 +68,7 @@ export default function AuthModal() {
       setView('check_email')
     } else if (view === 'sign_in') {
       const supabase = createClient()
+      if (!supabase) { setError('Auth is not configured.'); setLoading(false); return }
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) { setError(error.message); setLoading(false); return }
       close()
@@ -75,6 +77,7 @@ export default function AuthModal() {
       return
     } else if (view === 'forgot_password') {
       const supabase = createClient()
+      if (!supabase) { setError('Auth is not configured.'); setLoading(false); return }
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/callback?next=/account/update-password`,
       })
@@ -90,6 +93,7 @@ export default function AuthModal() {
   ) => {
     setLoading(true)
     const supabase = createClient()
+    if (!supabase) { setError('Auth is not configured.'); setLoading(false); return }
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
