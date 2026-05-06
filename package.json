@@ -1,25 +1,34 @@
 {
   "name": "finnoybu-press",
-  "type": "module",
   "version": "0.1.0",
   "private": true,
-  "description": "Finnoybu Press — AI guides for every user (press.finnoybu.org)",
+  "description": "Finnoybu Press — AI guides for every user (press.finnoybu.org). Next.js rebuild.",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.2",
-    "@astrojs/vercel": "^8.0.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.2",
-    "@types/zxcvbn": "^4.4.5",
     "@vercel/analytics": "^2.0.1",
-    "astro": "^5.0.0",
+    "gray-matter": "^4.0.3",
+    "next": "14.2.5",
+    "next-sitemap": "^4.2.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "stripe": "^22.0.1",
     "zxcvbn": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "20.12.7",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "^18.3.7",
+    "@types/zxcvbn": "^4.4.5",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5",
+    "typescript": "5.4.5"
   }
 }
