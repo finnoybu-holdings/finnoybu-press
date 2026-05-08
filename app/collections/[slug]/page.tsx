@@ -74,7 +74,22 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const meta = COLLECTIONS[params.slug]
   if (!meta) return {}
-  return { title: meta.title, description: meta.shortDesc }
+  const ogImage = `/images/og/${params.slug}.jpg`
+  const url = `/collections/${params.slug}`
+  return {
+    title: meta.title,
+    description: meta.shortDesc,
+    alternates: { canonical: url },
+    openGraph: {
+      url,
+      title: meta.title,
+      description: meta.shortDesc,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      images: [ogImage],
+    },
+  }
 }
 
 export default function CollectionPage({ params }: { params: { slug: string } }) {

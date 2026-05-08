@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:og": "node scripts/og/build-og.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
@@ -24,12 +25,14 @@
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "20.12.7",
     "@types/react": "18.3.3",
     "@types/react-dom": "^18.3.7",
     "@types/zxcvbn": "^4.4.5",
     "eslint": "8.57.0",
     "eslint-config-next": "14.2.5",
+    "png-to-ico": "^3.0.1",
     "sharp": "^0.34.5",
     "typescript": "5.4.5"
   }

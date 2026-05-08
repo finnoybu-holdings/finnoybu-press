@@ -35,17 +35,18 @@ export const metadata: Metadata = {
     'Finnoybu Press publishes clear, practical guides to AI tools and governance. Twenty-one books on ChatGPT, Claude, Gemini, Copilot, Perplexity, plus the cross-platform skills behind useful AI.',
   authors: [{ name: 'Ken Tannenbaum' }],
   publisher: 'Finnoybu Press',
-  alternates: { canonical: '/' },
+  // No `alternates.canonical` here: a layout-level canonical leaks onto every
+  // child route, telling Facebook/LinkedIn each page is the homepage and
+  // collapsing every share into the homepage cache. Each route sets its own.
   openGraph: {
     type: 'website',
     siteName: 'Finnoybu Press',
     locale: 'en_US',
-    url: '/',
-    images: [{ url: '/images/og-card.png', width: 1200, height: 630 }],
+    images: [{ url: '/images/og/home.jpg', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/images/og-card.png'],
+    images: ['/images/og/home.jpg'],
   },
 }
 
@@ -55,7 +56,7 @@ const ORG_SCHEMA = {
   name: 'Finnoybu Press',
   legalName: 'Finnoybu Holdings LLC',
   url: 'https://press.finnoybu.org',
-  logo: 'https://press.finnoybu.org/images/og-card.png',
+  logo: 'https://press.finnoybu.org/images/og/home.jpg',
   description: 'Publisher of practical AI guides and governance toolkits.',
   founder: { '@type': 'Person', name: 'Ken Tannenbaum' },
 }

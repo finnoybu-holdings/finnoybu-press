@@ -1,10 +1,22 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import CollectionCard from '@/components/CollectionCard'
 import HeroCover from '@/components/HeroCover'
 import { getAllBooks } from '@/lib/content'
 import styles from './page.module.css'
 
 export const revalidate = 3600
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  openGraph: {
+    url: '/',
+    images: [{ url: '/images/og/home.jpg', width: 1200, height: 630 }],
+  },
+  twitter: {
+    images: ['/images/og/home.jpg'],
+  },
+}
 
 export default function HomePage() {
   const sorted = getAllBooks()

@@ -18,14 +18,21 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const tk = getToolkit(params.slug)
   if (!tk) return {}
+  const ogImage = tk.data.cover_image.replace('/images/', '/images/og/').replace('.png', '.jpg')
+  const url = `/toolkits/${params.slug}`
   return {
     title: `${tk.data.title} — ${tk.data.subtitle}`,
     description: tk.data.description,
+    alternates: { canonical: url },
     openGraph: {
       type: 'website',
+      url,
       title: `${tk.data.title} — ${tk.data.subtitle}`,
       description: tk.data.description,
-      images: [tk.data.cover_image.replace('/images/', '/images/og/').replace('.png', '.jpg')],
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      images: [ogImage],
     },
   }
 }

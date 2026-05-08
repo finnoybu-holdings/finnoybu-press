@@ -26,14 +26,21 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const book = getBook(params.slug)
   if (!book) return {}
+  const ogImage = book.data.cover_image.replace('/images/', '/images/og/')
+  const url = `/books/${params.slug}`
   return {
     title: `${book.data.title}: ${book.data.subtitle}`,
     description: book.data.description,
+    alternates: { canonical: url },
     openGraph: {
       type: 'book',
+      url,
       title: `${book.data.title}: ${book.data.subtitle}`,
       description: book.data.description,
-      images: [book.data.cover_image.replace('/images/', '/images/og/')],
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      images: [ogImage],
     },
   }
 }

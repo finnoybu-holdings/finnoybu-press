@@ -9,6 +9,17 @@ export const metadata: Metadata = {
   title: 'The AI for Everyone Series',
   description:
     'Twenty-one practical books on AI tools, skills, and systems. Browse the full series.',
+  alternates: { canonical: '/series' },
+  openGraph: {
+    url: '/series',
+    title: 'The AI for Everyone Series',
+    description:
+      'Twenty-one practical books on AI tools, skills, and systems. Browse the full series.',
+    images: [{ url: '/images/og/series.jpg', width: 1200, height: 630 }],
+  },
+  twitter: {
+    images: ['/images/og/series.jpg'],
+  },
 }
 
 const COLLECTION_LABELS: Record<string, string> = {
