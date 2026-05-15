@@ -1,39 +1,35 @@
 {
   "name": "finnoybu-press",
-  "version": "0.1.0",
+  "type": "module",
+  "version": "0.2.0",
   "private": true,
-  "description": "Finnoybu Press — AI guides for every user (press.finnoybu.org). Next.js rebuild.",
+  "description": "Finnoybu Press — AI guides for every user (press.finnoybu.org)",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "build:og": "node scripts/og/build-og.mjs"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "wrangler pages dev ./dist",
+    "astro": "astro",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply finnoybu-press --local",
+    "db:migrate:prod": "wrangler d1 migrations apply finnoybu-press --remote",
+    "r2:upload": "wrangler r2 object put",
+    "lock:wsl": "wsl -e bash -c \"npm install --package-lock-only\""
   },
   "dependencies": {
-    "@supabase/ssr": "^0.10.2",
-    "@supabase/supabase-js": "^2.103.2",
-    "@vercel/analytics": "^2.0.1",
-    "gray-matter": "^4.0.3",
-    "marked": "^12.0.0",
-    "next": "^14.2.35",
-    "next-sitemap": "^4.2.3",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/cloudflare": "^12.0.0",
+    "@astrojs/sitemap": "^3.7.2",
+    "astro": "^5.1.0",
+    "aws4fetch": "^1.0.20",
+    "better-auth": "^1.0.0",
+    "drizzle-orm": "^0.45.2",
     "stripe": "^22.0.1",
-    "zxcvbn": "^4.4.2"
+    "typescript": "^5.7.0"
   },
   "devDependencies": {
-    "@resvg/resvg-js": "^2.6.2",
-    "@types/node": "20.12.7",
-    "@types/react": "18.3.3",
-    "@types/react-dom": "^18.3.7",
-    "@types/zxcvbn": "^4.4.5",
-    "eslint": "8.57.0",
-    "eslint-config-next": "14.2.5",
-    "png-to-ico": "^3.0.1",
-    "sharp": "^0.34.5",
-    "typescript": "5.4.5"
+    "@cloudflare/workers-types": "^4.20251005.0",
+    "drizzle-kit": "^0.31.0",
+    "wrangler": "^3.95.0"
   }
 }

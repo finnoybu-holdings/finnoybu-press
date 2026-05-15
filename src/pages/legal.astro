@@ -1,0 +1,381 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+export const prerender = true;
+
+const lastUpdated = 'May 5, 2026';
+---
+<BaseLayout
+  title="Legal — Finnoybu Press"
+  description="Terms, privacy policy, and cookie policy for press.finnoybu.org."
+>
+  <article class="legal-page">
+    <div class="container narrow">
+      <p class="eyebrow">Legal</p>
+      <h1>Terms &amp; Policies</h1>
+      <p class="last-updated">Last updated: {lastUpdated}</p>
+
+      <nav class="toc">
+        <p class="toc-eyebrow">On this page</p>
+        <ul>
+          <li><a href="#copyright">Copyright</a></li>
+          <li><a href="#terms-of-use">Terms of Use</a></li>
+          <li><a href="#privacy-policy">Privacy Policy</a></li>
+          <li><a href="#cookie-policy">Cookie Policy</a></li>
+          <li><a href="#data-deletion">Data Deletion</a></li>
+          <li><a href="#acceptable-use">Acceptable Use</a></li>
+          <li><a href="#dmca">DMCA &amp; Takedown</a></li>
+          <li><a href="#impressum">Impressum</a></li>
+        </ul>
+      </nav>
+
+      <div class="prose">
+
+        <section id="copyright">
+          <h2>Copyright</h2>
+          <p>
+            &copy; 2026 Finnoybu Press. All rights reserved. The text of every
+            book published by Finnoybu Press, the AEGIS Toolkits, and all
+            accompanying illustrations and cover designs are the property of
+            Finnoybu Press and may not be reproduced, distributed, or
+            transmitted in any form without prior written permission.
+          </p>
+          <p>
+            Product names referenced in our books (ChatGPT, Claude, Gemini,
+            Copilot, Perplexity, NotebookLM, DeepSeek, Cursor, OpenClaw, etc.)
+            are trademarks of their respective owners. Use of these names is
+            for editorial and educational purposes and does not imply
+            endorsement.
+          </p>
+        </section>
+
+        <section id="terms-of-use">
+          <h2>Terms of Use</h2>
+          <p>
+            By accessing <strong>press.finnoybu.org</strong> (&ldquo;the Site&rdquo;),
+            operated by Finnoybu Press (&ldquo;we,&rdquo; &ldquo;us,&rdquo; &ldquo;our&rdquo;),
+            you agree to be bound by these Terms of Use. If you do not agree, please do not
+            use the Site. We may update these terms at any time by posting a revised version;
+            your continued use after changes constitutes acceptance.
+          </p>
+
+          <h3>Accounts</h3>
+          <p>
+            You may create an account using your email address. We send a one-time
+            sign-in link to that address — there is no password to remember. You are
+            responsible for the security of your email inbox and for all activity
+            under your account. Accounts are for personal, non-commercial use only.
+            You must be at least 13 years of age to create an account.
+          </p>
+
+          <h3>Purchases</h3>
+          <p>
+            Digital downloads (PDF/ePub) are processed through Stripe. All sales are
+            final. If you experience a technical issue with your purchase, contact us
+            at <a href="mailto:ktannenbaum@finnoybu.org">ktannenbaum@finnoybu.org</a> and
+            we will work to resolve it.
+          </p>
+
+          <h3>Termination</h3>
+          <p>
+            We reserve the right to suspend or terminate accounts that violate these
+            terms or the Acceptable Use policy. You may delete your account at any
+            time (see <a href="#data-deletion">Data Deletion</a>).
+          </p>
+
+          <h3>Limitation of liability</h3>
+          <p>
+            The Site is provided &ldquo;as is.&rdquo; To the fullest extent permitted
+            by law, Finnoybu Press shall not be liable for any indirect, incidental,
+            or consequential damages arising from your use of the Site.
+          </p>
+
+          <h3>Governing law</h3>
+          <p>
+            These terms are governed by the laws of the Commonwealth of Virginia,
+            United States, without regard to conflict-of-law principles.
+          </p>
+        </section>
+
+        <section id="privacy-policy">
+          <h2>Privacy Policy</h2>
+          <p>
+            Finnoybu Press operates <strong>press.finnoybu.org</strong>. This Privacy
+            Policy explains what data we collect, how we use it, and your rights
+            regarding that data.
+          </p>
+
+          <h3>What we collect</h3>
+
+          <h4>Account information</h4>
+          <p>
+            When you create an account, we collect your <strong>email address</strong>.
+            We do not collect or store passwords &mdash; sign-in is done via one-time
+            links sent to your inbox.
+          </p>
+
+          <h4>Library and purchase information</h4>
+          <p>
+            When you purchase a digital download, we record the <strong>book or
+            toolkit purchased</strong>, <strong>amount paid</strong>, <strong>currency</strong>,
+            and a <strong>Stripe session identifier</strong>. We do not receive or
+            store your payment card details &mdash; those are handled entirely by Stripe.
+          </p>
+
+          <h4>Automatically collected data</h4>
+          <p>
+            Our hosting provider (Cloudflare) may log standard request metadata
+            (IP address, user-agent, requested URL) for operational and security
+            purposes. This data is not linked to individual user accounts.
+          </p>
+
+          <h4>Browser storage</h4>
+          <p>
+            We store your <strong>cart contents</strong> and <strong>cookie-consent
+            status</strong> in your browser&rsquo;s local storage. This data never
+            leaves your device unless you sign in and complete a purchase.
+          </p>
+
+          <h3>How we use your data</h3>
+          <ul>
+            <li>To provide and maintain your account and library access</li>
+            <li>To process purchases and deliver digital downloads</li>
+            <li>To send transactional emails (sign-in links and purchase receipts)</li>
+          </ul>
+          <p>
+            We do <strong>not</strong> sell, rent, or share your personal data with
+            third parties for advertising or marketing purposes. We do <strong>not</strong>
+            send marketing or promotional emails.
+          </p>
+
+          <h3>Third-party services</h3>
+          <p>We share data with the following services, solely to operate the Site:</p>
+          <ul>
+            <li>
+              <strong>Cloudflare</strong> (hosting, database, and file storage) &mdash;
+              hosts the Site and stores account, purchase, and digital-download data
+              on our behalf.
+              <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer"> Cloudflare Privacy Policy</a>
+            </li>
+            <li>
+              <strong>Amazon Web Services (SES)</strong> &mdash; delivers transactional
+              email (sign-in links, purchase receipts) on our behalf.
+              <a href="https://aws.amazon.com/privacy/" target="_blank" rel="noopener noreferrer"> AWS Privacy Notice</a>
+            </li>
+            <li>
+              <strong>Stripe</strong> (payment processing) &mdash; receives your email
+              address and processes payment card details directly.
+              <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer"> Stripe Privacy Policy</a>
+            </li>
+            <li>
+              <strong>Amazon (KDP)</strong> &mdash; Kindle and paperback editions are
+              fulfilled by Amazon. Purchases made on Amazon are subject to Amazon&rsquo;s
+              own terms and privacy policy; we do not receive your Amazon account data.
+            </li>
+          </ul>
+
+          <h3>Data retention</h3>
+          <p>
+            We retain your account data for as long as your account is active.
+            Purchase records are retained indefinitely for tax and accounting
+            purposes. If you delete your account, all personal data is removed
+            except purchase records, which are anonymized.
+          </p>
+
+          <h3>Your rights</h3>
+          <p>You have the right to access, correct, delete, or export your personal data at any time. For GDPR (EEA) and CCPA (California) inquiries, contact <a href="mailto:ktannenbaum@finnoybu.org">ktannenbaum@finnoybu.org</a>.</p>
+
+          <h3>Children&rsquo;s privacy</h3>
+          <p>
+            The Site is not directed at children under 13. We do not knowingly collect
+            personal data from children under 13.
+          </p>
+        </section>
+
+        <section id="cookie-policy">
+          <h2>Cookie Policy</h2>
+          <p>
+            This site uses cookies and browser local storage to provide and improve
+            the experience. Below is a summary of what we store and why.
+          </p>
+
+          <h3>Essential (always active)</h3>
+          <ul>
+            <li>
+              <strong>Session cookies</strong> &mdash; set after you click a sign-in
+              link, to keep you signed in across pages.
+            </li>
+            <li>
+              <strong>Local storage</strong> &mdash; your cart contents and
+              cookie-consent acknowledgement are stored in your browser so they
+              persist between visits.
+            </li>
+          </ul>
+
+          <p>
+            We do not use cookies for advertising, retargeting, cross-site
+            tracking, or analytics. If our use of cookies changes, this policy
+            will be updated and the &ldquo;last updated&rdquo; date at the top of
+            this page will reflect the change.
+          </p>
+        </section>
+
+        <section id="data-deletion">
+          <h2>Data Deletion</h2>
+          <p>
+            You can delete your account at any time from your account settings page.
+            This will remove your user account, authentication credentials, and any
+            associated personal data. Purchase records are anonymized rather than
+            deleted (retaining only transaction amount and date for accounting purposes).
+          </p>
+          <p>
+            If you are unable to sign in or prefer to request deletion by email,
+            contact <a href="mailto:ktannenbaum@finnoybu.org">ktannenbaum@finnoybu.org</a>
+            with the subject line &ldquo;Delete my account&rdquo; from the email
+            address associated with your account. We will process the request
+            within 30 days.
+          </p>
+          <p>Data deletion is permanent and cannot be reversed.</p>
+        </section>
+
+        <section id="acceptable-use">
+          <h2>Acceptable Use</h2>
+          <p>When using the Site, you agree not to:</p>
+          <ul>
+            <li>Copy, reproduce, distribute, or publicly display book content or toolkit content without prior written permission from Finnoybu Press.</li>
+            <li>Use automated tools (bots, scrapers, crawlers) to access the Site or download content in bulk.</li>
+            <li>Attempt to gain unauthorized access to other users&rsquo; accounts or data.</li>
+            <li>Interfere with the operation of the Site, including introducing malware or overloading the server with excessive requests.</li>
+            <li>Use the Site for any unlawful purpose.</li>
+          </ul>
+        </section>
+
+        <section id="dmca">
+          <h2>DMCA &amp; Takedown</h2>
+          <p>
+            If you believe content on this site infringes your copyright, send a
+            written notice to <a href="mailto:ktannenbaum@finnoybu.org">ktannenbaum@finnoybu.org</a>
+            including: identification of the copyrighted work, the infringing URL,
+            your contact information, and a statement of good-faith belief.
+          </p>
+        </section>
+
+        <section id="impressum">
+          <h2>Impressum</h2>
+          <p><strong>Publisher:</strong> Finnoybu Press, an imprint of Finnoybu Holdings LLC</p>
+          <p><strong>Responsible person:</strong> Ken Tannenbaum</p>
+          <p><strong>Contact:</strong> <a href="mailto:ktannenbaum@finnoybu.org">ktannenbaum@finnoybu.org</a></p>
+        </section>
+
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .legal-page { padding-block: var(--space-5) var(--space-7); }
+  .narrow { max-width: 720px; }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-color, #156082);
+    margin-bottom: var(--space-2);
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 var(--space-2);
+    color: var(--ink-900);
+  }
+
+  .last-updated {
+    color: var(--ink-500);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-5);
+  }
+
+  .toc {
+    background: var(--paper);
+    border: 1px solid var(--ink-200);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: var(--space-5);
+  }
+  .toc-eyebrow {
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    margin: 0 0 0.5rem;
+  }
+  .toc ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .toc a {
+    color: var(--accent-color, #156082);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+  .toc a:hover { text-decoration: underline; }
+
+  .prose section {
+    scroll-margin-top: 5rem;
+    margin-bottom: var(--space-5);
+  }
+
+  .prose h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.375rem, 2.6vw, 1.75rem);
+    color: var(--ink-900);
+    margin: var(--space-4) 0 var(--space-2);
+  }
+
+  .prose h3 {
+    font-family: var(--sans, system-ui);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink-900);
+    margin: var(--space-3) 0 var(--space-1);
+  }
+
+  .prose h4 {
+    font-family: var(--sans, system-ui);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink-900);
+    margin: var(--space-2) 0 var(--space-1);
+  }
+
+  .prose p,
+  .prose ul,
+  .prose ol {
+    font-family: var(--serif);
+    color: var(--ink-700, #2e2820);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-2);
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.5rem;
+  }
+
+  .prose li {
+    margin-bottom: 0.4rem;
+  }
+
+  .prose a {
+    color: var(--accent-color, #156082);
+  }
+  .prose a:hover { color: var(--ink-900); }
+</style>

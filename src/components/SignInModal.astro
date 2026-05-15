@@ -1,0 +1,319 @@
+---
+// Magic-link sign-in modal. User enters email → server sends a sign-in link
+// via SES → user clicks the link in their inbox → they're signed in and
+// redirected to /account. No passwords, no OAuth, no recovery flow.
+---
+
+<dialog id="signin-modal" class="signin-modal" aria-labelledby="signin-title">
+  <div class="modal-backdrop" data-close-signin></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="signin-title">Sign in</h2>
+      <button type="button" class="close" data-close-signin aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Check-email view, shown after a successful send -->
+      <div class="check-email-view" hidden>
+        <p class="check-email-msg">
+          We've sent a sign-in link to <strong id="check-email-address"></strong>.
+          Check your inbox to continue — the link expires in 60 minutes.
+        </p>
+        <button type="button" class="link back-to-signin" data-back>Back</button>
+      </div>
+
+      <!-- Sign-in view -->
+      <div class="auth-form-view">
+        <p class="intro">
+          Enter your email and we'll send you a one-time sign-in link. No password needed.
+        </p>
+
+        <form class="email-form" id="signin-form" novalidate>
+          <label class="field">
+            <span class="field-label">Email</span>
+            <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+          </label>
+
+          <p class="form-error" hidden></p>
+
+          <button type="submit" class="submit">Email me a sign-in link</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { signIn } from '~/lib/auth-client';
+
+  const modal = document.getElementById('signin-modal') as HTMLDialogElement | null;
+  if (modal) {
+    const form = modal.querySelector<HTMLFormElement>('#signin-form');
+    const errorEl = modal.querySelector<HTMLParagraphElement>('.form-error');
+    const submitBtn = form?.querySelector<HTMLButtonElement>('button.submit');
+    const emailInput = form?.querySelector<HTMLInputElement>('input[name="email"]');
+    const checkEmailView = modal.querySelector<HTMLDivElement>('.check-email-view');
+    const authFormView = modal.querySelector<HTMLDivElement>('.auth-form-view');
+    const checkEmailAddress = modal.querySelector<HTMLElement>('#check-email-address');
+
+    let loading = false;
+
+    function setHidden(el: HTMLElement | null | undefined, hidden: boolean) {
+      if (!el) return;
+      el.hidden = hidden;
+      if (hidden) el.style.display = 'none';
+      else el.style.removeProperty('display');
+    }
+
+    function setLoading(next: boolean) {
+      loading = next;
+      if (!submitBtn) return;
+      submitBtn.disabled = next;
+      submitBtn.textContent = next ? 'Sending...' : 'Email me a sign-in link';
+    }
+
+    function showError(msg: string | null) {
+      if (!errorEl) return;
+      if (msg) {
+        setHidden(errorEl, true);
+        void errorEl.offsetHeight;
+        errorEl.textContent = msg;
+        setHidden(errorEl, false);
+      } else {
+        errorEl.textContent = '';
+        setHidden(errorEl, true);
+      }
+    }
+
+    function resetModal() {
+      form?.reset();
+      showError(null);
+      setHidden(authFormView, false);
+      setHidden(checkEmailView, true);
+      setLoading(false);
+    }
+
+    // Open / close triggers
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-open-signin]')) {
+        e.preventDefault();
+        resetModal();
+        if (!modal.open) modal.showModal();
+      } else if (target.closest('[data-close-signin]')) {
+        if (modal.open) modal.close();
+      } else if (target.closest('[data-back]')) {
+        resetModal();
+      }
+    });
+
+    modal.addEventListener('close', () => {
+      resetModal();
+    });
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (loading) return;
+      showError(null);
+
+      const email = (emailInput?.value ?? '').trim();
+      if (!email) {
+        showError('Enter your email to continue.');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const callbackURL = '/account';
+        const { error } = await signIn.magicLink({ email, callbackURL });
+        if (error) {
+          showError(error.message ?? 'Could not send the sign-in link. Try again.');
+          setLoading(false);
+          return;
+        }
+        if (checkEmailAddress) checkEmailAddress.textContent = email;
+        setLoading(false);
+        setHidden(authFormView, true);
+        setHidden(checkEmailView, false);
+      } catch (err: any) {
+        showError(err?.message ?? 'Something went wrong. Try again.');
+        setLoading(false);
+      }
+    });
+  }
+</script>
+
+<style>
+  .signin-modal {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    margin: 0;
+    overflow: visible;
+  }
+  .signin-modal::backdrop {
+    background: rgba(26, 22, 20, 0.4);
+    backdrop-filter: blur(2px);
+  }
+
+  .signin-modal [hidden] { display: none !important; }
+
+  .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(26, 22, 20, 0.4);
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+  }
+
+  .modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 24rem;
+    margin: 20vh auto 1rem;
+    background: var(--paper, #f5efe2);
+    border: 1px solid var(--ink-200, #d4cab2);
+    border-radius: 8px;
+    box-shadow: 0 30px 60px -20px rgba(26, 22, 20, 0.35);
+    color: var(--ink-900, #1c1814);
+    overflow: hidden;
+    animation: signin-modal-in 0.2s ease-out;
+  }
+  @keyframes signin-modal-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 0;
+  }
+  .modal-head h2 {
+    font-family: var(--serif, Georgia, serif);
+    font-size: 1.5rem;
+    margin: 0;
+    color: var(--ink-900);
+  }
+  .close {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--ink-500, #6e665a);
+    padding: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+  }
+  .close:hover { color: var(--ink-900); }
+
+  .modal-body { padding: 1rem 1.5rem 1.5rem; }
+
+  .intro {
+    font-family: var(--serif, Georgia, serif);
+    color: var(--ink-700, #2e2820);
+    margin: 0 0 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .check-email-view {
+    text-align: center;
+    padding: 0.5rem 0 0.25rem;
+  }
+  .check-email-msg {
+    font-family: var(--serif);
+    font-size: 1rem;
+    color: var(--ink-700);
+    line-height: 1.55;
+    margin: 0;
+  }
+  .check-email-view .back-to-signin {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .email-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .field-label {
+    font-family: var(--sans, system-ui);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-500);
+    font-weight: 600;
+  }
+  .email-form input {
+    height: 2.75rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--ink-200);
+    background: var(--paper);
+    font-size: 1rem;
+    font-family: var(--serif);
+    color: var(--ink-900);
+    border-radius: 6px;
+    transition: border-color 0.15s;
+  }
+  .email-form input:focus {
+    outline: 0;
+    border-color: var(--accent-color, #156082);
+  }
+  .email-form input::placeholder { color: var(--ink-300, #b4aa98); }
+
+  .form-error {
+    margin: 0;
+    color: #a13d2c;
+    font-size: 0.875rem;
+  }
+
+  .submit {
+    height: 2.75rem;
+    background: var(--ink-900);
+    color: var(--paper);
+    border: 0;
+    padding: 0 1rem;
+    font-family: var(--sans, system-ui);
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.25rem;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .submit:hover { background: #2e2820; }
+  .submit:disabled { opacity: 0.6; cursor: default; }
+
+  .link {
+    background: transparent;
+    border: 0;
+    color: var(--ink-700, #2e2820);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    transition: color 0.15s;
+    text-decoration: underline;
+  }
+  .link:hover { color: var(--accent-color, #156082); }
+</style>

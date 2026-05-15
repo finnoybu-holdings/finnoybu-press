@@ -1,0 +1,29 @@
+# Cloudflare configuration for Pages deployment.
+#
+# Production bindings (KV namespaces, secrets, env vars) are managed in the
+# Cloudflare dashboard:
+#   Pages → finnoybu-press → Settings → Bindings
+#   Pages → finnoybu-press → Settings → Environment variables
+#
+# Resource creation (run once before first deploy):
+#   wrangler d1 create finnoybu-press
+#   wrangler r2 bucket create finnoybu-press-pdfs
+# Then paste the returned D1 database_id below and commit.
+
+name = "finnoybu-press"
+compatibility_date = "2026-05-15"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+## D1 database binding for Better Auth + app data.
+[[d1_databases]]
+binding = "DB"
+database_name = "finnoybu-press"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+## R2 bucket binding for paid digital downloads (PDF/EPUB).
+## Upload files with:
+##   wrangler r2 object put finnoybu-press-pdfs/<slug>/<slug>.pdf --file=output/digital/<slug>/<slug>.pdf
+[[r2_buckets]]
+binding = "PDFS"
+bucket_name = "finnoybu-press-pdfs"

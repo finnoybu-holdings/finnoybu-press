@@ -1,40 +1,39 @@
-# Next.js
+# Astro
+dist/
+.astro/
+
+# Cloudflare wrangler
+.wrangler/
+
+# Next.js (legacy, removed during Astro migration)
 .next/
-out/
+next-env.d.ts
 
-# Dependencies
-node_modules/
-
-# Vercel
-.vercel/
-
-# TypeScript
-*.tsbuildinfo
-
-# Digital book outputs (auth-gated; not committed)
+# Digital book files (auth-gated; uploaded to R2, not committed)
 output/digital/*/*.pdf
 output/digital/*/*.epub
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Environment
 .env
 .env.local
 .env.*.local
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# OS / Editors
+# OS
 .DS_Store
 Thumbs.db
+
+# Editor
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Vestigial Astro leftovers — file watchers held some paths locked
-# during rebuild. Excluded so they can't ride along into the Next tree.
-src/
-.astro/
+# TypeScript
+tsconfig.tsbuildinfo

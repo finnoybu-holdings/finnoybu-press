@@ -1,0 +1,85 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import SignInModal from '../components/SignInModal.astro';
+import CookieBanner from '../components/CookieBanner.astro';
+
+// The user object is populated by src/middleware.ts on every non-prerendered
+// request. On prerendered pages it's null at build time; the Nav has a
+// client-side sync via authClient.getSession() to correct that after hydration.
+const layoutUser = Astro.locals.user;
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  ogType?: string;
+  jsonLd?: Record<string, any> | Record<string, any>[];
+}
+
+const {
+  title,
+  description = "Finnoybu Press publishes clear, practical guides to AI tools and governance. Twenty-one books on ChatGPT, Claude, Gemini, Copilot, Perplexity, plus the cross-platform skills behind useful AI.",
+  ogImage = '/images/og-card.png',
+  ogType = 'website',
+  jsonLd,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Finnoybu Press',
+  legalName: 'Finnoybu Holdings LLC',
+  url: 'https://press.finnoybu.org',
+  logo: 'https://press.finnoybu.org/images/og-card.png',
+  description: 'Publisher of practical AI guides and governance toolkits.',
+  founder: { '@type': 'Person', name: 'Ken Tannenbaum' },
+};
+
+const schemas = [orgSchema, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [])];
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content={ogType} />
+  <meta property="og:site_name" content="Finnoybu Press" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  {schemas.map((s) => (
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(s)} />
+  ))}
+</head>
+<body>
+  <Nav />
+  <main>
+    <slot />
+  </main>
+  <Footer />
+  {!layoutUser && <SignInModal />}
+  <CookieBanner />
+</body>
+</html>
