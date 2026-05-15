@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
-import { stripe } from '../../lib/stripe';
+import { getStripe } from '~/lib/stripe';
+import { getEnv } from '~/lib/env';
 
 export const prerender = false;
 
@@ -13,6 +13,8 @@ let valid = false;
 
 if (sessionId) {
   try {
+    const env = getEnv(Astro);
+    const stripe = getStripe(env.STRIPE_SECRET_KEY);
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['line_items'],
     });
