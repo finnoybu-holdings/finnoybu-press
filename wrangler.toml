@@ -19,7 +19,7 @@ pages_build_output_dir = "./dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "finnoybu-press"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "919ff971-5552-45bf-8bca-da90ab76f2b1"
 
 ## R2 bucket binding for paid digital downloads (PDF/EPUB).
 ## Upload files with:
