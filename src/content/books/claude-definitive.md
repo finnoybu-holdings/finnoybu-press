@@ -19,7 +19,6 @@ formats:
   - type: pdf-epub
     label: PDF / EPUB
     price: $7.99
-    url: https://finnoybu.gumroad.com/l/claude-definitive-guide
   - type: kindle
     label: Kindle
     price: $9.99

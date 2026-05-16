@@ -24,7 +24,6 @@ formats:
   - type: pdf-epub
     label: DOCX Templates
     price: $12.99
-    url: https://ktannenbaum.gumroad.com/l/wvlevr
 
 status: published
 ---

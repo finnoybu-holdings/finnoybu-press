@@ -22,7 +22,6 @@ formats:
   - type: pdf-epub
     label: DOCX Templates
     price: $7.99
-    url: https://ktannenbaum.gumroad.com/l/smb-ai-governance-toolkit-starter
 
 status: published
 ---
