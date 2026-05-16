@@ -24,7 +24,7 @@ docs:
 
 formats:
   - type: pdf-epub
-    label: PDF
+    label: DOCX Templates
     price: $17.99
     url: https://ktannenbaum.gumroad.com/l/aegis-smb-governance-pro
 
