@@ -26,21 +26,32 @@ if (user && isDbConfigured(Astro)) {
 }
 
 const allBooks = await getCollection('books');
+const allToolkits = await getCollection('toolkits');
 const bookMap = new Map(allBooks.map((b) => [b.slug, b]));
+const toolkitMap = new Map(allToolkits.map((t) => [t.slug, t]));
 
-// Deduplicate by slug — a book bought via both a bundle and standalone
+// Deduplicate by slug — an item bought via both a bundle and standalone
 // shows up once in the library.
+type OwnedItem = {
+  slug: string;
+  kind: 'book' | 'toolkit';
+  data: any;
+  purchased_at: Date;
+};
+
 const ownedSlugs = Array.from(new Set(purchases.map((p) => p.bookSlug)));
-const owned = ownedSlugs
-  .map((slug) => {
-    const book = bookMap.get(slug);
-    if (!book) return null;
+const owned: OwnedItem[] = ownedSlugs
+  .map((slug): OwnedItem | null => {
     const earliest = purchases
       .filter((p) => p.bookSlug === slug)
       .reduce((a, b) => (a.createdAt < b.createdAt ? a : b));
-    return { book, purchased_at: earliest.createdAt };
+    const book = bookMap.get(slug);
+    if (book) return { slug, kind: 'book', data: book.data, purchased_at: earliest.createdAt };
+    const tk = toolkitMap.get(slug);
+    if (tk) return { slug, kind: 'toolkit', data: tk.data, purchased_at: earliest.createdAt };
+    return null;
   })
-  .filter(Boolean) as { book: any; purchased_at: Date }[];
+  .filter((item): item is OwnedItem => item !== null);
 ---
 <BaseLayout title="Your Account — Finnoybu Press" description="Your Finnoybu Press library and account.">
   <article class="account-page">
@@ -59,29 +70,38 @@ const owned = ownedSlugs
         <section class="container library-section">
           <div class="section-head">
             <span class="eyebrow">Your library</span>
-            <h2>{owned.length === 0 ? 'No purchases yet.' : `${owned.length} book${owned.length === 1 ? '' : 's'}.`}</h2>
+            <h2>{owned.length === 0 ? 'No purchases yet.' : `${owned.length} item${owned.length === 1 ? '' : 's'}.`}</h2>
           </div>
 
           {owned.length === 0 ? (
-            <p class="empty-note">When you purchase a book, it'll appear here with download links for the PDF and ePub.</p>
+            <p class="empty-note">When you purchase a book or toolkit, it'll appear here with download links.</p>
           ) : (
             <ul class="library-list">
-              {owned.map(({ book, purchased_at }) => (
-                <li class="library-item">
-                  <a href={`/books/${book.slug}`} class="lib-cover">
-                    <img src={book.data.cover_thumb || book.data.cover_image} alt={book.data.title} loading="lazy" />
-                  </a>
-                  <div class="lib-meta">
-                    <h3>{book.data.title}</h3>
-                    <p class="lib-subtitle">{book.data.subtitle}</p>
-                    <p class="lib-purchased">Purchased {new Date(purchased_at).toLocaleDateString()}</p>
-                  </div>
-                  <div class="lib-actions">
-                    <a href={`/api/download/${book.slug}?format=pdf`} class="dl-btn" download>Download PDF</a>
-                    <a href={`/api/download/${book.slug}?format=epub`} class="dl-btn" download>Download ePub</a>
-                  </div>
-                </li>
-              ))}
+              {owned.map((item) => {
+                const detailHref = item.kind === 'toolkit' ? `/toolkits/${item.slug}` : `/books/${item.slug}`;
+                return (
+                  <li class="library-item">
+                    <a href={detailHref} class="lib-cover">
+                      <img src={item.data.cover_thumb || item.data.cover_image} alt={item.data.title} loading="lazy" />
+                    </a>
+                    <div class="lib-meta">
+                      <h3>{item.data.title}</h3>
+                      <p class="lib-subtitle">{item.data.subtitle}</p>
+                      <p class="lib-purchased">Purchased {new Date(item.purchased_at).toLocaleDateString()}</p>
+                    </div>
+                    <div class="lib-actions">
+                      {item.kind === 'book' ? (
+                        <>
+                          <a href={`/api/download/${item.slug}?format=pdf`} class="dl-btn" download>Download PDF</a>
+                          <a href={`/api/download/${item.slug}?format=epub`} class="dl-btn" download>Download ePub</a>
+                        </>
+                      ) : (
+                        <a href={`/api/download/${item.slug}?format=zip`} class="dl-btn" download>Download Templates</a>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>

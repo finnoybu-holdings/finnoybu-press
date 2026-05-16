@@ -8,6 +8,7 @@ export const prerender = false;
 const FILE_TYPES: Record<string, { ext: string; contentType: string }> = {
   pdf: { ext: 'pdf', contentType: 'application/pdf' },
   epub: { ext: 'epub', contentType: 'application/epub+zip' },
+  zip: { ext: 'zip', contentType: 'application/zip' },
 };
 
 // Auth-gated streaming download from the R2 bucket bound as `PDFS`.
@@ -27,7 +28,7 @@ export const GET: APIRoute = async (ctx) => {
 
   const fileType = FILE_TYPES[format];
   if (!fileType) {
-    return Response.json({ error: 'Invalid format (pdf or epub)' }, { status: 400 });
+    return Response.json({ error: 'Invalid format (pdf, epub, or zip)' }, { status: 400 });
   }
 
   const user = ctx.locals.user;
