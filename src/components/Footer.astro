@@ -25,6 +25,15 @@ const year = new Date().getFullYear();
             <li><a href="/about#contact">Contact</a></li>
           </ul>
         </div>
+        <div>
+          <h5>Legal</h5>
+          <ul>
+            <li><a href="/legal#terms-of-use">Terms</a></li>
+            <li><a href="/legal#privacy-policy">Privacy</a></li>
+            <li><a href="/legal#cookie-policy">Cookies</a></li>
+            <li><a href="/legal#data-deletion">Data deletion</a></li>
+          </ul>
+        </div>
       </div>
     </div>
     <div class="footer-bottom">
@@ -49,20 +58,20 @@ const year = new Date().getFullYear();
     border-bottom: 1px solid #2c2622;
   }
 
-  /* Catalog + About sit side-by-side at all widths (even 360px) */
+  /* Three columns at all widths — narrow on mobile but fits */
   .footer-cols {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: var(--space-3);
   }
 
   /* On tablet+, brand block sits beside the columns */
   @media (min-width: 768px) {
-    .footer-grid { grid-template-columns: 2fr 1fr; align-items: start; gap: var(--space-5); }
+    .footer-grid { grid-template-columns: 2fr 3fr; align-items: start; gap: var(--space-5); }
   }
 
   @media (min-width: 1024px) {
-    .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+    .footer-grid { grid-template-columns: 2fr 1fr 1fr 1fr; }
     .footer-cols { display: contents; }
   }
 
