@@ -17,6 +17,7 @@ const books = defineCollection({
       'product-guides',         // 2
       'cross-platform-skills',  // 3
       'aegis-toolkits',         // 4 (toolkits, not books)
+      'enterprise-toolkit',     // 5 (toolkit, not books)
     ]),
     cover_variant: z.enum(['platform', 'guide', 'skills']),
 
@@ -58,12 +59,12 @@ const books = defineCollection({
 const toolkits = defineCollection({
   type: 'content',
   schema: z.object({
-    number: z.number().int().min(1).max(99),       // 1-3 (Starter/Standard/Pro)
-    tier: z.enum(['starter', 'standard', 'pro']),
+    number: z.number().int().min(1).max(99),       // 1-3 (SMB Starter/Standard/Pro), 4 (Enterprise)
+    tier: z.enum(['starter', 'standard', 'pro', 'enterprise']),
     title: z.string(),                              // e.g. "AEGIS™ SMB Governance Toolkit"
     subtitle: z.string(),                           // e.g. "Starter Edition"
 
-    collection: z.literal('aegis-toolkits'),
+    collection: z.enum(['aegis-toolkits', 'enterprise-toolkit']),
 
     accent_color: z.string(),
     cover_image: z.string(),                        // landscape cover for hero

@@ -20,9 +20,26 @@ interface Props {
 const { tk } = Astro.props;
 const { Content } = await tk.render();
 
+// Per-collection metadata for hero breadcrumb + inside-the-toolkit heading.
+const COLLECTION_META: Record<string, { breadcrumbLabel: string; breadcrumbHref: string; insideHeading: string; relatedHeading: string }> = {
+  'aegis-toolkits': {
+    breadcrumbLabel: '← AEGIS Toolkits',
+    breadcrumbHref: '/collections/aegis-toolkits',
+    insideHeading: 'fill-in-the-blank documents.',
+    relatedHeading: 'Compare with the rest of the AEGIS line.',
+  },
+  'enterprise-toolkit': {
+    breadcrumbLabel: '← Enterprise',
+    breadcrumbHref: '/collections/enterprise-toolkit',
+    insideHeading: 'operational documents.',
+    relatedHeading: 'Compare with the rest of the AEGIS line.',
+  },
+};
+const colMeta = COLLECTION_META[tk.data.collection] ?? COLLECTION_META['aegis-toolkits'];
+
 const allToolkits = await getCollection('toolkits');
 const related = allToolkits
-  .filter((t) => t.slug !== tk.slug)
+  .filter((t) => t.slug !== tk.slug && t.data.collection === tk.data.collection)
   .sort((a, b) => a.data.number - b.data.number);
 
 // schema.org Product metadata for SEO + rich results
@@ -64,7 +81,7 @@ const productSchema = {
 
     <header class="toolkit-hero container">
       <div class="hero-meta">
-        <a href="/collections/aegis-toolkits" class="breadcrumb">← AEGIS Toolkits</a>
+        <a href={colMeta.breadcrumbHref} class="breadcrumb">{colMeta.breadcrumbLabel}</a>
         <span class="eyebrow accent">{tk.data.tier.charAt(0).toUpperCase() + tk.data.tier.slice(1)} Edition · {tk.data.doc_count} docs</span>
       </div>
 
@@ -165,7 +182,7 @@ const productSchema = {
     <section class="section container">
       <div class="section-head">
         <span class="eyebrow accent">What's inside</span>
-        <h2>{tk.data.doc_count} fill-in-the-blank documents.</h2>
+        <h2>{tk.data.doc_count} {colMeta.insideHeading}</h2>
       </div>
       <ul class="doc-list">
         {tk.data.docs.map((d, i) => (
@@ -187,7 +204,7 @@ const productSchema = {
       <section class="section container">
         <div class="section-head">
           <span class="eyebrow accent">Other tiers</span>
-          <h2>Compare with the rest of the AEGIS line.</h2>
+          <h2>{colMeta.relatedHeading}</h2>
         </div>
         <ul class="related-grid">
           {related.map((r) => (

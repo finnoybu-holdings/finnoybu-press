@@ -23,7 +23,7 @@ const COLLECTION_DESCRIPTIONS: Record<string, string> = {
 // Group books by collection, preserving order within each collection
 const groups = books.reduce((acc, book) => {
   const c = book.data.collection;
-  if (c === 'aegis-toolkits') return acc;  // toolkits handled on /governance, not in book series
+  if (c === 'aegis-toolkits' || c === 'enterprise-toolkit') return acc;  // toolkits handled on their own collection pages, not in book series
   if (!acc[c]) acc[c] = [];
   acc[c].push(book);
   return acc;

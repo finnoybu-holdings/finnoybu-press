@@ -63,12 +63,21 @@ const COLLECTIONS: Record<string, CollectionMeta> = {
     accentColor: 'var(--accent-aegis)',
     source: 'toolkits',
   },
+  'enterprise-toolkit': {
+    slug: 'enterprise-toolkit',
+    eyebrow: 'Collection Five · Enterprise',
+    title: 'AEGIS™ Enterprise Toolkit',
+    description: 'Operational governance for enterprise teams deploying autonomous AI. Four working documents grounded in the ATX-1 threat taxonomy and AEGIS implementation framework, plus the technical whitepaper they reference and the two companion books for governance and security leads.',
+    shortDesc: 'The operational toolkit for enterprise AI governance.',
+    accentColor: 'var(--accent-enterprise)',
+    source: 'toolkits',
+  },
 };
 
 export async function getStaticPaths() {
   // NOTE: getStaticPaths runs in isolation and can't reference module-level
   // constants. Slug list duplicated from COLLECTIONS keys below — keep in sync.
-  return ['product-deep-dives', 'product-guides', 'cross-platform-skills', 'aegis-toolkits']
+  return ['product-deep-dives', 'product-guides', 'cross-platform-skills', 'aegis-toolkits', 'enterprise-toolkit']
     .map((slug) => ({ params: { slug } }));
 }
 
@@ -94,8 +103,9 @@ if (meta.source === 'books') {
       status: b.data.status,
     }));
 } else {
-  const toolkits = await getCollection('toolkits');
-  items = toolkits
+  const allToolkits = await getCollection('toolkits');
+  items = allToolkits
+    .filter((t) => t.data.collection === slug)
     .sort((a, b) => a.data.number - b.data.number)
     .map((t) => ({
       url: `/toolkits/${t.slug}`,
