@@ -26,6 +26,7 @@ formats:
   - type: paperback
     label: Paperback
     price: $19.99
+    url: https://www.amazon.com/dp/B0GZNSX6CX
 
 status: published
 ---
