@@ -6,7 +6,7 @@ subtitle: Enterprise Edition
 
 collection: enterprise-toolkit
 
-accent_color: "#3a4a60"
+accent_color: "#6b2adb"
 cover_image: /images/cover-aegis-enterprise.png
 cover_thumb: /images/thumb-aegis-enterprise.png
 
