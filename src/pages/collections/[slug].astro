@@ -54,6 +54,26 @@ const COLLECTIONS: Record<string, CollectionMeta> = {
     source: 'books',
     bookFilter: (b) => b.data.collection === 'cross-platform-skills',
   },
+  'product-guides-ii': {
+    slug: 'product-guides-ii',
+    eyebrow: 'The Extended Series',
+    title: 'Product Guides, Vol. II',
+    description: "The next four product guides — the named AI tools the first wave didn't cover. OpenAI's Codex, xAI's Grok, Mistral's Vibe, and DeepL, each covered end-to-end for the people putting them to work.",
+    shortDesc: 'Four more single-product guides — Codex, Grok, Mistral, DeepL.',
+    accentColor: 'var(--accent-product-guides)',
+    source: 'books',
+    bookFilter: (b) => b.data.collection === 'product-guides-ii',
+  },
+  'capability-set': {
+    slug: 'capability-set',
+    eyebrow: 'The Extended Series',
+    title: 'The Capability Set',
+    description: 'Cross-platform capabilities for the modern workplace: automating your work with AI, building apps without code, and the literacy to use AI with judgment. Skills, not products — what you learn applies wherever you work.',
+    shortDesc: 'Automation, no-code app building, and workplace AI literacy.',
+    accentColor: 'var(--accent-cross-platform)',
+    source: 'books',
+    bookFilter: (b) => b.data.collection === 'capability-set',
+  },
   'aegis-toolkits': {
     slug: 'aegis-toolkits',
     eyebrow: 'Collection Four · Toolkits',
@@ -77,7 +97,7 @@ const COLLECTIONS: Record<string, CollectionMeta> = {
 export async function getStaticPaths() {
   // NOTE: getStaticPaths runs in isolation and can't reference module-level
   // constants. Slug list duplicated from COLLECTIONS keys below — keep in sync.
-  return ['product-deep-dives', 'product-guides', 'cross-platform-skills', 'aegis-toolkits', 'enterprise-toolkit']
+  return ['product-deep-dives', 'product-guides', 'cross-platform-skills', 'product-guides-ii', 'capability-set', 'aegis-toolkits', 'enterprise-toolkit']
     .map((slug) => ({ params: { slug } }));
 }
 

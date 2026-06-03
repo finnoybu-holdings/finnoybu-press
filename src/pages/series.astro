@@ -12,12 +12,16 @@ const COLLECTION_LABELS: Record<string, string> = {
   'product-deep-dives': 'Product Deep Dives',
   'product-guides': 'Product Guides',
   'cross-platform-skills': 'Cross-Platform Skills',
+  'product-guides-ii': 'The Extended Series · Product Guides, Vol. II',
+  'capability-set': 'The Extended Series · The Capability Set',
 };
 
 const COLLECTION_DESCRIPTIONS: Record<string, string> = {
   'product-deep-dives': 'Comprehensive paired guides for the major AI assistants. Definitive guide + advanced companion for each platform.',
   'product-guides': 'Focused single-volume guides for the next wave of AI tools — research, reasoning, code, and agentic work.',
   'cross-platform-skills': 'The skills that hold the rest together: prompting, AI for business, AI for developers, governance, and security.',
+  'product-guides-ii': 'The named AI tools the first wave didn\'t cover — Codex, Grok, Mistral (Vibe), and DeepL — each covered end-to-end.',
+  'capability-set': 'Cross-platform capabilities for the modern workplace: automating your work, building apps without code, and AI literacy.',
 };
 
 // Group books by collection, preserving order within each collection
@@ -29,17 +33,17 @@ const groups = books.reduce((acc, book) => {
   return acc;
 }, {} as Record<string, typeof books>);
 
-const collectionOrder = ['product-deep-dives', 'product-guides', 'cross-platform-skills'];
+const collectionOrder = ['product-deep-dives', 'product-guides', 'cross-platform-skills', 'product-guides-ii', 'capability-set'];
 ---
 <BaseLayout
   title="The AI for Everyone Series — Finnoybu Press"
-  description="Twenty-one practical books on AI tools, skills, and systems. Browse the full series."
+  description="Twenty-eight practical books on AI tools, skills, and systems. Browse the full series."
 >
   <header class="page-hero container">
     <span class="eyebrow">The Series</span>
     <h1>AI for Everyone.</h1>
     <p class="lede">
-      Twenty-one books across three collections. Each book is written to be useful on day one and to serve as a reference you come back to.
+      Twenty-eight books across five collections. Each book is written to be useful on day one and to serve as a reference you come back to.
     </p>
   </header>
 

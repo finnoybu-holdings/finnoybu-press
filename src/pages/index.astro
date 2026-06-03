@@ -19,6 +19,8 @@ const coversFor = (books: typeof sorted) =>
 const deepDives = sorted.filter((b) => b.data.collection === 'product-deep-dives');
 const productGuides = sorted.filter((b) => b.data.collection === 'product-guides');
 const skills = sorted.filter((b) => b.data.collection === 'cross-platform-skills');
+const productGuidesII = sorted.filter((b) => b.data.collection === 'product-guides-ii');
+const capabilitySet = sorted.filter((b) => b.data.collection === 'capability-set');
 const enterpriseBooks = sorted.filter((b) => [20, 21].includes(b.data.number));
 
 // Show one cover per platform — the definitive guide of each pair (1, 3, 5,
@@ -37,14 +39,14 @@ const skillsCovers = coversFor(
 ---
 <BaseLayout
   title="Finnoybu Press — AI guides for every user"
-  description="Twenty-one practical books on the tools, the skills, and the systems behind useful AI — plus governance toolkits for the teams deploying it."
+  description="Twenty-eight practical books on the tools, the skills, and the systems behind useful AI — plus governance toolkits for the teams deploying it."
 >
   <header class="hero container">
     <div class="hero-text">
       <span class="eyebrow">Finnoybu Press · 2026</span>
       <h1 class="display">AI guides for every user.</h1>
       <p class="lede">
-        Twenty-one practical books on the tools, the skills, and the systems
+        Twenty-eight practical books on the tools, the skills, and the systems
         behind useful AI — plus governance toolkits for the teams deploying it.
       </p>
       <div class="cta-row">
@@ -123,10 +125,10 @@ const skillsCovers = coversFor(
 
   <section class="section container" id="collections">
     <div class="section-head">
-      <span class="eyebrow">Five Collections</span>
+      <span class="eyebrow">Seven Collections</span>
       <h2>A library, organized.</h2>
       <p class="prose">
-        The catalog is structured into five collections, each solving a different shape of problem — from learning a single tool to standing up governance for an enterprise AI program.
+        The catalog is structured into seven collections, each solving a different shape of problem — from learning a single tool to standing up governance for an enterprise AI program.
       </p>
     </div>
 
@@ -162,6 +164,28 @@ const skillsCovers = coversFor(
         bookList="Skills · Roles · Governance"
         accentColor="var(--accent-cross-platform)"
         covers={skillsCovers}
+      />
+
+      <CollectionCard
+        eyebrow="The Extended Series"
+        title="Product Guides, Vol. II"
+        description="The named AI tools the first wave didn't cover — OpenAI's Codex, xAI's Grok, Mistral's Vibe, and DeepL — each covered end-to-end."
+        href="/collections/product-guides-ii"
+        bookCount={productGuidesII.length}
+        bookList="Codex · Grok · Mistral · DeepL"
+        accentColor="var(--accent-product-guides)"
+        covers={coversFor(productGuidesII)}
+      />
+
+      <CollectionCard
+        eyebrow="The Extended Series"
+        title="The Capability Set"
+        description="Cross-platform capabilities for the modern workplace: automating your work, building apps without code, and using AI with judgment."
+        href="/collections/capability-set"
+        bookCount={capabilitySet.length}
+        bookList="Automate · Build Apps · AI Literacy"
+        accentColor="var(--accent-cross-platform)"
+        covers={coversFor(capabilitySet)}
       />
 
       <CollectionCard

@@ -18,8 +18,10 @@ const books = defineCollection({
       'cross-platform-skills',  // 3
       'aegis-toolkits',         // 4 (toolkits, not books)
       'enterprise-toolkit',     // 5 (toolkit, not books)
+      'product-guides-ii',      // 6 Extended Series — Product Guides, Vol. II (22-25)
+      'capability-set',         // 7 Extended Series — The Capability Set (26-28)
     ]),
-    cover_variant: z.enum(['platform', 'guide', 'skills']),
+    cover_variant: z.enum(['platform', 'guide', 'skills', 'extended']),
 
     // Visual
     accent_color: z.string(),                      // hex e.g. "#10a37f"
