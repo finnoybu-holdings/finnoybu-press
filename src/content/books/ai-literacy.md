@@ -5,7 +5,7 @@ subtitle: Judgment, Verification, and Trust
 series_position: Book Twenty-Eight
 
 collection: capability-set
-cover_variant: extended
+cover_variant: skills
 
 accent_color: "#1E3A5F"
 cover_image: /images/cover-28-ai-literacy.jpg

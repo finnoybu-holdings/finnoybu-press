@@ -5,7 +5,7 @@ subtitle: Translation, Writing, and Voice
 series_position: Book Twenty-Five
 
 collection: product-guides-ii
-cover_variant: extended
+cover_variant: guide
 
 accent_color: "#0E4DA4"
 cover_image: /images/cover-25-deepl.jpg

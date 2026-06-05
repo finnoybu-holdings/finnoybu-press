@@ -5,7 +5,7 @@ subtitle: The Cloud Coding Agent
 series_position: Book Twenty-Two
 
 collection: product-guides-ii
-cover_variant: extended
+cover_variant: guide
 
 accent_color: "#2E7D6B"
 cover_image: /images/cover-22-codex.jpg

@@ -5,7 +5,7 @@ subtitle: Zapier, Make, and n8n
 series_position: Book Twenty-Six
 
 collection: capability-set
-cover_variant: extended
+cover_variant: skills
 
 accent_color: "#B45309"
 cover_image: /images/cover-26-automate-your-work.jpg

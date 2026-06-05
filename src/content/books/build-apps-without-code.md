@@ -5,7 +5,7 @@ subtitle: v0, Bolt, Lovable, and Replit
 series_position: Book Twenty-Seven
 
 collection: capability-set
-cover_variant: extended
+cover_variant: skills
 
 accent_color: "#6D28D9"
 cover_image: /images/cover-27-build-apps-without-code.jpg

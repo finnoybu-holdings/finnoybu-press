@@ -5,7 +5,7 @@ subtitle: Vibe and the Open European AI
 series_position: Book Twenty-Four
 
 collection: product-guides-ii
-cover_variant: extended
+cover_variant: guide
 
 accent_color: "#E06A3B"
 cover_image: /images/cover-24-mistral-vibe.jpg

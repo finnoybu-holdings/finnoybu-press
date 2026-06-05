@@ -5,7 +5,7 @@ subtitle: Real-Time AI from xAI
 series_position: Book Twenty-Three
 
 collection: product-guides-ii
-cover_variant: extended
+cover_variant: guide
 
 accent_color: "#3B4252"
 cover_image: /images/cover-23-grok.jpg
