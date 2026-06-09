@@ -21,7 +21,7 @@ const allToolkits = await getCollection('toolkits');
 const booksForClient = allBooks.map((b) => {
   const bundle = b.data.formats.find((f: any) => f.type === 'pdf-epub');
   return {
-    slug: b.slug,
+    slug: b.id,
     number: b.data.number,
     title: b.data.title,
     subtitle: b.data.subtitle,
@@ -34,7 +34,7 @@ const booksForClient = allBooks.map((b) => {
 const toolkitsForClient = allToolkits.map((t) => {
   const bundle = t.data.formats.find((f: any) => f.type === 'pdf-epub');
   return {
-    slug: t.slug,
+    slug: t.id,
     number: t.data.number,
     tier: t.data.tier,
     title: t.data.title,

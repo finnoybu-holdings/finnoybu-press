@@ -1,7 +1,13 @@
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="@cloudflare/workers-types" />
 
-type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
+type Runtime = import('@astrojs/cloudflare').Runtime;
+
+// Augment cloudflare:workers to expose typed env bindings (Astro v6 / adapter v13+)
+declare module 'cloudflare:workers' {
+  const env: Env;
+  export { env };
+}
 
 interface Env {
   // Cloudflare bindings (wrangler.toml)

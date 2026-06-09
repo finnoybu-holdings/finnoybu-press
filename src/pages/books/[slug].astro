@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MobileBuyBar from '../../components/MobileBuyBar.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 
 export const prerender = true;
 
 export async function getStaticPaths() {
   const books = await getCollection('books');
   return books.map((book) => ({
-    params: { slug: book.slug },
+    params: { slug: book.id },
     props: { book },
   }));
 }
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const { book } = Astro.props;
-const { Content } = await book.render();
+const { Content } = await render(book);
 
 const COLLECTION_LABELS: Record<string, { label: string; href: string }> = {
   'product-deep-dives': { label: 'Product Deep Dives', href: '/collections/product-deep-dives' },
@@ -73,7 +73,7 @@ if (book.data.collection === 'product-deep-dives') {
     .sort((a, b) => a.data.number - b.data.number);
 } else {
   related = allBooks
-    .filter((b) => b.data.collection === book.data.collection && b.slug !== book.slug)
+    .filter((b) => b.data.collection === book.data.collection && b.id !== book.id)
     .sort((a, b) => a.data.number - b.data.number);
 }
 
@@ -130,7 +130,7 @@ if (book.data.collection === 'product-deep-dives') {
                     class="format format-cart"
                     data-type={f.type}
                     data-add-to-cart
-                    data-slug={book.slug}
+                    data-slug={book.id}
                   >
                     <span class="format-type">{f.label}</span>
                     <span class="format-price" data-cart-price>{f.price}</span>
@@ -254,7 +254,7 @@ if (book.data.collection === 'product-deep-dives') {
         <ul class={`related-grid count-${related.length}`}>
           {related.map((b) => (
             <li>
-              <a href={`/books/${b.slug}`} class="related-card" style={`--accent-color: ${b.data.accent_color}`}>
+              <a href={`/books/${b.id}`} class="related-card" style={`--accent-color: ${b.data.accent_color}`}>
                 <div class="related-cover">
                   <img src={b.data.cover_thumb ?? b.data.cover_image} alt={`${b.data.title} cover`} loading="lazy" width="200" height="320" />
                 </div>

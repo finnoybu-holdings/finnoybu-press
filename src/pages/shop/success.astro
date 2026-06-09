@@ -13,7 +13,7 @@ let valid = false;
 
 if (sessionId) {
   try {
-    const env = getEnv(Astro);
+    const env = getEnv();
     const stripe = getStripe(env.STRIPE_SECRET_KEY);
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['line_items'],

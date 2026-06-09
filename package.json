@@ -3,12 +3,12 @@
   "type": "module",
   "version": "0.2.0",
   "private": true,
-  "description": "Finnoybu Press — AI guides for every user (press.finnoybu.org)",
+  "description": "Finnoybu Press — AI guides for every user (press.finnoybu.org). Astro 6 on Cloudflare Workers (migrated from Pages 2026-06).",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro check && astro build",
-    "preview": "wrangler pages dev ./dist",
+    "preview": "wrangler dev",
     "astro": "astro",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply finnoybu-press --local",
@@ -18,9 +18,9 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
-    "@astrojs/cloudflare": "^12.0.0",
-    "@astrojs/sitemap": "^3.7.2",
-    "astro": "^5.1.0",
+    "@astrojs/cloudflare": "^13.0.0",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^6.4.2",
     "aws4fetch": "^1.0.20",
     "better-auth": "^1.0.0",
     "drizzle-orm": "^0.45.2",
@@ -28,16 +28,13 @@
     "typescript": "^5.7.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20251005.0",
+    "@cloudflare/workers-types": "^4.20260526.1",
     "drizzle-kit": "^0.31.0",
-    "wrangler": "^3.95.0"
+    "wrangler": "^4.95.0"
   },
   "overrides": {
     "@astrojs/check": {
       "yaml": "^2.8.3"
-    },
-    "@astrojs/cloudflare": {
-      "undici": "^7.24.0"
     }
   }
 }

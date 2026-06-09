@@ -13,8 +13,8 @@ const user = Astro.locals.user;
 type PurchaseRow = { bookSlug: string; createdAt: Date };
 let purchases: PurchaseRow[] = [];
 
-if (user && isDbConfigured(Astro)) {
-  const db = getDb(Astro);
+if (user && isDbConfigured()) {
+  const db = getDb();
   purchases = await db
     .select({
       bookSlug: schema.purchases.bookSlug,
@@ -27,8 +27,8 @@ if (user && isDbConfigured(Astro)) {
 
 const allBooks = await getCollection('books');
 const allToolkits = await getCollection('toolkits');
-const bookMap = new Map(allBooks.map((b) => [b.slug, b]));
-const toolkitMap = new Map(allToolkits.map((t) => [t.slug, t]));
+const bookMap = new Map(allBooks.map((b) => [b.id, b]));
+const toolkitMap = new Map(allToolkits.map((t) => [t.id, t]));
 
 // Deduplicate by slug — an item bought via both a bundle and standalone
 // shows up once in the library.
