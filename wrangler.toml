@@ -1,29 +1,51 @@
-# Cloudflare configuration for Pages deployment.
+# Cloudflare WORKERS configuration for press.finnoybu.org.
 #
-# Production bindings (KV namespaces, secrets, env vars) are managed in the
-# Cloudflare dashboard:
-#   Pages → finnoybu-press → Settings → Bindings
-#   Pages → finnoybu-press → Settings → Environment variables
+# Migrated from Cloudflare Pages → Workers 2026-06 (CF Pages deprecated Apr 2025;
+# @astrojs/cloudflare v13 is Workers-only). This file is the source of truth for
+# non-secret config + bindings. `astro build` (adapter v13) emits dist/client +
+# dist/server and merges the bindings below into its generated deploy config
+# (dist/server/wrangler.json).
 #
-# Resource creation (run once before first deploy):
-#   wrangler d1 create finnoybu-press
-#   wrangler r2 bucket create finnoybu-press-pdfs
-# Then paste the returned D1 database_id below and commit.
+# Secrets live on the Worker, NOT here. Set with `wrangler secret put`
+# (or dashboard → Workers & Pages → press → Settings → Variables and Secrets):
+#   BETTER_AUTH_SECRET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+#   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+#
+# Press is STANDALONE: its own D1 (finnoybu-press) + R2, magic-link-only auth on
+# press.finnoybu.org. It is NOT part of the .finnoybu.com shared-cookie SSO, so
+# it has its own BETTER_AUTH_SECRET and no cross-subdomain cookie.
+#
+# Worker is named "press" (the old Pages project holds "finnoybu-press").
+#
+# Workers note: named environments ([env.<name>]) create SEPARATE workers — keep
+# a single top-level (= production) config. `main`/`[assets]` are intentionally
+# omitted; the adapter generates them. Deploy: wrangler deploy -c dist/server/wrangler.json
 
-name = "finnoybu-press"
+name = "press"
 compatibility_date = "2026-05-15"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "./dist"
 
-## D1 database binding for Better Auth + app data.
+## D1 database binding for Better Auth + app data (press has its own DB).
 [[d1_databases]]
 binding = "DB"
 database_name = "finnoybu-press"
 database_id = "919ff971-5552-45bf-8bca-da90ab76f2b1"
 
 ## R2 bucket binding for paid digital downloads (PDF/EPUB).
-## Upload files with:
-##   wrangler r2 object put finnoybu-press-pdfs/<slug>/<slug>.pdf --file=output/digital/<slug>/<slug>.pdf
 [[r2_buckets]]
 binding = "PDFS"
 bucket_name = "finnoybu-press-pdfs"
+
+# Astro v6 / adapter v13 auto-enables sessions backed by a KV namespace bound as
+# SESSION. This app uses Better Auth (sessions in D1) and never calls
+# Astro.session, so the namespace is effectively unused — it just satisfies the
+# adapter. Reuses the shared throwaway "SESSION" namespace (no session data is
+# ever written to it, so sharing across workers is harmless).
+[[kv_namespaces]]
+binding = "SESSION"
+id = "64e0cfcb9ca64c77baf6df3ef4b9ce56"
+
+[vars]
+PUBLIC_SITE_URL = "https://press.finnoybu.org"
+AWS_REGION = "us-east-1"
+EMAIL_FROM = "Finnoybu Press <hello@press.finnoybu.org>"

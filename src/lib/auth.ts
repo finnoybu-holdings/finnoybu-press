@@ -54,6 +54,14 @@ export function createAuth({
     }),
     // Magic-link only — password + social explicitly disabled.
     emailAndPassword: { enabled: false },
+    advanced: {
+      // Workers doesn't expose a client IP to Better Auth by default, so its
+      // rate limiting silently no-ops ("could not determine client IP").
+      // Cloudflare always forwards the real IP in cf-connecting-ip.
+      ipAddress: {
+        ipAddressHeaders: ['cf-connecting-ip'],
+      },
+    },
     plugins: [
       magicLink({
         expiresIn: 60 * 60, // seconds

@@ -24,11 +24,11 @@ function priceCents(s: string): number {
 
 const bookCatalog = allBooks.map((b) => {
   const fmt = b.data.formats.find((f: any) => f.type === 'pdf-epub');
-  return { slug: b.slug, number: b.data.number, price_cents: priceCents(fmt?.price ?? '') };
+  return { slug: b.id, number: b.data.number, price_cents: priceCents(fmt?.price ?? '') };
 });
 const toolkitCatalog = allToolkits.map((t) => {
   const fmt = t.data.formats.find((f: any) => f.type === 'pdf-epub');
-  return { slug: t.slug, number: t.data.number, price_cents: priceCents(fmt?.price ?? '') };
+  return { slug: t.id, number: t.data.number, price_cents: priceCents(fmt?.price ?? '') };
 });
 
 const totals = bundleTotalCents(bundle, bookCatalog, toolkitCatalog);

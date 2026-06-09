@@ -11,7 +11,7 @@ type Grant = { slug: string; kind: 'book' | 'toolkit' };
 // `constructEventAsync` (not constructEvent) is required on the Workers
 // runtime because signature verification uses Web Crypto, not Node crypto.
 export const POST: APIRoute = async (ctx) => {
-  const env = getEnv(ctx);
+  const env = getEnv();
   const sig = ctx.request.headers.get('stripe-signature');
 
   if (!sig || !env.STRIPE_WEBHOOK_SECRET || !env.STRIPE_SECRET_KEY) {
@@ -65,7 +65,7 @@ export const POST: APIRoute = async (ctx) => {
 
   if (grants.length === 0) return Response.json({ received: true });
 
-  const db = getDb(ctx);
+  const db = getDb();
   const totalAmount = session.amount_total || 0;
   const perGrant = Math.round(totalAmount / grants.length);
 

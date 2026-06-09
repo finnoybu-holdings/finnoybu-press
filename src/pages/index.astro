@@ -7,7 +7,7 @@ export const prerender = true;
 
 const allBooks = await getCollection('books');
 const sorted = allBooks.sort((a, b) => a.data.number - b.data.number);
-const featured = sorted.find((b) => b.slug === 'chatgpt-definitive');
+const featured = sorted.find((b) => b.id === 'chatgpt-definitive');
 
 // Helper to grab cover-thumb items from a list of books (small grid use)
 const coversFor = (books: typeof sorted) =>
@@ -50,7 +50,7 @@ const skillsCovers = coversFor(
       <div class="cta-row">
         <a href="#collections" class="btn">Browse the series</a>
         {featured && (
-          <a href={`/books/${featured.slug}`} class="btn ghost">
+          <a href={`/books/${featured.id}`} class="btn ghost">
             Start with {featured.data.title} →
           </a>
         )}

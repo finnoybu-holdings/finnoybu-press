@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import MobileBuyBar from '../../components/MobileBuyBar.astro';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 
 export const prerender = true;
 
 export async function getStaticPaths() {
   const toolkits = await getCollection('toolkits');
   return toolkits.map((tk) => ({
-    params: { slug: tk.slug },
+    params: { slug: tk.id },
     props: { tk },
   }));
 }
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const { tk } = Astro.props;
-const { Content } = await tk.render();
+const { Content } = await render(tk);
 
 // Per-collection metadata for hero breadcrumb + inside-the-toolkit heading.
 const COLLECTION_META: Record<string, { breadcrumbLabel: string; breadcrumbHref: string; insideHeading: string; relatedHeading: string }> = {
@@ -39,7 +39,7 @@ const colMeta = COLLECTION_META[tk.data.collection] ?? COLLECTION_META['aegis-to
 
 const allToolkits = await getCollection('toolkits');
 const related = allToolkits
-  .filter((t) => t.slug !== tk.slug && t.data.collection === tk.data.collection)
+  .filter((t) => t.id !== tk.id && t.data.collection === tk.data.collection)
   .sort((a, b) => a.data.number - b.data.number);
 
 // schema.org Product metadata for SEO + rich results
@@ -116,7 +116,7 @@ const productSchema = {
                   class="format format-cart"
                   data-type={f.type}
                   data-add-toolkit-cart
-                  data-slug={tk.slug}
+                  data-slug={tk.id}
                 >
                   <span class="format-type">{f.label}</span>
                   <span class="format-price" data-cart-price>{f.price}</span>
@@ -209,7 +209,7 @@ const productSchema = {
         <ul class="related-grid">
           {related.map((r) => (
             <li>
-              <a href={`/toolkits/${r.slug}`} class="related-card" style={`--accent-color: ${r.data.accent_color}`}>
+              <a href={`/toolkits/${r.id}`} class="related-card" style={`--accent-color: ${r.data.accent_color}`}>
                 <div class="related-cover">
                   <img src={r.data.cover_thumb} alt={r.data.title} loading="lazy" />
                 </div>

@@ -94,7 +94,7 @@ if (meta.source === 'books') {
     .filter(meta.bookFilter!)
     .sort((a, b) => a.data.number - b.data.number)
     .map((b) => ({
-      url: `/books/${b.slug}`,
+      url: `/books/${b.id}`,
       cover: b.data.cover_thumb ?? b.data.cover_image,
       coverAlt: `${b.data.title}: ${b.data.subtitle}`,
       eyebrow: b.data.series_position,
@@ -108,7 +108,7 @@ if (meta.source === 'books') {
     .filter((t) => t.data.collection === slug)
     .sort((a, b) => a.data.number - b.data.number)
     .map((t) => ({
-      url: `/toolkits/${t.slug}`,
+      url: `/toolkits/${t.id}`,
       cover: t.data.cover_thumb,        // square thumb works better in a grid than landscape
       coverAlt: `${t.data.title} — ${t.data.subtitle}`,
       eyebrow: `${t.data.tier.charAt(0).toUpperCase() + t.data.tier.slice(1)} · ${t.data.doc_count} docs`,

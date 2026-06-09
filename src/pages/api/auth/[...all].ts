@@ -11,8 +11,8 @@ import { isDbConfigured } from '~/db';
 export const prerender = false;
 
 const handler: APIRoute = async (ctx) => {
-  const env = getEnv(ctx);
-  if (!isDbConfigured(ctx) || !isAuthConfigured(env)) {
+  const env = getEnv();
+  if (!isDbConfigured() || !isAuthConfigured(env)) {
     return new Response(
       JSON.stringify({
         error: 'Auth not configured',
