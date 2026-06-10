@@ -16,9 +16,11 @@ chapter_count: 28
 page_estimate: null
 
 formats:
-  []
+  - type: pdf-epub
+    label: PDF / EPUB
+    price: $7.99
 
-status: in-development
+status: published
 ---
 
 <!--
