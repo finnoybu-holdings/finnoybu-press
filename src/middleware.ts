@@ -12,11 +12,11 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
 
   if (ctx.isPrerendered) return next();
 
-  const env = getEnv(ctx);
+  const env = getEnv();
 
   // No D1 / auth secret → render signed-out. Lets dev/preview work without
   // bindings; logs once so we don't spam the console.
-  if (!isDbConfigured(ctx) || !isAuthConfigured(env)) {
+  if (!isDbConfigured() || !isAuthConfigured(env)) {
     if (!warnedMissingConfig) {
       console.warn(
         '[middleware] D1 or BETTER_AUTH_SECRET not configured; auth disabled.',

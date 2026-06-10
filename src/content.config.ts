@@ -1,15 +1,17 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const books = defineCollection({
-  type: 'content',
+  // Astro 6 Content Layer API. `id` is the filename without extension
+  // (e.g. chatgpt-definitive.md → "chatgpt-definitive"), matching the slugs
+  // used throughout the site and in URLs.
+  loader: glob({ pattern: '**/*.md', base: './src/content/books' }),
   schema: z.object({
     // Identity
     number: z.number().int().min(1).max(99),       // 1-21 (catalog position)
     title: z.string(),                             // hero title e.g. "ChatGPT"
     subtitle: z.string(),                          // hero subtitle e.g. "The Definitive Guide"
     series_position: z.string(),                   // "Book One", "Book Eleven", etc.
-    // Note: URL slug comes from filename via Astro's auto-slug.
-    // See entry.slug or entry.id when iterating the collection.
 
     // Classification
     collection: z.enum([
@@ -59,7 +61,7 @@ const books = defineCollection({
 // where it makes sense (formats[], accent_color, etc.) so MobileBuyBar etc.
 // can be reused, but distinct fields for tier and included docs.
 const toolkits = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.md', base: './src/content/toolkits' }),
   schema: z.object({
     number: z.number().int().min(1).max(99),       // 1-3 (SMB Starter/Standard/Pro), 4 (Enterprise)
     tier: z.enum(['starter', 'standard', 'pro', 'enterprise']),

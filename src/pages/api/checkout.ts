@@ -28,7 +28,7 @@ export const POST: APIRoute = async (ctx) => {
     return Response.json({ error: 'Sign in to checkout' }, { status: 401 });
   }
 
-  const env = getEnv(ctx);
+  const env = getEnv();
   if (!env.STRIPE_SECRET_KEY) {
     return Response.json({ error: 'Stripe not configured' }, { status: 503 });
   }
@@ -51,16 +51,16 @@ export const POST: APIRoute = async (ctx) => {
 
   const books = await getCollection('books');
   const toolkits = await getCollection('toolkits');
-  const bookMap = new Map(books.map((b) => [b.slug, b]));
-  const toolkitMap = new Map(toolkits.map((t) => [t.slug, t]));
+  const bookMap = new Map(books.map((b) => [b.id, b]));
+  const toolkitMap = new Map(toolkits.map((t) => [t.id, t]));
 
   const bookCatalog = books.map((b) => {
     const fmt = b.data.formats.find((f) => f.type === DIGITAL_BUNDLE_PRODUCT_ID);
-    return { slug: b.slug, number: b.data.number, price_cents: priceStringToCents(fmt?.price ?? '') };
+    return { slug: b.id, number: b.data.number, price_cents: priceStringToCents(fmt?.price ?? '') };
   });
   const toolkitCatalog = toolkits.map((t) => {
     const fmt = t.data.formats.find((f) => f.type === DIGITAL_BUNDLE_PRODUCT_ID);
-    return { slug: t.slug, number: t.data.number, price_cents: priceStringToCents(fmt?.price ?? '') };
+    return { slug: t.id, number: t.data.number, price_cents: priceStringToCents(fmt?.price ?? '') };
   });
 
   type Grant = { slug: string; kind: 'book' | 'toolkit' };

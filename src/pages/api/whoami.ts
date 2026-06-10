@@ -7,13 +7,13 @@ export const prerender = false;
 // Diagnostic endpoint: visit /api/whoami to confirm the auth pipeline is
 // wired correctly. Reports binding presence and the current session user.
 export const GET: APIRoute = async (ctx) => {
-  const env = getEnv(ctx);
+  const env = getEnv();
   const user = ctx.locals.user;
 
   return Response.json({
     ok: true,
     bindings: {
-      DB: isDbConfigured(ctx),
+      DB: isDbConfigured(),
       PDFS: Boolean(env.PDFS),
     },
     authConfigured: isAuthConfigured(env),

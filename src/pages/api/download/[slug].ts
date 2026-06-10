@@ -36,13 +36,13 @@ export const GET: APIRoute = async (ctx) => {
     return Response.json({ error: 'Sign in required' }, { status: 401 });
   }
 
-  const env = getEnv(ctx);
+  const env = getEnv();
   if (!env.PDFS) {
     return Response.json({ error: 'R2 binding not configured' }, { status: 503 });
   }
 
   // Verify ownership.
-  const db = getDb(ctx);
+  const db = getDb();
   const [owned] = await db
     .select({ id: schema.purchases.id })
     .from(schema.purchases)

@@ -64,7 +64,7 @@ const collectionOrder = ['product-deep-dives', 'product-guides', 'cross-platform
         <ul class="book-grid">
           {list.map((b) => (
             <li class="book-grid-item">
-              <a href={`/books/${b.slug}`} class="book-link" style={`--accent-color: ${b.data.accent_color}`}>
+              <a href={`/books/${b.id}`} class="book-link" style={`--accent-color: ${b.data.accent_color}`}>
                 <div class="cover-wrap">
                   <img src={b.data.cover_thumb ?? b.data.cover_image} alt={`${b.data.title}: ${b.data.subtitle}`} loading="lazy" width="160" height="256" />
                 </div>

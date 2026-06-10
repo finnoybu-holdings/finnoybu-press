@@ -1,10 +1,12 @@
+import { env as cfEnv } from 'cloudflare:workers';
 import type { APIContext, AstroGlobal } from 'astro';
 
-// Cloudflare Pages exposes env via Astro.locals.runtime.env. Local `astro dev`
-// reads from .env via import.meta.env (PUBLIC_*) and process.env (server-only).
+// Cloudflare exposes env via `import { env } from 'cloudflare:workers'`
+// (Astro v6 / @astrojs/cloudflare v13+). Local `astro dev` reads from .env
+// via import.meta.env (PUBLIC_*) and process.env (server-only).
 // This shim returns whichever source is populated so callsites stay simple.
-export function getEnv(ctx: APIContext | AstroGlobal): Env {
-  const runtimeEnv = (ctx.locals as App.Locals).runtime?.env as Env | undefined;
+export function getEnv(): Env {
+  const runtimeEnv = cfEnv as Env | undefined;
   if (runtimeEnv && runtimeEnv.DB) return runtimeEnv;
 
   const proc = (globalThis as any).process?.env ?? {};
@@ -33,6 +35,6 @@ export function isAuthConfigured(env: Env): boolean {
 // Resolve the site URL used for absolute links (canonical, OG, magic-link
 // callbacks). Falls back to the request origin if nothing else is set.
 export function getSiteUrl(ctx: APIContext | AstroGlobal): string {
-  const env = getEnv(ctx);
+  const env = getEnv();
   return env.PUBLIC_SITE_URL || ctx.url.origin;
 }
