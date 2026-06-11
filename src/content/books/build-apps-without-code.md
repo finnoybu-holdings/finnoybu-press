@@ -19,6 +19,10 @@ formats:
   - type: pdf-epub
     label: PDF / EPUB
     price: $7.99
+  - type: kindle
+    label: Kindle
+    price: $9.99
+    url: https://www.amazon.com/dp/B0H4VNB7D8
 
 status: published
 ---
