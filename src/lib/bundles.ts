@@ -4,7 +4,8 @@
 // bundles by id (kind: 'bundle'); resolved at render/checkout time against
 // the books and toolkits content collections.
 //
-// Pricing: sum of included items × (1 - discountPercent/100), rounded to cents.
+// Pricing: sum of included items × (1 - discountPercent/100), then charm-rounded
+// UP to the next price ending in 9 cents (see bundleTotalCents).
 
 export interface Bundle {
   id: string;
@@ -25,7 +26,7 @@ export const BUNDLES: Bundle[] = [
     description: 'All ten paired guides for ChatGPT, Claude, Gemini, Copilot, and Perplexity. PDF + ePub editions only.',
     bookNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     toolkitSlugs: [],
-    discountPercent: 10,
+    discountPercent: 15,
     accentColor: '#c44a30',
   },
   {
@@ -42,6 +43,24 @@ export const BUNDLES: Bundle[] = [
     label: 'Collection Three — Cross-Platform Skills (PDF + ePub)',
     description: 'Seven cross-platform skills books from systems and prompting through governance and security. PDF + ePub editions only.',
     bookNumbers: [15, 16, 17, 18, 19, 20, 21],
+    toolkitSlugs: [],
+    discountPercent: 12.5,
+    accentColor: '#2e8a5f',
+  },
+  {
+    id: 'collection-product-guides-ii',
+    label: 'Collection Four — Product Guides, Vol. II (PDF + ePub)',
+    description: 'The next four single-product guides — Codex, Grok, Mistral, and DeepL. PDF + ePub editions only.',
+    bookNumbers: [22, 23, 24, 25],
+    toolkitSlugs: [],
+    discountPercent: 10,
+    accentColor: '#1c5d99',
+  },
+  {
+    id: 'collection-capability-set',
+    label: 'Collection Five — The Capability Set (PDF + ePub)',
+    description: 'Three cross-platform capability books — automating your work, building apps without code, and AI literacy for the workplace. PDF + ePub editions only.',
+    bookNumbers: [26, 27, 28],
     toolkitSlugs: [],
     discountPercent: 10,
     accentColor: '#2e8a5f',
@@ -75,7 +94,10 @@ export function bundleTotalCents(
   const includedBooks = books.filter((b) => b.number !== undefined && bundle.bookNumbers.includes(b.number));
   const includedToolkits = toolkits.filter((t) => bundle.toolkitSlugs.includes(t.slug));
   const gross = [...includedBooks, ...includedToolkits].reduce((sum, it) => sum + it.price_cents, 0);
-  const net = Math.round(gross * (1 - bundle.discountPercent / 100));
+  // Charm pricing: round the discounted total UP to the next price ending in 9
+  // cents (e.g. $67.92 → $67.99, $28.76 → $28.79) — ceil to the next 10-cent
+  // step, then drop a cent.
+  const net = Math.ceil((gross * (1 - bundle.discountPercent / 100)) / 10) * 10 - 1;
   return {
     gross_cents: gross,
     net_cents: net,
