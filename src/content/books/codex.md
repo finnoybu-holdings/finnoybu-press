@@ -23,6 +23,10 @@ formats:
     label: Kindle
     price: $9.99
     url: https://www.amazon.com/dp/B0H4R91MZ8
+  - type: paperback
+    label: Paperback
+    price: $19.99
+    url: https://www.amazon.com/dp/B0H4TTW8P9
 
 status: published
 ---
