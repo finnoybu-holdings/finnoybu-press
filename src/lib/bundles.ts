@@ -49,9 +49,9 @@ export const BUNDLES: Bundle[] = [
   {
     id: 'series-complete',
     label: 'The Complete Series (PDF + ePub)',
-    description: 'All 21 books across the AI for Everyone series, plus all three AEGIS Toolkits — at 25% off. PDF + ePub editions only; paperback sold separately.',
-    bookNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-    toolkitSlugs: ['starter', 'standard', 'pro'],
+    description: 'All 28 books across the AI for Everyone series — at 25% off. PDF + ePub editions only; paperback sold separately.',
+    bookNumbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28],
+    toolkitSlugs: [],
     discountPercent: 25,
     accentColor: '#1c1814',
   },
