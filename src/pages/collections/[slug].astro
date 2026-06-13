@@ -110,7 +110,7 @@ if (!meta) throw new Error(`Unknown collection: ${slug}`);
 
 // Collections with a generated OG card under /images/og/<slug>.jpg; others
 // fall back to the site default (e.g. the new Extended-Series collections).
-const OG_COLLECTIONS = new Set(['product-deep-dives', 'product-guides', 'cross-platform-skills', 'aegis-toolkits']);
+const OG_COLLECTIONS = new Set(['product-deep-dives', 'product-guides', 'cross-platform-skills', 'product-guides-ii', 'capability-set', 'aegis-toolkits']);
 const ogImage = OG_COLLECTIONS.has(slug as string) ? `/images/og/${slug}.jpg` : undefined;
 
 let items: { url: string; cover: string; coverAlt: string; eyebrow: string; title: string; subtitle: string; status?: string }[];

@@ -240,6 +240,31 @@ const CARDS = [
     ],
   },
   {
+    file: 'product-guides-ii.jpg',
+    eyebrow: 'The Extended Series · Books 22–25',
+    title: 'Product Guides,\nVol. II.',
+    tagline: 'Four more single-product guides — OpenAI Codex, xAI Grok, Mistral, and DeepL.',
+    accent: COLOR.productGuides,
+    covers: [
+      'cover-22-codex.jpg',
+      'cover-23-grok.jpg',
+      'cover-24-mistral-vibe.jpg',
+      'cover-25-deepl.jpg',
+    ],
+  },
+  {
+    file: 'capability-set.jpg',
+    eyebrow: 'The Extended Series · Books 26–28',
+    title: 'The Capability\nSet.',
+    tagline: 'Automating your work, building apps without code, and using AI with judgment.',
+    accent: COLOR.crossPlatform,
+    covers: [
+      'cover-26-automate-your-work.jpg',
+      'cover-27-build-apps-without-code.jpg',
+      'cover-28-ai-literacy.jpg',
+    ],
+  },
+  {
     file: 'aegis-toolkits.jpg',
     eyebrow: 'AEGIS Initiative',
     title: 'AEGIS\nToolkits.',

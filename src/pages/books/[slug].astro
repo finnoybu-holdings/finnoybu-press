@@ -20,9 +20,9 @@ interface Props {
 const { book } = Astro.props;
 
 // Per-book OG card lives under /images/og/<cover> for the carded books
-// (1-21). Books without a generated card fall back to the site default.
+// (1-28). Books without a generated card fall back to the site default.
 const _ogCard = book.data.cover_image.replace('/images/', '/images/og/');
-const bookOg = book.data.number <= 21 ? _ogCard : undefined;
+const bookOg = book.data.number <= 28 ? _ogCard : undefined;
 const { Content } = await render(book);
 
 const COLLECTION_LABELS: Record<string, { label: string; href: string }> = {
