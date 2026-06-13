@@ -174,7 +174,7 @@ const CARDS = [
     file: 'home.jpg',
     eyebrow: 'Finnoybu Press',
     title: 'Practical AI\nfor everyone.',
-    tagline: 'Twenty-one books on ChatGPT, Claude, Gemini, Copilot, and the cross-platform skills behind useful AI.',
+    tagline: 'Twenty-eight books on ChatGPT, Claude, Gemini, Copilot, and the cross-platform skills behind useful AI.',
     accent: COLOR.seriesNeutral,
     covers: [
       'cover-01-chatgpt-definitive.jpg',
@@ -188,7 +188,7 @@ const CARDS = [
     file: 'series.jpg',
     eyebrow: 'The Series',
     title: 'AI for\nEveryone.',
-    tagline: 'Twenty-one practical books on AI tools, skills, and systems — from your first conversation to fielded governance.',
+    tagline: 'Twenty-eight practical books on AI tools, skills, and systems — from your first conversation to fielded governance.',
     accent: COLOR.seriesNeutral,
     covers: [
       'cover-01-chatgpt-definitive.jpg',

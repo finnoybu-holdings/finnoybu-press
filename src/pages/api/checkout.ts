@@ -19,8 +19,8 @@ type CartItemWire =
 // Stripe metadata is keyed name → string and capped per-key (500-char value
 // limit). We pack a flat list of every slug the buyer should be granted
 // access to, so the webhook can record purchases without re-resolving bundle
-// membership server-side. A Series purchase produces 24 grants (21 books + 3
-// toolkits) from a single Stripe line item.
+// membership server-side. A Series purchase produces 28 grants (all 28 books;
+// the Series bundle no longer includes toolkits) from a single Stripe line item.
 
 export const POST: APIRoute = async (ctx) => {
   const user = ctx.locals.user;
