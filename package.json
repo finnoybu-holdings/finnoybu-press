@@ -20,7 +20,7 @@
     "@astrojs/check": "^0.9.4",
     "@astrojs/cloudflare": "^13.0.0",
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^6.4.2",
+    "astro": "^6.4.6",
     "aws4fetch": "^1.0.20",
     "better-auth": "^1.0.0",
     "drizzle-orm": "^0.45.2",
