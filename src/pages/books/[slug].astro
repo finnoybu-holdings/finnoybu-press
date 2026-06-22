@@ -498,12 +498,21 @@ if (book.data.collection === 'product-deep-dives') {
   /* ---------- Body content ---------- */
   .prose-section {
     max-width: var(--max-narrow);
+    font-family: var(--serif);
     font-size: 1.0625rem;
     line-height: 1.75;
   }
   .prose-section :global(h2) { font-size: 1.5rem; margin-top: 2em; margin-bottom: 0.5em; }
   .prose-section :global(h3) { font-size: 1.25rem; margin-top: 1.75em; margin-bottom: 0.5em; }
   .prose-section :global(p + p) { margin-top: 1.25em; }
+
+  /* Lists ("Inside, you'll learn how to…" and product-line bullets) */
+  .prose-section :global(ul),
+  .prose-section :global(ol) { margin-top: 0.75em; padding-left: 1.5em; }
+  .prose-section :global(ul) { list-style: disc; }
+  .prose-section :global(ol) { list-style: decimal; }
+  .prose-section :global(li) { margin-top: 0.5em; padding-left: 0.25em; }
+  .prose-section :global(li::marker) { color: var(--accent-color); }
 
   /* ---------- Related books ---------- */
   .section-head {

@@ -31,9 +31,28 @@ formats:
 status: published
 ---
 
-<!--
-This file is the content collection entry for AI for Students: Research, Writing, and Integrity.
+*AI for Students* is the honest, practical guide for high school, undergraduate, and graduate students who want to use AI to learn more effectively, research more efficiently, and produce stronger academic work — without crossing ethical lines and without becoming dependent on tools that bypass the actual learning.
 
-Body content (long-form description, sample, etc.) goes below the frontmatter.
-For now this is a stub — to be expanded in step 5 (book content drafting).
--->
+This is not a sales pitch for any AI tool. It is not a manifesto. It is not a lecture about cheating. It is a clear-eyed playbook from someone who takes both your education and your integrity seriously.
+
+## What's inside
+
+**The landscape, the rules, and the ethics.** What AI tools are available to you in 2026, what each is good at, and a clear framework for academic integrity that holds up across high school, undergrad, and graduate study.
+
+**AI as a real learning tool.** Use AI to deepen understanding, not replace it. Concept explainers, Socratic tutors, study workflows that actually build mastery.
+
+**Research and writing done right.** Stronger literature reviews, smarter sources, and AI-assisted writing that develops your voice instead of replacing it. Includes citation handling for AI-assisted work.
+
+**Studying and exam prep.** Active recall, spaced repetition, and AI-driven practice that beats re-reading the textbook for the fifth time.
+
+**Subject-specific chapters.** Math and science. Humanities and social sciences. STEM projects and labs. Group projects. Presentations. Graduate-level research and thesis work.
+
+**The stuff nobody else covers.** Students with disabilities and accessibility wins. Managing AI subscriptions on a student budget. Privacy. What to do when AI gets it wrong (because it will). How to handle professors who ban AI — and professors who require it.
+
+**Career skills and the future.** How AI literacy translates into hireable skills, and what's coming next in AI-supported education.
+
+**Ready-to-use prompt templates, citation guidance, school-policy templates,** and a glossary in five appendices built for actual student use.
+
+21 chapters. 5 appendices. Written for high school through graduate school. Honest about both the upside and the line.
+
+The students who will thrive in college, graduate school, and the careers that follow are not the ones who avoided AI or leaned on it as a crutch. They are the ones who learned to use it thoughtfully. This book teaches you how.

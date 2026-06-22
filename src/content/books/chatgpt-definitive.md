@@ -31,9 +31,28 @@ formats:
 status: published
 ---
 
-<!--
-This file is the content collection entry for ChatGPT: The Definitive Guide.
+ChatGPT is the most widely used AI tool in the world — but most people are only using a fraction of what it can do. They type a question, get an answer, and move on. They don't know about Agent Mode, Deep Research, Projects, Canvas, Study Mode, or the dozens of other features that transform ChatGPT from a clever chatbot into a genuine productivity platform.
 
-Body content (long-form description, sample, etc.) goes below the frontmatter.
-For now this is a stub — to be expanded in step 5 (book content drafting).
--->
+This book changes that.
+
+*ChatGPT: The Definitive Guide* is the comprehensive, up-to-date guide to everything ChatGPT can do in 2026. Written for real people — not developers, not AI researchers — it covers every feature, every plan, and every practical use case in plain English.
+
+## What's inside
+
+**Get started right.** Choose the right plan (Free, Go, Plus, Pro, Business, or Enterprise), set up your account, understand the GPT-5 model family, and have your first productive conversations.
+
+**Master the core skills.** Writing, research, everyday productivity, and professional use — with concrete walkthroughs you can follow along with.
+
+**Unlock every feature.** Image generation with DALL-E. Video with Sora. Collaborative editing with Canvas. Voice conversations. Data analysis. Web search. Agent Mode. Tasks and automation. Projects. Custom GPTs. Connectors. Memory. The Atlas browser. Every tool, explained and demonstrated.
+
+**Get better results.** Learn the prompting fundamentals that consistently produce great output, strategies for complex multi-step tasks, and how to control formatting for any destination.
+
+**Use it for your world.** Targeted chapters for students and educators, business teams, and creators and freelancers.
+
+**Stay safe and informed.** Honest coverage of what ChatGPT gets wrong, how to protect your privacy, and the ethical questions every user should be thinking about.
+
+**75+ ready-to-use prompt templates** organized by category — writing, research, business, creative, education, productivity, and technical.
+
+Whether you're opening ChatGPT for the first time or you've been using it daily and want to finally understand the full toolkit, this is the only book you need.
+
+Includes coverage of GPT-5.3, GPT-5.4, Agent Mode, Deep Research, Sora, Atlas, Study Mode, Interactive Learning, Custom GPTs, and every 2026 feature.
